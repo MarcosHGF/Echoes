@@ -17,7 +17,7 @@ class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     content = db.Column(db.String(200), nullable=False)
     completed = db.Column(db.Integer, default = 0)
-    date_created = db.Column(db.DateTime, default=datetime.now())
+    date_created = db.Column(db.DateTime, default=datetime.now()) # Date time retorna o padrão do computador, portantoprecisa achar uma forma de update mais certs, a documentação tem pouca informação
 
     def __repr__(self):
         return '<Task %r>' % self.id
