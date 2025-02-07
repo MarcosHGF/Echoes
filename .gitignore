@@ -38,4 +38,7 @@ yarn-error.*
 # cache 
 _*
 
+# Python env
+backend/.venv
+
 app-example

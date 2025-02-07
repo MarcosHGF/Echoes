@@ -1,7 +1,24 @@
 from flask import Flask, request
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 import json
 
 app = Flask(__name__)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+# Adicionando DB sqlite para testes de requests e queries
+db = SQLAlchemy(app)
+
+
+class Todo(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    content = db.Column(db.String(200), nullable=False)
+    completed = db.Column(db.Integer, default = 0)
+    date_created = db.Column(db.DateTime, default=datetime.now())
+
+    def __repr__(self):
+        return '<Task %r>' % self.id
+
 
 # Estrutra para testes antes de DB.
 likes = []
@@ -39,4 +56,4 @@ if __name__ == "__main__":
 #TABLE followers;
 #TABLE followings;
 #TABLE posts_comments;
-#TABLE posts_likes;
+#TABLE posts_likes; 
