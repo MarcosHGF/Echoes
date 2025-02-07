@@ -5,11 +5,14 @@ import json
 
 app = Flask(__name__)
 
+# adiciona a config de DB local com teste.db
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 # Adicionando DB sqlite para testes de requests e queries
+
+#instância a db para SQLAlchemy com o app
 db = SQLAlchemy(app)
 
-
+#modelo simples de db
 class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     content = db.Column(db.String(200), nullable=False)
@@ -19,6 +22,12 @@ class Todo(db.Model):
     def __repr__(self):
         return '<Task %r>' % self.id
 
+# É necessário utilizar o contexto atual do app para inicializar a database (sqlite para testes neste caso)
+# with app.app_context():
+#     db.create_all()
+
+# Ainda é possivle melhorar a inicialização com, dessa forma cria-se apenas as columns não inicializadas para a engine passada
+    db.metadata.create_all(db.engine)
 
 # Estrutra para testes antes de DB.
 likes = []
