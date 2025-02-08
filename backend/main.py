@@ -27,6 +27,7 @@ class Todo(db.Model):
 #     db.create_all()
 
 # Ainda é possivle melhorar a inicialização com, dessa forma cria-se apenas as columns não inicializadas para a engine passada
+with app.app_context():
     db.metadata.create_all(db.engine)
 
 # Estrutra para testes antes de DB.
