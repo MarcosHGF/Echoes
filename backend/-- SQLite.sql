@@ -3,4 +3,9 @@
 SELECT
     *
 FROM
-    todo;
+    likes;
+
+SELECT
+    *
+FROM
+    users;

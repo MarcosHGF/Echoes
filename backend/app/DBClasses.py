@@ -42,9 +42,9 @@ class Likes(db.Model):
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)  # Primary key
     username = db.Column(db.String(200), nullable=False)
-    completed = db.Column(db.Integer, default=0)
-    likes = db.Column(db.Integer, default=0)  # No auto_increment
+    email = db.Column(db.String(200), nullable=False, unique=True)
     date_created = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))  # Correct timestamp
+    completed = db.Column(db.Integer, default=0)
 
     @staticmethod
     def getUserData(userID) -> list:
@@ -53,11 +53,19 @@ class Users(db.Model):
         return [
             {
                 "id": user.id,
-                "post_id": user.post_id,
                 "username": user.username,
                 "completed": user.completed,
-                "likes": user.likes,
                 "date_created": user.date_created.isoformat() if user.date_created else None
             }
             for user in userData
         ]
+    
+    @staticmethod
+    def addUser(data):
+        dbemail = data.get("email")
+        dbusername = data.get("username")
+        dbdata = Users(username=dbusername, email=dbemail)
+        print(dbdata)
+        db.session.add(dbdata)
+        db.session.commit()
+        return
