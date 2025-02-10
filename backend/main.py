@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -66,3 +67,12 @@ if __name__ == "__main__":
 #TABLE followings;
 #TABLE posts_comments;
 #TABLE posts_likes; 
+=======
+from app import create_app, db
+
+app = create_app()
+with app.app_context():
+    db.create_all() 
+if __name__ == "__main__":
+    app.run(debug=True)
+>>>>>>> origin/cesar
