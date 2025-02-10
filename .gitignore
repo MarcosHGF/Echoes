@@ -36,6 +36,12 @@ yarn-error.*
 *.tsbuildinfo
 
 # cache 
-_*
+__p*
+
+# Python env
+backend/.venv
+
+# Instância de DB
+backend/instance
 
 app-example
