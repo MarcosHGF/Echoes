@@ -36,7 +36,7 @@ yarn-error.*
 *.tsbuildinfo
 
 # cache 
-_*
+__p*
 
 # Python env
 backend/.venv
