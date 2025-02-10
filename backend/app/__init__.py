@@ -1,7 +1,5 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from app.extensions import db
 
 def create_app():
     app = Flask(__name__)
@@ -12,10 +10,6 @@ def create_app():
 
     db.init_app(app)
     
-    # Inicializa o banco de dados
-    with app.app_context():
-        db.create_all()
-
     # Import and register blueprints
     from app.routes import likes_bp, users_bp
     app.register_blueprint(likes_bp)
