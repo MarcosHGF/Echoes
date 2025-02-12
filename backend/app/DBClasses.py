@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from app.extensions import db 
 from sqlalchemy import select
+from werkzeug.security import generate_password_hash
 
 class Likes(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)  # Primary key
@@ -13,8 +14,8 @@ class Likes(db.Model):
     #returns a list of likes and it's data
     @staticmethod
     def getLikeData(postID) -> list:
-        post_likes = db.session.execute(select(Likes).filter(Likes.post_id==postID)).fetchall() # Fetch all matching rows
-        print(repr(post_likes))
+        db_likes = db.session.execute(select(Likes).filter(Likes.post_id==postID)).fetchall() # Fetch all matching rows
+        post_likes = db_likes[0]
         return [
             {
                 "id": like.id,
@@ -39,13 +40,15 @@ class Likes(db.Model):
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)  # Primary key
     username = db.Column(db.String(200), nullable=False)
-    email = db.Column(db.String(200), nullable=False, unique=True)
+    email = db.Column(db.String(200), nullable=False, unique=True, index=True)
     date_created = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))  # Correct timestamp
     completed = db.Column(db.Integer, default=0)
+    senha = db.Column(db.String(260), nullable=False)
 
     @staticmethod
     def getUserData(userID) -> list:
-        userData = db.session.execute(select(Users).where(Users.id==userID)).all() 
+        dbData= db.session.execute(select(Users).where(Users.id==userID)).all() 
+        userData = dbData[0]
 
         return [
             {
@@ -60,7 +63,8 @@ class Users(db.Model):
     def addUser(data):
         dbemail = data.get("email")
         dbusername = data.get("username")
-        dbdata = Users(username=dbusername, email=dbemail)
+        dbPasswd = generate_password_hash(data.get("senha"))
+        dbdata = Users(username=dbusername, email=dbemail, senha=dbPasswd)
         print(dbdata)
         db.session.add(dbdata)
         db.session.commit()
@@ -76,8 +80,9 @@ class Post(db.Model):
 
     @staticmethod
     def getPost(id):
-        postData = db.session.execute(select(Post).where(Post.id==id)).first()
-                
+        dbData = db.session.execute(select(Post).where(Post.id==id)).first()
+        postData = dbData[0]
+
         return [
             {
                 "id": postData.id,
