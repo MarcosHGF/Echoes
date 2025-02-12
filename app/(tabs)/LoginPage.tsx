@@ -1,13 +1,43 @@
 "use client"
 
 import { useState } from "react"
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Switch, Image } from "react-native"
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Switch, Image, Alert } from "react-native"
 import { StatusBar } from "expo-status-bar"
 
 export default function LoginScreen({ navigation }) {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [RemeberMe, setRemeberMe] = useState(false)
+  const [error, setError] = useState("")
+
+  const handleLogin = async (e: React.FormEvent) => {
+    if (!username || !password) {
+      Alert.alert('Error', 'fill all the blank fields.');
+      return;
+    }
+    Alert.alert('Login', `Username: ${username}\nPassword: ${password}`);
+
+    setError("");
+
+    try {
+      const response = await fetch("http://localhost:8080/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Login failed. Please check your credentials.");
+      }
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
+    }
+  };
+
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -26,7 +56,7 @@ export default function LoginScreen({ navigation }) {
         <Text style={styles.headerText}>login:</Text>
 
         <TextInput
-          style={styles.input}
+          style={styles.input}                
           placeholder="username:"
           placeholderTextColor="#999"
           value={username}

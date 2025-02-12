@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Switch } from "react-native"
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Switch, Image } from "react-native"
 import { StatusBar } from "expo-status-bar"
 
 export default function SignUpScreen({ navigation }) {
@@ -17,6 +17,10 @@ export default function SignUpScreen({ navigation }) {
 
       {/* Logo */}
       <View style={styles.logoContainer}>
+        <Image 
+          source={require('../../assets/images/EchoesLogo.png')} 
+          style={styles.logo}
+        />
         <View style={styles.logo} />
       </View>
 
@@ -86,7 +90,7 @@ export default function SignUpScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1A1A1A",
+    backgroundColor: "#030303",
   },
   logoContainer: {
     alignItems: "center",
