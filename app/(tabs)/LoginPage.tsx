@@ -1,12 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from "react-native"
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Switch, Image } from "react-native"
 import { StatusBar } from "expo-status-bar"
 
 export default function LoginScreen({ navigation }) {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
+  const [RemeberMe, setRemeberMe] = useState(false)
 
   return (
     <SafeAreaView style={styles.container}>
@@ -14,7 +15,10 @@ export default function LoginScreen({ navigation }) {
 
       {/* Logo */}
       <View style={styles.logoContainer}>
-        <View style={styles.logo} />
+        <Image 
+          source={require('../../assets/images/EchoesLogo.png')} 
+          style={styles.logo}
+        />
       </View>
 
       {/* Login Form */}
@@ -37,6 +41,17 @@ export default function LoginScreen({ navigation }) {
           value={password}
           onChangeText={setPassword}
         />
+
+        {/* Remember me */}
+        <View style={styles.RememberMe}>
+          <Switch
+            value={RemeberMe}
+            onValueChange={setRemeberMe}
+            trackColor={{ false: "#444", true: "#00E5FF" }}
+            thumbColor={RemeberMe ? "#fff" : "#fff"}
+          />
+          <Text style={styles.termsText}>Remember Me?</Text>
+        </View>
 
         <TouchableOpacity onPress={() => {}}>
           <Text style={styles.forgotText}>forgot username? password?</Text>
@@ -72,7 +87,7 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1A1A1A",
+    backgroundColor: "#030303",
   },
   logoContainer: {
     alignItems: "center",
@@ -141,5 +156,14 @@ const styles = StyleSheet.create({
   signupText: {
     color: "#00E5FF",
   },
+  RememberMe: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 15,
+  },
+  termsText: {
+    color: "#fff",
+    marginLeft: 10,
+  }
 })
 
