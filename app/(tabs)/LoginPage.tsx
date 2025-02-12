@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Switch, Image, Alert } from "react-native"
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Switch, Image, Alert, Button } from "react-native"
 import { StatusBar } from "expo-status-bar"
 
 export default function LoginScreen({ navigation }) {
@@ -10,7 +10,7 @@ export default function LoginScreen({ navigation }) {
   const [RemeberMe, setRemeberMe] = useState(false)
   const [error, setError] = useState("")
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async () => {
     if (!username || !password) {
       Alert.alert('Error', 'fill all the blank fields.');
       return;
@@ -82,6 +82,12 @@ export default function LoginScreen({ navigation }) {
           />
           <Text style={styles.termsText}>Remember Me?</Text>
         </View>
+
+        {/* submit*/}
+        <TouchableOpacity style={styles.socialButton} onPress={handleLogin}>
+            <View style={styles.socialIcon} />
+            <Text style={styles.socialButtonText}>Login</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity onPress={() => {}}>
           <Text style={styles.forgotText}>forgot username? password?</Text>
