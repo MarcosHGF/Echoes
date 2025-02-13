@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash
 class Likes(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)  # Primary key
     post_id = db.Column(db.Integer, nullable=False, index=True)  # Can have duplicates, indexed for performance
-    username = db.Column(db.String(200), nullable=False)
+    name = db.Column(db.String(200), nullable=False)
     user_id = db.Column(db.Integer, nullable=False, index=True)  # Can have duplicates, indexed for performance
     completed = db.Column(db.Integer, default=0)
     date_created = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))  # Correct timestamp
@@ -14,13 +14,13 @@ class Likes(db.Model):
     #returns a list of likes and it's data
     @staticmethod
     def getLikeData(postID) -> list:
-        db_likes = db.session.execute(select(Likes).filter(Likes.post_id==postID)).fetchall() # Fetch all matching rows
+        db_likes = db.session.execute(select(Likes).filter(Likes.post_id==postID)).all() # all matching rows
         post_likes = db_likes[0]
         return [
             {
                 "id": like.id,
                 "post_id": like.post_id,
-                "username": like.username,
+                "name": like.name,
                 "completed": like.completed,
                 "date_created": like.date_created.isoformat() if like.date_created else None
             }
@@ -29,9 +29,9 @@ class Likes(db.Model):
 
     @staticmethod
     def addLike(data, postID):
-        dbname = data.get("username")
+        dbname = data.get("name")
         dbid = data.get("id")
-        dbdata = Likes(username=dbname, post_id=postID, user_id=dbid)
+        dbdata = Likes(name=dbname, post_id=postID, user_id=dbid)
         print(dbdata)
         db.session.add(dbdata)
         db.session.commit()
@@ -39,11 +39,13 @@ class Likes(db.Model):
 
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)  # Primary key
-    username = db.Column(db.String(200), nullable=False)
     email = db.Column(db.String(200), nullable=False, unique=True, index=True)
     date_created = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))  # Correct timestamp
     completed = db.Column(db.Integer, default=0)
     senha = db.Column(db.String(260), nullable=False)
+    username = db.Column(db.String(200), nullable=False, unique=True)
+    spotify_client = db.Column(db.String(200), nullable=False, unique=True)
+    name = db.Column(db.String(200), default=username)
 
     @staticmethod
     def getUserData(userID) -> list:
@@ -53,6 +55,7 @@ class Users(db.Model):
         return [
             {
                 "id": userData.id,
+                "name": userData.name,
                 "username": userData.username,
                 "completed": userData.completed,
                 "date_created": userData.date_created.isoformat() if userData.date_created else None
@@ -72,11 +75,13 @@ class Users(db.Model):
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)  # Primary key
-    username = db.Column(db.String(200), nullable=False)
+    name = db.Column(db.String(200), nullable=False)
     date_created = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))  # Correct timestamp
     completed = db.Column(db.Integer, default=0)
     likes = db.Column(db.Integer, default=0)
     user_id = db.Column(db.Integer, index=True) # Primary key
+    tags_id = db.Column(db.Integer, unique=True)
+    
 
     @staticmethod
     def getPost(id):
@@ -86,8 +91,43 @@ class Post(db.Model):
         return [
             {
                 "id": postData.id,
-                "username": postData.username,
+                "name": postData.name,
                 "completed": postData.completed,
                 "date_created": postData.date_created.isoformat() if postData.date_created else None
             }
         ]
+
+class UserProfile(db.Model):
+    user_id = db.Column(db.Integer, index=True) # Primary key
+    musics = db.Column(db.String(200))
+    spotify_client = db.Column(db.String(200), nullable=False, unique=True)
+    name = db.Column(db.String(200), nullable=False, unique=False)
+    pfp = db.Column(db.String(300), unique=False)
+    tags = db.Column(db.String(300))
+
+    @staticmethod
+    def getUserProfile(UserID):
+        dbProfile = db.session.execute(select(UserProfile).where(UserProfile.user_id=UserID)).all()
+        profile = dbProfile[0]
+
+        return [
+            {
+                "id": profile.user_id,
+                "nome": profile.name,
+                "pfp": profile.pfp,
+                "musics": profile.musics 
+            }
+        ]
+    
+
+class Relationships(db.Model):
+    follower_id = db.Column(db.Integer, index=True)
+    following_id = db.Column(db.Integer, index=True)
+    date_created = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))  # Correct timestamp
+    completed = db.Column(db.Integer)
+
+    @staticmethod
+    def getRelationshipsFollowers(userID):
+        dbRelations = db.session.execute(select(Relationships).where(Relationships.following_id=userID)).all()
+        relations = dbRelations[0]
+

@@ -5,7 +5,8 @@ from app.DBClasses import Likes, Users, db
 
 likes_bp = Blueprint("likes", __name__)  # Create a Blueprint
 users_bp = Blueprint("users", __name__)  # Create a Blueprint
-login_bp = Blueprint("login", __name__)  # Create Login Blueprint 
+login_bp = Blueprint("login", __name__)  # Create Login Blueprint
+profile_bp = Blueprint("profile", __name__) #get user profile 
 
 @likes_bp.route("/api/likes/<post_id>", methods=["GET", "POST"])
 def handle_likes(post_id):
@@ -47,3 +48,6 @@ def login():
         return jsonify({"error": "Email ou senha incorretos"}), 401
 
     return jsonify({"message": "Login bem-sucedido", "user_id": user.id})
+
+@profile_bp.route("/api/profile/<username>", methods=["GET", "PATCH"])
+def profile:
