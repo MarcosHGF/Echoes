@@ -1,10 +1,12 @@
 import { View, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Image, Text } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { Feather } from "@expo/vector-icons"
+import BottomContainer from "../../components/BottomContainer"
 
 const MainPage = () => {
-  const avatars = [1, 2, 3, 4] // Array for avatar circles
-  const cards = [1, 2, 3] // Array for content cards
+  const stories = [1, 2, 3, 4, 5] // Array for stories
+  const songs = [1, 2, 3, 4] // Array for song blocks
+  const posts = [1, 2, 3, 4] // Array for posts
   const tabItems = [
     { icon: "home", label: "Home" },
     { icon: "search", label: "Search" },
@@ -18,57 +20,83 @@ const MainPage = () => {
 
       {/* Top Navigation */}
       <View style={styles.header}>
-        <TouchableOpacity>
-          <Feather name="menu" size={24} color="#fff" />
-        </TouchableOpacity>
-        <Image 
-                source={require('../../assets/images/EchoesLogo.png')} 
-                style={styles.logo}
-        />
-        <TouchableOpacity>
-          <Feather name="bell" size={24} color="#fff" />
-        </TouchableOpacity>
+        <Image source={require("../../assets/images/EchoesLogo.png")} style={styles.logo} />
+        <View style={styles.headerIcons}>
+          <TouchableOpacity style={styles.iconButton}>
+            <Feather name="bell" size={24} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.iconButton}>
+            <Feather name="settings" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Main Content */}
       <ScrollView style={styles.content}>
-        {/* Avatars Row */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.avatarsContainer}>
-          {avatars.map((_, index) => (
-            <TouchableOpacity key={index} style={styles.avatar} />
+        {/* Stories */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.storiesContainer}>
+          {stories.map((_, index) => (
+            <View key={index} style={styles.story}>
+              <View style={styles.storyRing}>
+                <View style={styles.storyImage} />
+              </View>
+              <Text style={styles.storyText}>User {index + 1}</Text>
+            </View>
           ))}
         </ScrollView>
 
-        {/* Content Cards */}
-        <View style={styles.cardsContainer}>
-          {cards.map((_, index) => (
-            <View key={index} style={styles.card} />
-          ))}
+        {/* Song Blocks */}
+        <View style={styles.sectionTitle}>
+          <Text style={styles.sectionTitleText}>Popular Songs</Text>
         </View>
-      </ScrollView>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.songsContainer}>
+          {songs.map((_, index) => (
+            <View key={index} style={styles.songBlock}>
+              <View style={styles.songImage} />
+              <Text style={styles.songTitle}>Song {index + 1}</Text>
+              <Text style={styles.songArtist}>Artist {index + 1}</Text>
+            </View>
+          ))}
+        </ScrollView>
 
-      {/* Bottom container */}
-      <View style={styles.bottomContainer}>
-        {/* Action Button */}
-        <View style={styles.actionButton}>
-          <View style={styles.actionButtonContent}>
-            <Text style={styles.actionButtonText}>What's on your mind?</Text>
-            <TouchableOpacity style={styles.playButton}>
-              <Feather name="play" size={24} color="#fff" />
-            </TouchableOpacity>
+        {/* Posts */}
+        <View style={styles.sectionTitle}>
+          <Text style={styles.sectionTitleText}>Latest Posts</Text>
+        </View>
+        {posts.map((_, index) => (
+          <View key={index} style={styles.post}>
+            <View style={styles.postHeader}>
+              <View style={styles.postAvatar} />
+              <View>
+                <Text style={styles.postUsername}>User {index + 1}</Text>
+                <Text style={styles.postTime}>2h ago</Text>
+              </View>
+            </View>
+            <Text style={styles.postContent}>
+              This is a sample post content. It can be about music, thoughts, or anything!
+            </Text>
+            <View style={styles.postActions}>
+              <TouchableOpacity style={styles.postAction}>
+                <Feather name="heart" size={20} color="#fff" />
+                <Text style={styles.postActionText}>Like</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.postAction}>
+                <Feather name="message-circle" size={20} color="#fff" />
+                <Text style={styles.postActionText}>Comment</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.postAction}>
+                <Feather name="share-2" size={20} color="#fff" />
+                <Text style={styles.postActionText}>Share</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        ))}
+      </ScrollView>
+        
 
-        {/* Bottom Tab Bar */}
-        <View style={styles.tabBar}>
-          {tabItems.map((item, index) => (
-            <TouchableOpacity key={index} style={styles.tabItem}>
-              <Feather name={item.icon} size={24} color="#fff" />
-              <Text style={styles.tabLabel}>{item.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
+        
+      {/* Bottom Fixed Container, player in components */}
+      <BottomContainer />
     </SafeAreaView>
   )
 }
@@ -81,100 +109,131 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 20,
-    paddingTop: Platform.OS === "android" ? 40 : 0,
+    paddingTop: Platform.OS === "android" ? 40 : 10,
     paddingBottom: 15,
   },
   logo: {
-    width: 50,
-    height: 50,
-    backgroundColor: "#2A2A2A",
+    width: 100,
+    height: 40,
+    resizeMode: "contain",
+  },
+  headerIcons: {
+    flexDirection: "row",
+  },
+  iconButton: {
+    marginLeft: 15,
   },
   content: {
     flex: 1,
   },
-  avatarsContainer: {
+  storiesContainer: {
     paddingHorizontal: 20,
-    marginBottom: 20,
+    paddingVertical: 10,
   },
-  avatar: {
+  story: {
+    alignItems: "center",
+    marginRight: 15,
+  },
+  storyRing: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    borderWidth: 2,
+    borderColor: "#00E5FF",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  storyImage: {
     width: 60,
     height: 60,
     borderRadius: 30,
     backgroundColor: "#2A2A2A",
-    marginRight: 15,
   },
-  cardsContainer: {
-    paddingHorizontal: 20,
-    gap: 15,
-  },
-  card: {
-    height: 120,
-    backgroundColor: "#2A2A2A",
-    borderRadius: 8,
-    marginBottom: 15,
-  },
-  bottomPadding: {
-    height: 140, // Increased space for bottom container
-  },
-  bottomContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    borderTopLeftRadius: 15,
-    borderTopRightRadius: 15,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: -3,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  actionButton: {
-    height: 50,
-    backgroundColor: "#2fb201",
-    justifyContent: "center",
-    paddingHorizontal: 20,
-  },
-  actionButtonContent: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  actionButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  playButton: {
-    width: 40,
-    height: 40,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.2)",
-  },
-  tabBar: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    backgroundColor: "#1A1A1A",
-    paddingTop: 12,
-    paddingBottom: Platform.OS === "ios" ? 30 : 12,
-  },
-  tabItem: {
-    alignItems: "center",
-    paddingHorizontal: 15,
-  },
-  tabLabel: {
+  storyText: {
     color: "#fff",
     fontSize: 12,
-    marginTop: 4,
-    opacity: 0.8,
+    marginTop: 5,
+  },
+  sectionTitle: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  sectionTitleText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  songsContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+  },
+  songBlock: {
+    width: 120,
+    marginRight: 15,
+  },
+  songImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 8,
+    backgroundColor: "#2A2A2A",
+  },
+  songTitle: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
+    marginTop: 5,
+  },
+  songArtist: {
+    color: "#999",
+    fontSize: 12,
+  },
+  post: {
+    backgroundColor: "#1A1A1A",
+    marginHorizontal: 20,
+    marginBottom: 20,
+    borderRadius: 8,
+    padding: 15,
+  },
+  postHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  postAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#2A2A2A",
+    marginRight: 10,
+  },
+  postUsername: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  postTime: {
+    color: "#999",
+    fontSize: 12,
+  },
+  postContent: {
+    color: "#fff",
+    marginBottom: 10,
+  },
+  postActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  postAction: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  postActionText: {
+    color: "#fff",
+    marginLeft: 5,
+  },
+  bottomPadding: {
+    height: 140,
   },
 })
 

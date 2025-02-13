@@ -1,10 +1,12 @@
-import { View, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Text } from "react-native"
+import { View, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Text, Image } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { Feather } from "@expo/vector-icons"
+import BottomContainer from "../../components/BottomContainer"
 
 const ProfilePage = () => {
-  const musicItems = [1, 2, 3] // Array for music items
-  const gridItems = [1, 2, 3] // Array for grid items
+  const playlists = [1, 2, 3, 4, 5] // Array for playlists
+  const stories = [1, 2, 3, 4, 5] // Array for stories
+  const tweets = [1, 2, 3] // Array for tweets
   const tabItems = [
     { icon: "home", label: "Home" },
     { icon: "search", label: "Search" },
@@ -16,70 +18,112 @@ const ProfilePage = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
 
-      {/* Main Content */}
       <ScrollView style={styles.content}>
         {/* Banner and Profile Section */}
         <View style={styles.bannerContainer}>
           <View style={styles.banner} />
           <View style={styles.profileSection}>
-            <View style={styles.profilePicture} />
-            <Text style={styles.profileName}>NAME</Text>
+            <View style={styles.profilePictureContainer}>
+              <Image source={require("../../assets/images/profile-picture.png")} style={styles.profilePicture} />
+            </View>
+            <View style={styles.profileInfo}>
+              <Text style={styles.profileName}>Calcifer</Text>
+              <View style={styles.currentlyPlayingContainer}>
+                <Text style={styles.currentlyPlaying}>
+                  <Feather name="music" size={14} color="#00E5FF" /> Currently playing: Song Name
+                </Text>
+                <TouchableOpacity style={styles.listButton} onPress={() => console.log("List song")}>
+                  <Feather name="list" size={14} color="#00E5FF" />
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
         </View>
 
-        {/* Music Section */}
+        {/* User Description */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>musica</Text>
-          <View style={styles.musicContainer}>
-            {musicItems.map((_, index) => (
-              <View key={index} style={styles.musicItem}>
-                <View style={styles.musicBar} />
-                <View style={styles.musicControls}>
-                  <View style={styles.musicControl} />
-                  <View style={styles.musicControl} />
-                </View>
+          <Text style={styles.userDescription}>Music enthusiast | Playlist curator | Always exploring new sounds</Text>
+        </View>
+
+        {/* Favorite Music Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Favorite Music</Text>
+          <View style={styles.favoriteMusicContainer}>
+            {[1, 2, 3].map((_, index) => (
+              <View key={index} style={styles.favoriteMusicItem}>
+                <View style={styles.favoriteMusicCover} />
+                <Text style={styles.favoriteMusicTitle}>Top Song {index + 1}</Text>
+                <Text style={styles.favoriteMusicArtist}>Artist {index + 1}</Text>
               </View>
             ))}
           </View>
         </View>
 
-        <View style={styles.separator} />
-
-        {/* Grid Section */}
-        <View style={styles.gridContainer}>
-          {gridItems.map((_, index) => (
-            <View key={index} style={styles.gridItem} />
-          ))}
+        {/* Playlists Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>My Playlists</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.playlistsContainer}>
+            {playlists.map((_, index) => (
+              <View key={index} style={styles.playlistItem}>
+                <View style={styles.playlistCover} />
+                <Text style={styles.playlistTitle}>Playlist {index + 1}</Text>
+              </View>
+            ))}
+          </ScrollView>
         </View>
 
-        <View style={styles.separator} />
+        {/* Stories Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Stories</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.storiesContainer}>
+            {stories.map((_, index) => (
+              <View key={index} style={styles.storyItem}>
+                <View style={styles.storyRing}>
+                  <View style={styles.storyImage} />
+                </View>
+                <Text style={styles.storyText}>Story {index + 1}</Text>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* Tweets Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Recent Tweets</Text>
+          {[1, 2, 3, 4].map((_, index) => (
+            <View key={index} style={styles.post}>
+              <View style={styles.postHeader}>
+                <View style={styles.postAvatar} />
+                <View>
+                  <Text style={styles.postUsername}>User {index + 1}</Text>
+                  <Text style={styles.postTime}>2h ago</Text>
+                </View>
+              </View>
+              <Text style={styles.postContent}>This is a sample tweet about music, life, or anything else!</Text>
+              <View style={styles.postActions}>
+                <TouchableOpacity style={styles.postAction}>
+                  <Feather name="heart" size={20} color="#fff" />
+                  <Text style={styles.postActionText}>Like</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.postAction}>
+                  <Feather name="message-circle" size={20} color="#fff" />
+                  <Text style={styles.postActionText}>Comment</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.postAction}>
+                  <Feather name="share-2" size={20} color="#fff" />
+                  <Text style={styles.postActionText}>Share</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))}
+        </View>
 
         {/* Bottom Padding for Content */}
         <View style={styles.bottomPadding} />
       </ScrollView>
 
       {/* Bottom Fixed Container */}
-      <View style={styles.bottomContainer}>
-        {/* Action Button */}
-        <View style={styles.actionButton}>
-          <View style={styles.actionButtonContent}>
-            <Text style={styles.actionButtonText}>What's on your mind?</Text>
-            <TouchableOpacity style={styles.playButton}>
-              <Feather name="play" size={24} color="#fff" />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Bottom Tab Bar */}
-        <View style={styles.tabBar}>
-          {tabItems.map((item, index) => (
-            <TouchableOpacity key={index} style={styles.tabItem}>
-              <Feather name={item.icon} size={24} color="#fff" />
-              <Text style={styles.tabLabel}>{item.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
+      <BottomContainer />
     </SafeAreaView>
   )
 }
@@ -94,144 +138,194 @@ const styles = StyleSheet.create({
   },
   bannerContainer: {
     position: "relative",
-    marginBottom: 20,
+    marginBottom: 60,
   },
   banner: {
     height: 150,
     backgroundColor: "#2A2A2A",
-    marginBottom: 40,
   },
   profileSection: {
     position: "absolute",
-    bottom: -20,
+    bottom: -50,
     left: 20,
     flexDirection: "row",
     alignItems: "center",
   },
+  profilePictureContainer: {
+    borderWidth: 3,
+    borderColor: "#00E5FF",
+    borderRadius: 45,
+    padding: 3,
+  },
   profilePicture: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#fff",
-    marginRight: 15,
+    width: 84,
+    height: 84,
+    borderRadius: 42,
+  },
+  profileInfo: {
+    marginLeft: 15,
   },
   profileName: {
     color: "#fff",
     fontSize: 24,
     fontWeight: "bold",
   },
+  currentlyPlayingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 5,
+  },
+  currentlyPlaying: {
+    color: "#00E5FF",
+    fontSize: 14,
+  },
+  listButton: {
+    marginLeft: 10,
+    padding: 5,
+  },
   section: {
     padding: 20,
+  },
+  userDescription: {
+    color: "#fff",
+    fontSize: 16,
+    lineHeight: 24,
   },
   sectionTitle: {
     color: "#fff",
     fontSize: 18,
+    fontWeight: "bold",
     marginBottom: 15,
   },
-  musicContainer: {
-    gap: 15,
-  },
-  musicItem: {
+  favoriteMusicContainer: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
+  },
+  favoriteMusicItem: {
+    alignItems: "center",
+    width: "30%",
+  },
+  favoriteMusicCover: {
+    width: 80,
+    height: 80,
     backgroundColor: "#2A2A2A",
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  favoriteMusicTitle: {
+    color: "#fff",
+    fontSize: 14,
+    textAlign: "center",
+  },
+  favoriteMusicArtist: {
+    color: "#999",
+    fontSize: 12,
+    textAlign: "center",
+  },
+  playlistsContainer: {
+    flexDirection: "row",
+  },
+  playlistItem: {
+    marginRight: 15,
+    alignItems: "center",
+  },
+  playlistCover: {
+    width: 120,
+    height: 120,
+    backgroundColor: "#2A2A2A",
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  playlistTitle: {
+    color: "#fff",
+    fontSize: 14,
+  },
+  storiesContainer: {
+    flexDirection: "row",
+  },
+  storyItem: {
+    marginRight: 15,
+    alignItems: "center",
+  },
+  storyRing: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    borderWidth: 2,
+    borderColor: "#00E5FF",
+    padding: 2,
+  },
+  storyImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#2A2A2A",
+  },
+  storyText: {
+    color: "#fff",
+    fontSize: 12,
+    marginTop: 5,
+  },
+  tweetItem: {
+    backgroundColor: "#1A1A1A",
+    borderRadius: 8,
     padding: 15,
-    borderRadius: 8,
+    marginBottom: 10,
   },
-  musicBar: {
-    height: 8,
-    width: "70%",
-    backgroundColor: "#444",
-    borderRadius: 4,
+  tweetContent: {
+    color: "#fff",
+    fontSize: 14,
+    lineHeight: 20,
   },
-  musicControls: {
-    flexDirection: "row",
-    gap: 10,
-  },
-  musicControl: {
-    width: 24,
-    height: 24,
-    backgroundColor: "#444",
-    borderRadius: 4,
-  },
-  separator: {
-    height: 1,
-    backgroundColor: "#2A2A2A",
-    marginVertical: 20,
-  },
-  gridContainer: {
-    flexDirection: "row",
-    padding: 20,
-    gap: 15,
-  },
-  gridItem: {
-    flex: 1,
-    aspectRatio: 1,
-    backgroundColor: "#2A2A2A",
-    borderRadius: 8,
+  tweetTime: {
+    color: "#999",
+    fontSize: 12,
+    marginTop: 5,
   },
   bottomPadding: {
     height: 140,
   },
-  bottomContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    borderTopLeftRadius: 15,
-    borderTopRightRadius: 15,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: -3,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+  post: {
+    backgroundColor: "#1A1A1A",
+    marginBottom: 20,
+    borderRadius: 8,
+    padding: 15,
   },
-  actionButton: {
-    height: 50,
-    backgroundColor: "#2fb201",
-    justifyContent: "center",
-    paddingHorizontal: 20,
-  },
-  actionButtonContent: {
+  postHeader: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
+    marginBottom: 10,
   },
-  actionButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  playButton: {
+  postAvatar: {
     width: 40,
     height: 40,
-    justifyContent: "center",
-    alignItems: "center",
     borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.2)",
+    backgroundColor: "#2A2A2A",
+    marginRight: 10,
   },
-  tabBar: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    backgroundColor: "#1A1A1A",
-    paddingTop: 12,
-    paddingBottom: Platform.OS === "ios" ? 30 : 12,
-  },
-  tabItem: {
-    alignItems: "center",
-    paddingHorizontal: 15,
-  },
-  tabLabel: {
+  postUsername: {
     color: "#fff",
+    fontWeight: "bold",
+  },
+  postTime: {
+    color: "#999",
     fontSize: 12,
-    marginTop: 4,
-    opacity: 0.8,
+  },
+  postContent: {
+    color: "#fff",
+    marginBottom: 10,
+  },
+  postActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  postAction: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  postActionText: {
+    color: "#fff",
+    marginLeft: 5,
   },
 })
 

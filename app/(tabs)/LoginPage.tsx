@@ -1,8 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Switch, Image, Alert, Button } from "react-native"
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Switch, Image, Alert } from "react-native"
 import { StatusBar } from "expo-status-bar"
+import { Feather } from "@expo/vector-icons"
 
 export default function LoginScreen({ navigation }) {
   const [username, setUsername] = useState("")
@@ -12,12 +13,12 @@ export default function LoginScreen({ navigation }) {
 
   const handleLogin = async () => {
     if (!username || !password) {
-      Alert.alert('Error', 'fill all the blank fields.');
-      return;
+      Alert.alert("Error", "fill all the blank fields.")
+      return
     }
-    Alert.alert('Login', `Username: ${username}\nPassword: ${password}`);
+    Alert.alert("Login", `Username: ${username}\nPassword: ${password}`)
 
-    setError("");
+    setError("")
 
     try {
       const response = await fetch("http://localhost:8080/api/login", {
@@ -26,18 +27,24 @@ export default function LoginScreen({ navigation }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ username, password }),
-      });
+      })
+
+      const data = await response.json() // Parsing JSON response
 
       if (!response.ok) {
-        throw new Error("Login failed. Please check your credentials.");
+        throw new Error("Login failed. Please check your credentials.")
       }
 
+      // Handle successful login (e.g., store token, navigate)
+      Alert.alert("Success", `Welcome, ${data.username}!`)
+      console.log("Token:", data.token)
+
+      // Example: Navigate to another screen upon successful login
+      navigation.navigate("MainPage", { user: data })
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
+      setError(err instanceof Error ? err.message : "An unexpected error occurred.")
     }
-  };
-
-
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -45,10 +52,7 @@ export default function LoginScreen({ navigation }) {
 
       {/* Logo */}
       <View style={styles.logoContainer}>
-        <Image 
-          source={require('../../assets/images/EchoesLogo.png')} 
-          style={styles.logo}
-        />
+        <Image source={require("../../assets/images/EchoesLogo.png")} style={styles.logo} />
       </View>
 
       {/* Login Form */}
@@ -56,7 +60,7 @@ export default function LoginScreen({ navigation }) {
         <Text style={styles.headerText}>login:</Text>
 
         <TextInput
-          style={styles.input}                
+          style={styles.input}
           placeholder="username:"
           placeholderTextColor="#999"
           value={username}
@@ -83,10 +87,9 @@ export default function LoginScreen({ navigation }) {
           <Text style={styles.termsText}>Remember Me?</Text>
         </View>
 
-        {/* submit*/}
-        <TouchableOpacity style={styles.socialButton} onPress={handleLogin}>
-            <View style={styles.socialIcon} />
-            <Text style={styles.socialButtonText}>Login</Text>
+        {/* Login Button */}
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin} activeOpacity={0.8}>
+          <Text style={styles.loginButtonText}>Login</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => {}}>
@@ -98,12 +101,12 @@ export default function LoginScreen({ navigation }) {
           <Text style={styles.loginWithText}>login with:</Text>
 
           <TouchableOpacity style={styles.socialButton}>
-            <View style={styles.socialIcon} />
+            <Feather name="music" size={24} color="#fff" />
             <Text style={styles.socialButtonText}>Spotify</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.socialButton}>
-            <View style={styles.socialIcon} />
+            <Feather name="chrome" size={24} color="#fff" />
             <Text style={styles.socialButtonText}>Google</Text>
           </TouchableOpacity>
         </View>
@@ -127,8 +130,8 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: "center",
-    marginTop: 60,
-    marginBottom: 40,
+    marginTop: 80,
+    marginBottom: 50,
   },
   logo: {
     width: 80,
@@ -137,6 +140,7 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     paddingHorizontal: 30,
+    paddingTop: 20,
   },
   headerText: {
     color: "#fff",
@@ -145,10 +149,19 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: "#2A2A2A",
-    borderRadius: 5,
+    borderRadius: 8,
     padding: 15,
     marginBottom: 15,
     color: "#fff",
+    fontSize: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
   },
   forgotText: {
     color: "#00E5FF",
@@ -167,19 +180,24 @@ const styles = StyleSheet.create({
     backgroundColor: "#2A2A2A",
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 8,
     marginBottom: 15,
-  },
-  socialIcon: {
-    width: 24,
-    height: 24,
-    backgroundColor: "#444",
-    marginRight: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
   },
   socialButtonText: {
     color: "#fff",
     fontSize: 16,
+    marginLeft: 10,
+    fontWeight: "500",
   },
   signupContainer: {
     flexDirection: "row",
@@ -200,6 +218,26 @@ const styles = StyleSheet.create({
   termsText: {
     color: "#fff",
     marginLeft: 10,
-  }
+  },
+  loginButton: {
+    backgroundColor: "#2fb201",
+    padding: 15,
+    borderRadius: 8,
+    marginTop: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  loginButtonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "600",
+    textAlign: "center",
+  },
 })
 
