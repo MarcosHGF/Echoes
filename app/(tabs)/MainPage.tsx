@@ -1,18 +1,29 @@
-import { View, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Image, Text } from "react-native"
-import { StatusBar } from "expo-status-bar"
-import { Feather } from "@expo/vector-icons"
-import BottomContainer from "../../components/BottomContainer"
+import {
+  View,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  Platform,
+  Image,
+  Text,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { Feather } from "@expo/vector-icons";
+import BottomContainer from "../../components/BottomContainer";
+import { router } from "expo-router";
 
 const MainPage = () => {
-  const stories = [1, 2, 3, 4, 5] // Array for stories
-  const songs = [1, 2, 3, 4] // Array for song blocks
-  const posts = [1, 2, 3, 4] // Array for posts
+  const stories = [1, 2, 3, 4, 5]; // Array for stories
+  const songs = [1, 2, 3, 4]; // Array for song blocks
+  const posts = [1, 2, 3, 4]; // Array for posts
   const tabItems = [
     { icon: "home", label: "Home" },
     { icon: "search", label: "Search" },
     { icon: "heart", label: "Favorites" },
     { icon: "user", label: "Profile" },
-  ]
+  ];
+  const data = 0
 
   return (
     <SafeAreaView style={styles.container}>
@@ -20,7 +31,10 @@ const MainPage = () => {
 
       {/* Top Navigation */}
       <View style={styles.header}>
-        <Image source={require("../../assets/images/EchoesLogo.png")} style={styles.logo} />
+        <Image
+          source={require("../../assets/images/EchoesLogo.png")}
+          style={styles.logo}
+        />
         <View style={styles.headerIcons}>
           <TouchableOpacity style={styles.iconButton}>
             <Feather name="bell" size={24} color="#fff" />
@@ -34,14 +48,22 @@ const MainPage = () => {
       {/* Main Content */}
       <ScrollView style={styles.content}>
         {/* Stories */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.storiesContainer}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.storiesContainer}
+        >
           {stories.map((_, index) => (
-            <View key={index} style={styles.story}>
-              <View style={styles.storyRing}>
-                <View style={styles.storyImage} />
+            <TouchableOpacity
+              onPress={() => router.navigate("/(tabs)/ProfilePage")}
+            >
+              <View key={index} style={styles.story}>
+                <View style={styles.storyRing}>
+                  <View style={styles.storyImage} />
+                </View>
+                <Text style={styles.storyText}>User {index + 1}</Text>
               </View>
-              <Text style={styles.storyText}>User {index + 1}</Text>
-            </View>
+            </TouchableOpacity>
           ))}
         </ScrollView>
 
@@ -49,7 +71,11 @@ const MainPage = () => {
         <View style={styles.sectionTitle}>
           <Text style={styles.sectionTitleText}>Popular Songs</Text>
         </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.songsContainer}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.songsContainer}
+        >
           {songs.map((_, index) => (
             <View key={index} style={styles.songBlock}>
               <View style={styles.songImage} />
@@ -66,14 +92,19 @@ const MainPage = () => {
         {posts.map((_, index) => (
           <View key={index} style={styles.post}>
             <View style={styles.postHeader}>
-              <View style={styles.postAvatar} />
-              <View>
-                <Text style={styles.postUsername}>User {index + 1}</Text>
-                <Text style={styles.postTime}>2h ago</Text>
-              </View>
+              <TouchableOpacity
+                onPress={() => router.navigate("/(tabs)/ProfilePage", options: {data}) }
+              >
+                <View style={styles.postAvatar} />
+                <View>
+                  <Text style={styles.postUsername}>User {index + 1}</Text>
+                  <Text style={styles.postTime}>2h ago</Text>
+                </View>
+              </TouchableOpacity>
             </View>
             <Text style={styles.postContent}>
-              This is a sample post content. It can be about music, thoughts, or anything!
+              This is a sample post content. It can be about music, thoughts, or
+              anything!
             </Text>
             <View style={styles.postActions}>
               <TouchableOpacity style={styles.postAction}>
@@ -92,14 +123,12 @@ const MainPage = () => {
           </View>
         ))}
       </ScrollView>
-        
 
-        
       {/* Bottom Fixed Container, player in components */}
       <BottomContainer />
     </SafeAreaView>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -235,7 +264,6 @@ const styles = StyleSheet.create({
   bottomPadding: {
     height: 140,
   },
-})
+});
 
-export default MainPage
-
+export default MainPage;
