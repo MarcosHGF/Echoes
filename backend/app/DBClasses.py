@@ -98,7 +98,7 @@ class Post(db.Model):
         ]
 
 class UserProfile(db.Model):
-    user_id = db.Column(db.Integer, index=True) # Primary key
+    user_id = db.Column(db.Integer, primary_key=True, index=True) # Primary key
     musics = db.Column(db.String(200))
     spotify_client = db.Column(db.String(200), nullable=False, unique=True)
     name = db.Column(db.String(200), nullable=False, unique=False)
@@ -107,7 +107,7 @@ class UserProfile(db.Model):
 
     @staticmethod
     def getUserProfile(UserID):
-        dbProfile = db.session.execute(select(UserProfile).where(UserProfile.user_id=UserID)).all()
+        dbProfile = db.session.execute(select(UserProfile).where(UserProfile.user_id==UserID)).all()
         profile = dbProfile[0]
 
         return [
@@ -121,13 +121,13 @@ class UserProfile(db.Model):
     
 
 class Relationships(db.Model):
-    follower_id = db.Column(db.Integer, index=True)
+    follower_id = db.Column(db.Integer, primary_key=True, index=True)
     following_id = db.Column(db.Integer, index=True)
     date_created = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))  # Correct timestamp
     completed = db.Column(db.Integer)
 
     @staticmethod
     def getRelationshipsFollowers(userID):
-        dbRelations = db.session.execute(select(Relationships).where(Relationships.following_id=userID)).all()
+        dbRelations = db.session.execute(select(Relationships).where(Relationships.following_id==userID)).all()
         relations = dbRelations[0]
 

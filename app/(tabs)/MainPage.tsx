@@ -25,6 +25,10 @@ const MainPage = () => {
   ];
   const data = 0
 
+  const handleUserRedirect = async () => {
+    router.navigate("/(tabs)/ProfilePage", params: {user: String(data)})
+  }  
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
@@ -93,7 +97,7 @@ const MainPage = () => {
           <View key={index} style={styles.post}>
             <View style={styles.postHeader}>
               <TouchableOpacity
-                onPress={() => router.navigate("/(tabs)/ProfilePage", options: {data}) }
+                onPress={handleUserRedirect}
               >
                 <View style={styles.postAvatar} />
                 <View>
