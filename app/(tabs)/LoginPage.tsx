@@ -88,9 +88,11 @@ export default function LoginScreen({ navigation }) {
       Alert.alert("Success", "Login successful!", [
         {
           text: "Continue",
-          onPress: () => router.push("/(tabs)/MainPage"),
         },
       ])
+
+      router.push("/(tabs)/MainPage");
+
     } catch (err) {
       Alert.alert("Login Failed", err instanceof Error ? err.message : "An unexpected error occurred.", [
         { text: "Try Again" },
