@@ -1,24 +1,36 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Switch, Image, Alert } from "react-native"
-import { StatusBar } from "expo-status-bar"
-import { Feather } from "@expo/vector-icons"
+import { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  Switch,
+  Image,
+  Alert,
+  Button,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { useRouter } from "expo-router";
 
 export default function LoginScreen({ navigation }) {
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  const [RemeberMe, setRemeberMe] = useState(false)
-  const [error, setError] = useState("")
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [RemeberMe, setRemeberMe] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleLogin = async () => {
     if (!username || !password) {
-      Alert.alert("Error", "fill all the blank fields.")
-      return
+      Alert.alert("Error", "fill all the blank fields.");
+      return;
     }
-    Alert.alert("Login", `Username: ${username}\nPassword: ${password}`)
+    Alert.alert("Login", `Username: ${username}\nPassword: ${password}`);
 
-    setError("")
+    setError("");
 
     try {
       const response = await fetch("http://localhost:8080/api/login", {
@@ -27,24 +39,21 @@ export default function LoginScreen({ navigation }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ username, password }),
-      })
+      });
 
-      const data = await response.json() // Parsing JSON response
+      const data = await response.json(); // Parsing JSON response
 
       if (!response.ok) {
-        throw new Error("Login failed. Please check your credentials.")
+        throw new Error("Login failed. Please check your credentials.");
       }
 
-      // Handle successful login (e.g., store token, navigate)
-      Alert.alert("Success", `Welcome, ${data.username}!`)
-      console.log("Token:", data.token)
-
-      // Example: Navigate to another screen upon successful login
-      navigation.navigate("MainPage", { user: data })
+      router.push("/(tabs)/MainPage");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An unexpected error occurred.")
+      setError(
+        err instanceof Error ? err.message : "An unexpected error occurred."
+      );
     }
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -52,7 +61,10 @@ export default function LoginScreen({ navigation }) {
 
       {/* Logo */}
       <View style={styles.logoContainer}>
-        <Image source={require("../../assets/images/EchoesLogo.png")} style={styles.logo} />
+        <Image
+          source={require("../../assets/images/EchoesLogo.png")}
+          style={styles.logo}
+        />
       </View>
 
       {/* Login Form */}
@@ -87,9 +99,10 @@ export default function LoginScreen({ navigation }) {
           <Text style={styles.termsText}>Remember Me?</Text>
         </View>
 
-        {/* Login Button */}
-        <TouchableOpacity style={styles.loginButton} onPress={handleLogin} activeOpacity={0.8}>
-          <Text style={styles.loginButtonText}>Login</Text>
+        {/* submit*/}
+        <TouchableOpacity style={styles.socialButton} onPress={handleLogin}>
+          <View style={styles.socialIcon} />
+          <Text style={styles.socialButtonText}>Login</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => {}}>
@@ -120,7 +133,7 @@ export default function LoginScreen({ navigation }) {
         </View>
       </View>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -219,25 +232,4 @@ const styles = StyleSheet.create({
     color: "#fff",
     marginLeft: 10,
   },
-  loginButton: {
-    backgroundColor: "#2fb201",
-    padding: 15,
-    borderRadius: 8,
-    marginTop: 20,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  loginButtonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "600",
-    textAlign: "center",
-  },
-})
-
+});
