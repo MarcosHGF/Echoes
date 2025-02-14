@@ -5,10 +5,10 @@ from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash
 
 class Likes(db.Model):
-    __tablename__ = 'likes'
+    __tablename__ = 'Likes'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    post_id = Column(Integer, ForeignKey('Posts.id'), nullable=False, index=True)
+    post_id = Column(Integer, ForeignKey('Post.id'), nullable=False, index=True)
     user_id = Column(Integer, ForeignKey('Users.id'), nullable=False, index=True)
     completed = Column(Integer, default=0)
     name = Column(String(200))
@@ -63,8 +63,8 @@ class Users(db.Model):
     date_created = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     completed = Column(Integer, default=0)
 
-    profile = relationship("UserProfile", uselist=False, back_populates="user")
-    posts = relationship("Post", back_populates="user")
+    profile = relationship("UserProfile", uselist=False, back_populates="Users")
+    posts = relationship("Post", back_populates="Users")
 
     @staticmethod
     def getUserData(userID):
@@ -93,7 +93,7 @@ class Users(db.Model):
 
 
 class Post(db.Model):
-    __tablename__ = 'Posts'
+    __tablename__ = 'Post'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('Users.id'), nullable=False, index=True)
@@ -103,7 +103,7 @@ class Post(db.Model):
     likes = Column(Integer, default=0)
     tags_id = Column(Integer, unique=True)
 
-    user = relationship("Users", back_populates="posts")
+    user = relationship("Users", back_populates="Post")
 
     @staticmethod
     def getPost(post_id):
@@ -147,7 +147,7 @@ class UserProfile(db.Model):
     pfp = Column(String(300))
     tags = Column(String(300))
 
-    user = relationship("Users", back_populates="profile")
+    user = relationship("Users", back_populates="UserProfile")
 
     @staticmethod
     def getUserProfile(user_id):
@@ -165,7 +165,7 @@ class UserProfile(db.Model):
 
 
 class Relationships(db.Model):
-    __tablename__ = 'relationships'
+    __tablename__ = 'Relationships'
 
     follower_id = Column(Integer, ForeignKey('Users.id'), primary_key=True, index=True)
     following_id = Column(Integer, ForeignKey('Users.id'), primary_key=True, index=True)

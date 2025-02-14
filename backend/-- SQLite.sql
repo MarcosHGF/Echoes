@@ -13,4 +13,14 @@ FROM
 SELECT
     *
 FROM
-    post;
+    posts;
+
+SELECT
+    *
+FROM
+    UserProfile;
+
+SELECT
+    *
+FROM
+    Relationships;
