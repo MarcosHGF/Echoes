@@ -14,8 +14,7 @@ class Likes(db.Model):
     #returns a list of likes and it's data
     @staticmethod
     def getLikeData(postID) -> list:
-        db_likes = db.session.execute(select(Likes).filter(Likes.post_id==postID)).all() # all matching rows
-        post_likes = db_likes[0]
+        post_likes = db.session.execute(select(Likes).filter(Likes.post_id==postID)).scalars() # all matching rows
         return [
             {
                 "id": like.id,
@@ -49,8 +48,7 @@ class Users(db.Model):
 
     @staticmethod
     def getUserData(userID) -> list:
-        dbData= db.session.execute(select(Users).where(Users.id==userID)).all() 
-        userData = dbData[0]
+        userData= db.session.execute(select(Users).where(Users.id==userID)).scalar() 
 
         return [
             {
@@ -85,8 +83,7 @@ class Post(db.Model):
 
     @staticmethod
     def getPost(id):
-        dbData = db.session.execute(select(Post).where(Post.id==id)).first()
-        postData = dbData[0]
+        postData = db.session.execute(select(Post).where(Post.id==id)).scalar_one()
 
         return [
             {
@@ -107,8 +104,7 @@ class UserProfile(db.Model):
 
     @staticmethod
     def getUserProfile(UserID):
-        dbProfile = db.session.execute(select(UserProfile).where(UserProfile.user_id==UserID)).all()
-        profile = dbProfile[0]
+        profile = db.session.execute(select(UserProfile).where(UserProfile.user_id==UserID)).scalar_one()
 
         return [
             {
@@ -128,6 +124,6 @@ class Relationships(db.Model):
 
     @staticmethod
     def getRelationshipsFollowers(userID):
-        dbRelations = db.session.execute(select(Relationships).where(Relationships.following_id==userID)).all()
-        relations = dbRelations[0]
+        dbRelations = db.session.execute(select(Relationships).where(Relationships.following_id==userID)).scalars()
+        return dbRelations
 
