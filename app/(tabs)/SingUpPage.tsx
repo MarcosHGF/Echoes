@@ -11,26 +11,27 @@ export default function SignUpScreen({ navigation }) {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [acceptTerms, setAcceptTerms] = useState(false)
 
+  const handleSignUp = () => {
+    // Implement sign up logic here
+    console.log("Sign up:", { username, email, password, confirmPassword, acceptTerms })
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
 
       {/* Logo */}
       <View style={styles.logoContainer}>
-        <Image 
-          source={require('../../assets/images/EchoesLogo.png')} 
-          style={styles.logo}
-        />
-        <View style={styles.logo} />
+        <Image source={require("../../assets/images/EchoesLogo.png")} style={styles.logo} />
       </View>
 
       {/* Sign Up Form */}
       <View style={styles.formContainer}>
-        <Text style={styles.headerText}>SingUp:</Text>
+        <Text style={styles.headerText}>Sign Up:</Text>
 
         <TextInput
           style={styles.input}
-          placeholder="username:"
+          placeholder="Username"
           placeholderTextColor="#999"
           value={username}
           onChangeText={setUsername}
@@ -38,7 +39,7 @@ export default function SignUpScreen({ navigation }) {
 
         <TextInput
           style={styles.input}
-          placeholder="Email:"
+          placeholder="Email"
           placeholderTextColor="#999"
           value={email}
           onChangeText={setEmail}
@@ -48,7 +49,7 @@ export default function SignUpScreen({ navigation }) {
 
         <TextInput
           style={styles.input}
-          placeholder="Password:"
+          placeholder="Password"
           placeholderTextColor="#999"
           secureTextEntry
           value={password}
@@ -72,8 +73,13 @@ export default function SignUpScreen({ navigation }) {
             trackColor={{ false: "#444", true: "#00E5FF" }}
             thumbColor={acceptTerms ? "#fff" : "#fff"}
           />
-          <Text style={styles.termsText}>Accept term and conditions?</Text>
+          <Text style={styles.termsText}>Accept terms and conditions</Text>
         </View>
+
+        {/* Sign Up Button */}
+        <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp} activeOpacity={0.8}>
+          <Text style={styles.signUpButtonText}>Sign Up</Text>
+        </TouchableOpacity>
 
         {/* Login Link */}
         <View style={styles.loginContainer}>
@@ -107,35 +113,70 @@ const styles = StyleSheet.create({
   },
   headerText: {
     color: "#fff",
-    fontSize: 24,
+    fontSize: 28,
+    fontWeight: "bold",
     marginBottom: 30,
   },
   input: {
     backgroundColor: "#2A2A2A",
-    borderRadius: 5,
+    borderRadius: 8,
     padding: 15,
     marginBottom: 15,
     color: "#fff",
+    fontSize: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
   },
   termsContainer: {
     flexDirection: "row",
     alignItems: "center",
     marginTop: 15,
+    marginBottom: 20,
   },
   termsText: {
     color: "#fff",
     marginLeft: 10,
+    fontSize: 14,
+  },
+  signUpButton: {
+    backgroundColor: "#2fb201",
+    padding: 15,
+    borderRadius: 8,
+    marginTop: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  signUpButtonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "600",
+    textAlign: "center",
   },
   loginContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 30,
+    marginTop: 20,
   },
   haveAccountText: {
     color: "#fff",
+    fontSize: 14,
   },
   loginText: {
     color: "#00E5FF",
+    fontSize: 14,
+    fontWeight: "bold",
   },
 })
 

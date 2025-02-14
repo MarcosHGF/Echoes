@@ -41,6 +41,8 @@ export default function LoginScreen({ navigation }) {
         body: JSON.stringify({ username, password }),
       });
 
+      const data = await response.json(); // Parsing JSON response
+
       if (!response.ok) {
         throw new Error("Login failed. Please check your credentials.");
       }
@@ -112,12 +114,12 @@ export default function LoginScreen({ navigation }) {
           <Text style={styles.loginWithText}>login with:</Text>
 
           <TouchableOpacity style={styles.socialButton}>
-            <View style={styles.socialIcon} />
+            <Feather name="music" size={24} color="#fff" />
             <Text style={styles.socialButtonText}>Spotify</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.socialButton}>
-            <View style={styles.socialIcon} />
+            <Feather name="chrome" size={24} color="#fff" />
             <Text style={styles.socialButtonText}>Google</Text>
           </TouchableOpacity>
         </View>
@@ -141,8 +143,8 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: "center",
-    marginTop: 60,
-    marginBottom: 40,
+    marginTop: 80,
+    marginBottom: 50,
   },
   logo: {
     width: 80,
@@ -151,6 +153,7 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     paddingHorizontal: 30,
+    paddingTop: 20,
   },
   headerText: {
     color: "#fff",
@@ -159,10 +162,19 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: "#2A2A2A",
-    borderRadius: 5,
+    borderRadius: 8,
     padding: 15,
     marginBottom: 15,
     color: "#fff",
+    fontSize: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
   },
   forgotText: {
     color: "#00E5FF",
@@ -181,19 +193,24 @@ const styles = StyleSheet.create({
     backgroundColor: "#2A2A2A",
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 8,
     marginBottom: 15,
-  },
-  socialIcon: {
-    width: 24,
-    height: 24,
-    backgroundColor: "#444",
-    marginRight: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
   },
   socialButtonText: {
     color: "#fff",
     fontSize: 16,
+    marginLeft: 10,
+    fontWeight: "500",
   },
   signupContainer: {
     flexDirection: "row",
