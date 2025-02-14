@@ -3,17 +3,17 @@
 SELECT
     *
 FROM
-    likes;
+    like;
 
 SELECT
     *
 FROM
-    users;
+    user;
 
 SELECT
     *
 FROM
-    posts;
+    post;
 
 SELECT
     *
@@ -23,4 +23,4 @@ FROM
 SELECT
     *
 FROM
-    Relationships;
+    Relationship;
