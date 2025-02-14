@@ -32,14 +32,14 @@ def get_users(user_id):
 @login_bp.route("/api/login", methods=["POST"])
 def login():
     data = request.get_json()
-    result = db.session.execute(select(Users).where(Users.email == data["email"])).first()
+    result = db.session.execute(select(Users).where(Users.username == data["username"])).first()
 
     if not result:
         return jsonify({"error": "Email ou senha incorretos"}), 401
 
     user = result[0]  
 
-    if not check_password_hash(user.senha, data["senha"]):  
+    if not check_password_hash(user.senha, data["password"]):  
         return jsonify({"error": "Email ou senha incorretos"}), 401
 
     return jsonify({"message": "Login bem-sucedido", "user_id": user.id})

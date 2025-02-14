@@ -1,6 +1,9 @@
 from app import create_app, db
+from flask_cors import CORS
 
 app = create_app()
+CORS(app)
+
 
 # Inicializa o banco de dados
 with app.app_context():

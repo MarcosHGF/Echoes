@@ -1,21 +1,34 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Switch, Image, Alert, Button } from "react-native"
-import { StatusBar } from "expo-status-bar"
+import { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  Switch,
+  Image,
+  Alert,
+  Button,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { useRouter } from "expo-router";
 
 export default function LoginScreen({ navigation }) {
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  const [RemeberMe, setRemeberMe] = useState(false)
-  const [error, setError] = useState("")
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [RemeberMe, setRemeberMe] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleLogin = async () => {
     if (!username || !password) {
-      Alert.alert('Error', 'fill all the blank fields.');
+      Alert.alert("Error", "fill all the blank fields.");
       return;
     }
-    Alert.alert('Login', `Username: ${username}\nPassword: ${password}`);
+    Alert.alert("Login", `Username: ${username}\nPassword: ${password}`);
 
     setError("");
 
@@ -32,12 +45,13 @@ export default function LoginScreen({ navigation }) {
         throw new Error("Login failed. Please check your credentials.");
       }
 
+      router.push("/(tabs)/MainPage");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
+      setError(
+        err instanceof Error ? err.message : "An unexpected error occurred."
+      );
     }
   };
-
-
 
   return (
     <SafeAreaView style={styles.container}>
@@ -45,8 +59,8 @@ export default function LoginScreen({ navigation }) {
 
       {/* Logo */}
       <View style={styles.logoContainer}>
-        <Image 
-          source={require('../../assets/images/EchoesLogo.png')} 
+        <Image
+          source={require("../../assets/images/EchoesLogo.png")}
           style={styles.logo}
         />
       </View>
@@ -56,7 +70,7 @@ export default function LoginScreen({ navigation }) {
         <Text style={styles.headerText}>login:</Text>
 
         <TextInput
-          style={styles.input}                
+          style={styles.input}
           placeholder="username:"
           placeholderTextColor="#999"
           value={username}
@@ -85,8 +99,8 @@ export default function LoginScreen({ navigation }) {
 
         {/* submit*/}
         <TouchableOpacity style={styles.socialButton} onPress={handleLogin}>
-            <View style={styles.socialIcon} />
-            <Text style={styles.socialButtonText}>Login</Text>
+          <View style={styles.socialIcon} />
+          <Text style={styles.socialButtonText}>Login</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => {}}>
@@ -117,7 +131,7 @@ export default function LoginScreen({ navigation }) {
         </View>
       </View>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -200,6 +214,5 @@ const styles = StyleSheet.create({
   termsText: {
     color: "#fff",
     marginLeft: 10,
-  }
-})
-
+  },
+});
