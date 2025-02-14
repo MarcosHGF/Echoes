@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import { useState } from "react";
+import { useState } from "react"
 import {
   View,
   Text,
@@ -11,27 +11,63 @@ import {
   Switch,
   Image,
   Alert,
-  Button,
-} from "react-native";
-import { StatusBar } from "expo-status-bar";
-import { useRouter } from "expo-router";
-import { Feather } from "@expo/vector-icons";
+  Animated,
+} from "react-native"
+import { StatusBar } from "expo-status-bar"
+import { useRouter } from "expo-router"
+import { Feather } from "@expo/vector-icons"
 
 export default function LoginScreen({ navigation }) {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [RemeberMe, setRemeberMe] = useState(false);
-  const [error, setError] = useState("");
-  const router = useRouter();
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+  const [rememberMe, setRememberMe] = useState(false)
+  const [errors, setErrors] = useState({ username: false, password: false })
+  const [isLoading, setIsLoading] = useState(false)
+  const [shakeAnimation] = useState(new Animated.Value(0))
+  const router = useRouter()
+
+  const validateForm = () => {
+    const newErrors = {
+      username: !username.trim(),
+      password: !password.trim(),
+    }
+    setErrors(newErrors)
+    return !newErrors.username && !newErrors.password
+  }
+
+  const shakeField = () => {
+    Animated.sequence([
+      Animated.timing(shakeAnimation, {
+        toValue: 10,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnimation, {
+        toValue: -10,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnimation, {
+        toValue: 10,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnimation, {
+        toValue: 0,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start()
+  }
 
   const handleLogin = async () => {
-    if (!username || !password) {
-      Alert.alert("Error", "fill all the blank fields.");
-      return;
+    if (!validateForm()) {
+      shakeField()
+      Alert.alert("Missing Information", "Please fill in all required fields.", [{ text: "OK" }])
+      return
     }
-    Alert.alert("Login", `Username: ${username}\nPassword: ${password}`);
 
-    setError("");
+    setIsLoading(true)
 
     try {
       const response = await fetch("http://localhost:8080/api/login", {
@@ -40,21 +76,30 @@ export default function LoginScreen({ navigation }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ username, password }),
-      });
+      })
 
-      const data = await response.json(); // Parsing JSON response
+      const data = await response.json()
 
       if (!response.ok) {
-        throw new Error("Login failed. Please check your credentials.");
+        throw new Error(data.message || "Invalid credentials")
       }
 
-      router.push("/(tabs)/MainPage");
+      // Success handling
+      Alert.alert("Success", "Login successful!", [
+        {
+          text: "Continue",
+          onPress: () => router.push("/(tabs)/MainPage"),
+        },
+      ])
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "An unexpected error occurred."
-      );
+      Alert.alert("Login Failed", err instanceof Error ? err.message : "An unexpected error occurred.", [
+        { text: "Try Again" },
+      ])
+      shakeField()
+    } finally {
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -62,48 +107,79 @@ export default function LoginScreen({ navigation }) {
 
       {/* Logo */}
       <View style={styles.logoContainer}>
-        <Image
-          source={require("../../assets/images/EchoesLogo.png")}
-          style={styles.logo}
-        />
+        <Image source={require("../../assets/images/EchoesLogo.png")} style={styles.logo} />
       </View>
 
       {/* Login Form */}
       <View style={styles.formContainer}>
         <Text style={styles.headerText}>login:</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="username:"
-          placeholderTextColor="#999"
-          value={username}
-          onChangeText={setUsername}
-        />
+        <Animated.View
+          style={[
+            styles.inputContainer,
+            { transform: [{ translateX: shakeAnimation }] },
+            errors.username && styles.inputError,
+          ]}
+        >
+          <TextInput
+            style={styles.input}
+            placeholder="username:"
+            placeholderTextColor="#999"
+            value={username}
+            onChangeText={(text) => {
+              setUsername(text)
+              setErrors((prev) => ({ ...prev, username: false }))
+            }}
+          />
+          {errors.username && <Text style={styles.errorText}>Username is required</Text>}
+        </Animated.View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="#999"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
+        <Animated.View
+          style={[
+            styles.inputContainer,
+            { transform: [{ translateX: shakeAnimation }] },
+            errors.password && styles.inputError,
+          ]}
+        >
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor="#999"
+            secureTextEntry
+            value={password}
+            onChangeText={(text) => {
+              setPassword(text)
+              setErrors((prev) => ({ ...prev, password: false }))
+            }}
+          />
+          {errors.password && <Text style={styles.errorText}>Password is required</Text>}
+        </Animated.View>
 
         {/* Remember me */}
-        <View style={styles.RememberMe}>
+        <View style={styles.rememberMe}>
           <Switch
-            value={RemeberMe}
-            onValueChange={setRemeberMe}
+            value={rememberMe}
+            onValueChange={setRememberMe}
             trackColor={{ false: "#444", true: "#00E5FF" }}
-            thumbColor={RemeberMe ? "#fff" : "#fff"}
+            thumbColor={rememberMe ? "#fff" : "#fff"}
           />
           <Text style={styles.termsText}>Remember Me?</Text>
         </View>
 
-        {/* submit*/}
-        <TouchableOpacity style={styles.socialButton} onPress={handleLogin}>
-          <View style={styles.socialIcon} />
-          <Text style={styles.socialButtonText}>Login</Text>
+        {/* Submit */}
+        <TouchableOpacity
+          style={[styles.socialButton, isLoading && styles.buttonDisabled]}
+          onPress={handleLogin}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <Text style={styles.socialButtonText}>Loading...</Text>
+          ) : (
+            <>
+              <View style={styles.socialIcon} />
+              <Text style={styles.socialButtonText}>Login</Text>
+            </>
+          )}
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => {}}>
@@ -129,12 +205,12 @@ export default function LoginScreen({ navigation }) {
         <View style={styles.signupContainer}>
           <Text style={styles.noAccountText}>don't have a account? </Text>
           <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
-            <Text style={styles.signupText}>Sing up</Text>
+            <Text style={styles.signupText}>Sign up</Text>
           </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -161,11 +237,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     marginBottom: 30,
   },
+  inputContainer: {
+    marginBottom: 15,
+  },
   input: {
     backgroundColor: "#2A2A2A",
     borderRadius: 8,
     padding: 15,
-    marginBottom: 15,
     color: "#fff",
     fontSize: 16,
     shadowColor: "#000",
@@ -176,6 +254,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 1.41,
     elevation: 2,
+  },
+  inputError: {
+    borderWidth: 1,
+    borderColor: "#ff4444",
+  },
+  errorText: {
+    color: "#ff4444",
+    fontSize: 12,
+    marginTop: 5,
+    marginLeft: 5,
   },
   forgotText: {
     color: "#00E5FF",
@@ -207,6 +295,9 @@ const styles = StyleSheet.create({
     shadowRadius: 1.41,
     elevation: 2,
   },
+  buttonDisabled: {
+    opacity: 0.7,
+  },
   socialButtonText: {
     color: "#fff",
     fontSize: 16,
@@ -224,16 +315,18 @@ const styles = StyleSheet.create({
   signupText: {
     color: "#00E5FF",
   },
-  RememberMe: {
+  rememberMe: {
     flexDirection: "row",
     alignItems: "center",
     marginTop: 15,
+    marginBottom: 15,
   },
   termsText: {
     color: "#fff",
     marginLeft: 10,
   },
   socialIcon: {
-    color: "#fff",
+    backgroundColor: "#fff",
   },
-});
+})
+

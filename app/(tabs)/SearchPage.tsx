@@ -8,6 +8,7 @@ import BottomContainer from "../../components/BottomContainer"
 
 const SearchPage = () => {
   const [searchQuery, setSearchQuery] = useState("")
+  const [selectedPost, setSelectedPost] = useState<number | null>(null);
   const trendingTopics = [
     "Summer Hits 2025",
     "Indie Rock Revival",
@@ -34,13 +35,16 @@ const SearchPage = () => {
       time: "1d ago",
     },
   ]
-  const tabItems = [
-    { icon: "home", label: "Home" },
-    { icon: "search", label: "Search" },
-    { icon: "heart", label: "Favorites" },
-    { icon: "user", label: "Profile" },
-  ]
 
+  const handleEllipsisPress = (index: number) => {
+    setSelectedPost(selectedPost === index ? null : index)
+  }
+
+  const handleOptionSelect = (option: string) => {
+    // Handle the selected option here
+    console.log(`Selected option: ${option}`)
+    setSelectedPost(null)
+  }
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
@@ -88,11 +92,19 @@ const SearchPage = () => {
           {[1, 2, 3, 4].map((_, index) => (
             <View key={index} style={styles.post}>
               <View style={styles.postHeader}>
-                <View style={styles.postAvatar} />
-                <View>
-                  <Text style={styles.postUsername}>User {index + 1}</Text>
-                  <Text style={styles.postTime}>2h ago</Text>
+                <View style={styles.userInfo}>
+                  <View style={styles.postAvatar} />
+                  <View>
+                    <Text style={styles.postUsername}>User {index + 1}</Text>
+                    <Text style={styles.postTime}>2h ago</Text>
+                  </View>
                 </View>
+                <TouchableOpacity
+                  style={styles.ellipsisButton}
+                  onPress={() => handleEllipsisPress(index)}
+                >
+                  <Feather name="more-vertical" size={20} color="#fff" />
+                </TouchableOpacity>
               </View>
               <Text style={styles.postContent}>This is a sample tweet about music, life, or anything else!</Text>
               <View style={styles.postActions}>
@@ -109,6 +121,28 @@ const SearchPage = () => {
                   <Text style={styles.postActionText}>Share</Text>
                 </TouchableOpacity>
               </View>
+              {selectedPost === index && (
+                <View style={styles.optionsMenu}>
+                  <TouchableOpacity
+                    style={styles.optionItem}
+                    onPress={() => handleOptionSelect("Not Interested")}
+                  >
+                    <Text style={styles.optionText}>Not Interested</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.optionItem}
+                    onPress={() => handleOptionSelect("Report")}
+                  >
+                    <Text style={styles.optionText}>Report</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.optionItem}
+                    onPress={() => handleOptionSelect("Favorite")}
+                  >
+                    <Text style={styles.optionText}>Favorite</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
           ))}
         </View>
@@ -197,7 +231,12 @@ const styles = StyleSheet.create({
   postHeader: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 10,
+  },
+  userInfo: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   postAvatar: {
     width: 40,
@@ -230,10 +269,37 @@ const styles = StyleSheet.create({
     color: "#fff",
     marginLeft: 5,
   },
+  ellipsisButton: {
+    padding: 5,
+  },
+  optionsMenu: {
+    position: "absolute",
+    top: 40,
+    right: 10,
+    backgroundColor: "#2A2A2A",
+    borderRadius: 8,
+    padding: 10,
+    zIndex: 1,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  optionItem: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  optionText: {
+    color: "#fff",
+    fontSize: 14,
+  },
   bottomPadding: {
     height: 140,
   },
 })
 
 export default SearchPage
-
