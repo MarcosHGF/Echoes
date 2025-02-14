@@ -84,7 +84,7 @@ class Users(db.Model):
     def addUser(data):
         dbemail = data.get("email")
         dbusername = data.get("username")
-        dbPasswd = generate_password_hash(data.get("senha"))
+        dbPasswd = generate_password_hash(data.get("password"))
 
         dbdata = Users(username=dbusername, email=dbemail, senha=dbPasswd)
         db.session.add(dbdata)
