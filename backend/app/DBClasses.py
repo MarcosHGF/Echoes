@@ -4,20 +4,20 @@ from sqlalchemy import select, Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash
 
-class Likes(db.Model):
-    __tablename__ = 'Likes'
+class Like(db.Model):
+    __tablename__ = 'like'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    post_id = Column(Integer, ForeignKey('Post.id'), nullable=False, index=True)
-    user_id = Column(Integer, ForeignKey('Users.id'), nullable=False, index=True)
+    post_id = Column(Integer, ForeignKey('post.id'), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=False, index=True)
     completed = Column(Integer, default=0)
     name = Column(String(200))
     date_created = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     @staticmethod
-    def getLikeData(postID) -> list:
+    def get_like_data(post_id) -> list:
         post_likes = db.session.execute(
-            select(Likes).filter(Likes.post_id == postID)
+            select(Like).where(Like.post_id == post_id)
         ).scalars().all()
 
         return [
@@ -32,43 +32,42 @@ class Likes(db.Model):
         ]
 
     @staticmethod
-    def addLike(data, postID):
+    def add_like(data, post_id):
         db.session.begin()
-        dbname = data.get("name")
-        dbid = data.get("id")
+        name = data.get("name")
+        user_id = data.get("id")
 
-        # Check if post exists before adding like
-        post = db.session.execute(select(Post).where(Post.id == postID)).scalar()
+        post = db.session.execute(select(Post).where(Post.id == post_id)).scalar()
         if post is None:
             db.session.rollback()
             return {"error": "Post not found"}
 
-        dbdata = Likes(name=dbname, post_id=postID, user_id=dbid)
-        db.session.add(dbdata)
+        like = Like(name=name, post_id=post_id, user_id=user_id)
+        db.session.add(like)
 
         post.likes += 1
         db.session.commit()
-        return {"message": f"Like from {dbid} added to post {postID}"}
+        return {"message": f"Like from {user_id} added to post {post_id}"}
 
 
-class Users(db.Model):
-    __tablename__ = 'Users'
+class User(db.Model):
+    __tablename__ = 'user'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     email = Column(String(200), nullable=False, unique=True, index=True)
     username = Column(String(200), nullable=False, unique=True)
     spotify_client = Column(String(200), unique=True)
     name = Column(String(200))
-    senha = Column(String(260), nullable=False)
+    password = Column(String(260), nullable=False)
     date_created = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     completed = Column(Integer, default=0)
 
-    profile = relationship("UserProfile", uselist=False, back_populates="Users")
-    posts = relationship("Post", back_populates="Users")
+    profile = relationship("UserProfile", uselist=False, back_populates="user")
+    posts = relationship("Post", back_populates="user")
 
     @staticmethod
-    def getUserData(userID):
-        user = db.session.execute(select(Users).where(Users.id == userID)).scalar()
+    def get_user_data(user_id):
+        user = db.session.execute(select(User).where(User.id == user_id)).scalar()
         if not user:
             return {"error": "User not found"}
 
@@ -81,32 +80,32 @@ class Users(db.Model):
         }
 
     @staticmethod
-    def addUser(data):
-        dbemail = data.get("email")
-        dbusername = data.get("username")
-        dbPasswd = generate_password_hash(data.get("senha"))
+    def add_user(data):
+        email = data.get("email")
+        username = data.get("username")
+        password = generate_password_hash(data.get("password"))
 
-        dbdata = Users(username=dbusername, email=dbemail, senha=dbPasswd)
-        db.session.add(dbdata)
+        user = User(username=username, email=email, password=password)
+        db.session.add(user)
         db.session.commit()
         return {"message": "User added successfully"}
 
 
 class Post(db.Model):
-    __tablename__ = 'Post'
+    __tablename__ = 'post'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey('Users.id'), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=False, index=True)
     name = Column(String(200), nullable=False)
     date_created = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     completed = Column(Integer, default=0)
     likes = Column(Integer, default=0)
     tags_id = Column(Integer, unique=True)
 
-    user = relationship("Users", back_populates="Post")
+    user = relationship("User", back_populates="posts")
 
     @staticmethod
-    def getPost(post_id):
+    def get_post(post_id):
         post = db.session.execute(select(Post).where(Post.id == post_id)).scalar()
         if not post:
             return {"error": "Post not found"}
@@ -119,38 +118,26 @@ class Post(db.Model):
         }
 
     @staticmethod
-    def getPostsFromUser(userID):
-        posts = db.session.execute(select(Post).where(Post.user_id == userID)).scalars().all()
-        return [
-            {
-                "id": post.id,
-                "likes": post.likes,
-                "completed": post.completed,
-                "date_created": post.date_created.isoformat() if post.date_created else None
-            }
-            for post in posts
-        ]
-
-    @staticmethod
-    def addpost(data):
-        addedPost = Post(name=data.get("name"), user_id=data.get("userID"))
-        db.session.add(addedPost)
+    def add_post(data):
+        post = Post(name=data.get("name"), user_id=data.get("user_id"))
+        db.session.add(post)
         db.session.commit()
-        return {"Post added"}
+        return {"message": "Post added"}
+
 
 class UserProfile(db.Model):
-    __tablename__ = 'UserProfile'
+    __tablename__ = 'user_profile'
 
-    user_id = Column(Integer, ForeignKey('Users.id'), primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('user.id'), primary_key=True, index=True)
     musics = Column(String(200))
     spotify_client = Column(String(200), nullable=False, unique=True)
     pfp = Column(String(300))
     tags = Column(String(300))
 
-    user = relationship("Users", back_populates="UserProfile")
+    user = relationship("User", back_populates="profile")
 
     @staticmethod
-    def getUserProfile(user_id):
+    def get_user_profile(user_id):
         profile = db.session.execute(select(UserProfile).where(UserProfile.user_id == user_id)).scalar()
         if not profile:
             return {"error": "User profile not found"}
@@ -164,15 +151,15 @@ class UserProfile(db.Model):
         }
 
 
-class Relationships(db.Model):
-    __tablename__ = 'Relationships'
+class Relationship(db.Model):
+    __tablename__ = 'relationship'
 
-    follower_id = Column(Integer, ForeignKey('Users.id'), primary_key=True, index=True)
-    following_id = Column(Integer, ForeignKey('Users.id'), primary_key=True, index=True)
+    follower_id = Column(Integer, ForeignKey('user.id'), primary_key=True, index=True)
+    following_id = Column(Integer, ForeignKey('user.id'), primary_key=True, index=True)
     date_created = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     completed = Column(Integer, default=0)
 
     @staticmethod
-    def getRelationshipsFollowers(userID):
-        relations = db.session.execute(select(Relationships).where(Relationships.following_id == userID)).scalars().all()
+    def get_relationship_followers(user_id):
+        relations = db.session.execute(select(Relationship).where(Relationship.following_id == user_id)).scalars().all()
         return [{"follower_id": rel.follower_id, "date_created": rel.date_created.isoformat()} for rel in relations]

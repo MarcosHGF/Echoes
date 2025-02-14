@@ -6,14 +6,14 @@ echo "Creating test users..."
 curl -X POST $API_URL/users/1 -H "Content-Type: application/json" -d '{
     "email": "user1@example.com",
     "username": "user1",
-    "senha": "password123"
+    "password": "password123"
 }'
 
 echo "Adding another user..."
 curl -X POST $API_URL/users/2 -H "Content-Type: application/json" -d '{
     "email": "user2@example.com",
     "username": "user2",
-    "senha": "password456"
+    "password": "password456"
 }'
 
 sleep 1
@@ -24,7 +24,7 @@ curl -X GET $API_URL/users/2
 echo "Creating a post..."
 curl -X POST $API_URL/posts/1 -H "Content-Type: application/json" -d '{
     "name": "Test Post",
-    "userID": 1
+    "user_id": 1
 }'
 
 sleep 1
