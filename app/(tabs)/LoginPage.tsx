@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
+import { Feather } from "@expo/vector-icons";
 
 export default function LoginScreen({ navigation }) {
   const [username, setUsername] = useState("");
@@ -231,5 +232,8 @@ const styles = StyleSheet.create({
   termsText: {
     color: "#fff",
     marginLeft: 10,
+  },
+  socialIcon: {
+    color: "#fff",
   },
 });

@@ -1,20 +1,61 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Switch, Image } from "react-native"
-import { StatusBar } from "expo-status-bar"
+import { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  Switch,
+  Image,
+  Alert,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { router } from "expo-router";
 
 export default function SignUpScreen({ navigation }) {
-  const [username, setUsername] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [acceptTerms, setAcceptTerms] = useState(false)
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSignUp = () => {
-    // Implement sign up logic here
-    console.log("Sign up:", { username, email, password, confirmPassword, acceptTerms })
-  }
+  const handleSignUp = async () => {
+    if (!username || !password || !confirmPassword || !email || !acceptTerms) {
+      Alert.alert("Error", "fill all the blank fields.");
+      return;
+    }
+
+    if (password != confirmPassword) {
+      Alert.alert("Senhas são diferentes");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:8080/api/users/0", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password, email }),
+      });
+
+      const data = await response.json(); // Parsing JSON response
+
+      if (!response.ok) {
+        throw new Error("Login failed. Please check your credentials.");
+      }
+
+      router.push("/(tabs)/MainPage");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "An unexpected error occurred."
+      );
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -22,7 +63,10 @@ export default function SignUpScreen({ navigation }) {
 
       {/* Logo */}
       <View style={styles.logoContainer}>
-        <Image source={require("../../assets/images/EchoesLogo.png")} style={styles.logo} />
+        <Image
+          source={require("../../assets/images/EchoesLogo.png")}
+          style={styles.logo}
+        />
       </View>
 
       {/* Sign Up Form */}
@@ -77,7 +121,11 @@ export default function SignUpScreen({ navigation }) {
         </View>
 
         {/* Sign Up Button */}
-        <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={styles.signUpButton}
+          onPress={handleSignUp}
+          activeOpacity={0.8}
+        >
           <Text style={styles.signUpButtonText}>Sign Up</Text>
         </TouchableOpacity>
 
@@ -90,7 +138,7 @@ export default function SignUpScreen({ navigation }) {
         </View>
       </View>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -178,5 +226,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
   },
-})
-
+});
