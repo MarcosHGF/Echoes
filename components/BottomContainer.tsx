@@ -1,7 +1,13 @@
-import { View, TouchableOpacity, StyleSheet, Text, Platform } from "react-native"
+"use client"
+
+import { useState, useEffect } from "react"
+import { View, TouchableOpacity, StyleSheet, Text, Platform, Animated } from "react-native"
 import { Feather } from "@expo/vector-icons"
 
 const BottomContainer = () => {
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const [duration, setDuration] = useState(180) // Default duration of 3 minutes (180 seconds)
   const tabItems = [
     { icon: "home", label: "Home" },
     { icon: "search", label: "Search" },
@@ -9,15 +15,69 @@ const BottomContainer = () => {
     { icon: "user", label: "Profile" },
   ]
 
+  // Placeholder function for Spotify API integration
+  const togglePlayPause = () => {
+    setIsPlaying(!isPlaying)
+  }
+
+  useEffect(() => {
+    let interval : NodeJS.Timeout | number;
+    if (isPlaying) {
+      interval = setInterval(() => {
+        setProgress((prevProgress) => {
+          if (prevProgress >= duration) {
+            clearInterval(interval)
+            setIsPlaying(false)
+            return 0
+          }
+          return prevProgress + 1
+        })
+      }, 1000)
+    }
+    return () => clearInterval(interval)
+  }, [isPlaying, duration])
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`
+  }
+
   return (
     <View style={styles.bottomContainer}>
-      {/* Action Button */}
-      <View style={styles.actionButton}>
-        <View style={styles.actionButtonContent}>
-          <Text style={styles.actionButtonText}>What's on your mind?</Text>
-          <TouchableOpacity style={styles.playButton}>
-            <Feather name="play" size={24} color="#fff" />
-          </TouchableOpacity>
+      {/* Player */}
+      <View style={styles.player}>
+        <View style={styles.songInfo}>
+          <Text style={styles.songTitle} numberOfLines={1}>
+            Song Name
+          </Text>
+          <Text style={styles.artistName} numberOfLines={1}>
+            Artist
+          </Text>
+        </View>
+
+        <View style={styles.mainControls}>
+          <View style={styles.timelineContainer}>
+            <View style={styles.timeline}>
+              <Animated.View style={[styles.progressBar, { width: `${(progress / duration) * 100}%` }]} />
+            </View>
+            <View style={styles.timeInfo}>
+              <Text style={styles.timeText}>{formatTime(progress)}</Text>
+              <Text style={styles.timeText}>{formatTime(duration)}</Text>
+            </View>
+          </View>
+
+          <View style={styles.controls}>
+            <TouchableOpacity onPress={() => console.log("Previous")}>
+              <Feather name="skip-back" size={20} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.playPauseButton} onPress={togglePlayPause}>
+              <Feather name={isPlaying ? "pause" : "play"} size={20} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => console.log("Next")}>
+              <Feather name="skip-forward" size={20} color="#fff" />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 
@@ -52,28 +112,66 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  actionButton: {
-    height: 50,
+  player: {
+    height: 85,
     backgroundColor: "#2fb201",
-    justifyContent: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    flexDirection: "row",
+    alignItems: "center",
   },
-  actionButtonContent: {
+  songInfo: {
+    flex: 1,
+    marginRight: 15,
+  },
+  songTitle: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  artistName: {
+    color: "rgba(255, 255, 255, 0.8)",
+    fontSize: 12,
+    marginTop: 2,
+  },
+  mainControls: {
+    flex: 2,
+  },
+  timelineContainer: {
+    width: "100%",
+    marginBottom: 8,
+  },
+  timeline: {
+    height: 2,
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    borderRadius: 1,
+  },
+  progressBar: {
+    height: "100%",
+    backgroundColor: "#fff",
+    borderRadius: 1,
+  },
+  timeInfo: {
     flexDirection: "row",
     justifyContent: "space-between",
+    marginTop: 4,
+  },
+  timeText: {
+    color: "rgba(255, 255, 255, 0.8)",
+    fontSize: 10,
+  },
+  controls: {
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    gap: 24,
   },
-  actionButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  playButton: {
-    width: 40,
-    height: 40,
+  playPauseButton: {
+    width: 32,
+    height: 32,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 20,
+    borderRadius: 16,
     backgroundColor: "rgba(255,255,255,0.2)",
   },
   tabBar: {

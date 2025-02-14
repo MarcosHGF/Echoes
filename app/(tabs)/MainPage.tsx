@@ -1,33 +1,39 @@
-import {
-  View,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  SafeAreaView,
-  Platform,
-  Image,
-  Text,
-} from "react-native";
-import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
-import BottomContainer from "../../components/BottomContainer";
-import { router } from "expo-router";
+"use client"
+
+import { View, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Image, Text } from "react-native"
+import { StatusBar } from "expo-status-bar"
+import { Feather } from "@expo/vector-icons"
+import BottomContainer from "../../components/BottomContainer"
+import { router } from "expo-router"
+import { useState } from "react"
 
 const MainPage = () => {
-  const stories = [1, 2, 3, 4, 5]; // Array for stories
-  const songs = [1, 2, 3, 4]; // Array for song blocks
-  const posts = [1, 2, 3, 4]; // Array for posts
+  const stories = [1, 2, 3, 4, 5] // Array for stories
+  const songs = [1, 2, 3, 4] // Array for song blocks
+  const posts = [1, 2, 3, 4] // Array for posts
   const tabItems = [
     { icon: "home", label: "Home" },
     { icon: "search", label: "Search" },
     { icon: "heart", label: "Favorites" },
     { icon: "user", label: "Profile" },
-  ];
+  ]
   const data = 0
 
+  const [selectedPost, setSelectedPost] = useState<number | null>(null);
+
+  const handleEllipsisPress = (index: number) => {
+    setSelectedPost(selectedPost === index ? null : index)
+  }
+
+  const handleOptionSelect = (option: string) => {
+    // Handle the selected option here
+    console.log(`Selected option: ${option}`)
+    setSelectedPost(null)
+  }
+
   const handleUserRedirect = async () => {
-    router.navigate("/(tabs)/ProfilePage", params: {user: String(data)})
-  }  
+    router.navigate("/(tabs)/ProfilePage", { params: { user: String(data) } })
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -35,10 +41,7 @@ const MainPage = () => {
 
       {/* Top Navigation */}
       <View style={styles.header}>
-        <Image
-          source={require("../../assets/images/EchoesLogo.png")}
-          style={styles.logo}
-        />
+        <Image source={require("../../assets/images/EchoesLogo.png")} style={styles.logo} />
         <View style={styles.headerIcons}>
           <TouchableOpacity style={styles.iconButton}>
             <Feather name="bell" size={24} color="#fff" />
@@ -52,16 +55,10 @@ const MainPage = () => {
       {/* Main Content */}
       <ScrollView style={styles.content}>
         {/* Stories */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.storiesContainer}
-        >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.storiesContainer}>
           {stories.map((_, index) => (
-            <TouchableOpacity
-              onPress={() => router.navigate("/(tabs)/ProfilePage")}
-            >
-              <View key={index} style={styles.story}>
+            <TouchableOpacity key={index} onPress={() => router.navigate("/(tabs)/ProfilePage")}>
+              <View style={styles.story}>
                 <View style={styles.storyRing}>
                   <View style={styles.storyImage} />
                 </View>
@@ -75,11 +72,7 @@ const MainPage = () => {
         <View style={styles.sectionTitle}>
           <Text style={styles.sectionTitleText}>Popular Songs</Text>
         </View>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.songsContainer}
-        >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.songsContainer}>
           {songs.map((_, index) => (
             <View key={index} style={styles.songBlock}>
               <View style={styles.songImage} />
@@ -96,19 +89,19 @@ const MainPage = () => {
         {posts.map((_, index) => (
           <View key={index} style={styles.post}>
             <View style={styles.postHeader}>
-              <TouchableOpacity
-                onPress={handleUserRedirect}
-              >
+              <TouchableOpacity onPress={handleUserRedirect} style={styles.userInfo}>
                 <View style={styles.postAvatar} />
                 <View>
                   <Text style={styles.postUsername}>User {index + 1}</Text>
                   <Text style={styles.postTime}>2h ago</Text>
                 </View>
               </TouchableOpacity>
+              <TouchableOpacity style={styles.ellipsisButton} onPress={() => handleEllipsisPress(index)}>
+                <Feather name="more-vertical" size={20} color="#fff" />
+              </TouchableOpacity>
             </View>
             <Text style={styles.postContent}>
-              This is a sample post content. It can be about music, thoughts, or
-              anything!
+              This is a sample post content. It can be about music, thoughts, or anything!
             </Text>
             <View style={styles.postActions}>
               <TouchableOpacity style={styles.postAction}>
@@ -124,6 +117,19 @@ const MainPage = () => {
                 <Text style={styles.postActionText}>Share</Text>
               </TouchableOpacity>
             </View>
+            {selectedPost === index && (
+              <View style={styles.optionsMenu}>
+                <TouchableOpacity style={styles.optionItem} onPress={() => handleOptionSelect("Not Interested")}>
+                  <Text style={styles.optionText}>Not Interested</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.optionItem} onPress={() => handleOptionSelect("Report")}>
+                  <Text style={styles.optionText}>Report</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.optionItem} onPress={() => handleOptionSelect("Favorite")}>
+                  <Text style={styles.optionText}>Favorite</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         ))}
       </ScrollView>
@@ -131,8 +137,8 @@ const MainPage = () => {
       {/* Bottom Fixed Container, player in components */}
       <BottomContainer />
     </SafeAreaView>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -232,7 +238,12 @@ const styles = StyleSheet.create({
   postHeader: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 10,
+  },
+  userInfo: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   postAvatar: {
     width: 40,
@@ -265,9 +276,35 @@ const styles = StyleSheet.create({
     color: "#fff",
     marginLeft: 5,
   },
-  bottomPadding: {
-    height: 140,
+  ellipsisButton: {
+    padding: 5,
   },
-});
+  optionsMenu: {
+    position: "absolute",
+    top: 40,
+    right: 10,
+    backgroundColor: "#2A2A2A",
+    borderRadius: 8,
+    padding: 10,
+    zIndex: 1,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  optionItem: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  optionText: {
+    color: "#fff",
+    fontSize: 14,
+  },
+})
 
-export default MainPage;
+export default MainPage
+
