@@ -35,13 +35,16 @@ export default function SignUpScreen({ navigation }) {
     }
 
     try {
-      const response = await fetch("http://localhost:8080/api/users/0", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password, email }),
-      });
+      const response = await fetch(
+        "https://select-sheep-currently.ngrok-free.app/api/users/0",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, password, email }),
+        }
+      );
 
       const data = await response.json(); // Parsing JSON response
 

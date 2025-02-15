@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 import {
   View,
   Text,
@@ -12,28 +12,29 @@ import {
   Image,
   Alert,
   Animated,
-} from "react-native"
-import { StatusBar } from "expo-status-bar"
-import { useRouter } from "expo-router"
-import { Feather } from "@expo/vector-icons"
+  ScrollViewBase,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { useRouter } from "expo-router";
+import { Feather } from "@expo/vector-icons";
 
 export default function LoginScreen({ navigation }) {
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  const [rememberMe, setRememberMe] = useState(false)
-  const [errors, setErrors] = useState({ username: false, password: false })
-  const [isLoading, setIsLoading] = useState(false)
-  const [shakeAnimation] = useState(new Animated.Value(0))
-  const router = useRouter()
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [errors, setErrors] = useState({ username: false, password: false });
+  const [isLoading, setIsLoading] = useState(false);
+  const [shakeAnimation] = useState(new Animated.Value(0));
+  const router = useRouter();
 
   const validateForm = () => {
     const newErrors = {
       username: !username.trim(),
       password: !password.trim(),
-    }
-    setErrors(newErrors)
-    return !newErrors.username && !newErrors.password
-  }
+    };
+    setErrors(newErrors);
+    return !newErrors.username && !newErrors.password;
+  };
 
   const shakeField = () => {
     Animated.sequence([
@@ -57,31 +58,38 @@ export default function LoginScreen({ navigation }) {
         duration: 100,
         useNativeDriver: true,
       }),
-    ]).start()
-  }
+    ]).start();
+  };
 
   const handleLogin = async () => {
     if (!validateForm()) {
-      shakeField()
-      Alert.alert("Missing Information", "Please fill in all required fields.", [{ text: "OK" }])
-      return
+      shakeField();
+      Alert.alert(
+        "Missing Information",
+        "Please fill in all required fields.",
+        [{ text: "OK" }]
+      );
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8080/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
-      })
+      const response = await fetch(
+        "https://select-sheep-currently.ngrok-free.app/api/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, password }),
+        }
+      );
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Invalid credentials")
+        throw new Error(data.message || "Invalid credentials");
       }
 
       // Success handling
@@ -89,19 +97,20 @@ export default function LoginScreen({ navigation }) {
         {
           text: "Continue",
         },
-      ])
+      ]);
 
       router.push("/(tabs)/MainPage");
-
     } catch (err) {
-      Alert.alert("Login Failed", err instanceof Error ? err.message : "An unexpected error occurred.", [
-        { text: "Try Again" },
-      ])
-      shakeField()
+      Alert.alert(
+        "Login Failed",
+        err instanceof Error ? err.message : "An unexpected error occurred.",
+        [{ text: "Try Again" }]
+      );
+      shakeField();
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -109,7 +118,10 @@ export default function LoginScreen({ navigation }) {
 
       {/* Logo */}
       <View style={styles.logoContainer}>
-        <Image source={require("../../assets/images/EchoesLogo.png")} style={styles.logo} />
+        <Image
+          source={require("../../assets/images/EchoesLogo.png")}
+          style={styles.logo}
+        />
       </View>
 
       {/* Login Form */}
@@ -129,11 +141,13 @@ export default function LoginScreen({ navigation }) {
             placeholderTextColor="#999"
             value={username}
             onChangeText={(text) => {
-              setUsername(text)
-              setErrors((prev) => ({ ...prev, username: false }))
+              setUsername(text);
+              setErrors((prev) => ({ ...prev, username: false }));
             }}
           />
-          {errors.username && <Text style={styles.errorText}>Username is required</Text>}
+          {errors.username && (
+            <Text style={styles.errorText}>Username is required</Text>
+          )}
         </Animated.View>
 
         <Animated.View
@@ -150,11 +164,13 @@ export default function LoginScreen({ navigation }) {
             secureTextEntry
             value={password}
             onChangeText={(text) => {
-              setPassword(text)
-              setErrors((prev) => ({ ...prev, password: false }))
+              setPassword(text);
+              setErrors((prev) => ({ ...prev, password: false }));
             }}
           />
-          {errors.password && <Text style={styles.errorText}>Password is required</Text>}
+          {errors.password && (
+            <Text style={styles.errorText}>Password is required</Text>
+          )}
         </Animated.View>
 
         {/* Remember me */}
@@ -212,7 +228,7 @@ export default function LoginScreen({ navigation }) {
         </View>
       </View>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -330,5 +346,4 @@ const styles = StyleSheet.create({
   socialIcon: {
     backgroundColor: "#fff",
   },
-})
-
+});
