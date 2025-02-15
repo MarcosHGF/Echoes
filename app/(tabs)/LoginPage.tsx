@@ -12,7 +12,6 @@ import {
   Image,
   Alert,
   Animated,
-  ScrollViewBase,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";

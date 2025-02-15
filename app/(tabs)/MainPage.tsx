@@ -1,39 +1,48 @@
-"use client"
+"use client";
 
-import { View, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Image, Text } from "react-native"
-import { StatusBar } from "expo-status-bar"
-import { Feather } from "@expo/vector-icons"
-import BottomContainer from "../../components/BottomContainer"
-import { router } from "expo-router"
-import { useState } from "react"
+import {
+  View,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  Platform,
+  Image,
+  Text,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { Feather } from "@expo/vector-icons";
+import BottomContainer from "../../components/BottomContainer";
+import { router } from "expo-router";
+import { useState } from "react";
 
 const MainPage = () => {
-  const stories = [1, 2, 3, 4, 5] // Array for stories
-  const songs = [1, 2, 3, 4] // Array for song blocks
-  const posts = [1, 2, 3, 4] // Array for posts
+  const stories = [1, 2, 3, 4, 5]; // Array for stories
+  const songs = [1, 2, 3, 4]; // Array for song blocks
+  const posts = [1, 2, 3, 4]; // Array for posts
   const tabItems = [
     { icon: "home", label: "Home" },
     { icon: "search", label: "Search" },
     { icon: "heart", label: "Favorites" },
     { icon: "user", label: "Profile" },
-  ]
-  const data = 0
+  ];
+  const data = 0;
 
   const [selectedPost, setSelectedPost] = useState<number | null>(null);
 
   const handleEllipsisPress = (index: number) => {
-    setSelectedPost(selectedPost === index ? null : index)
-  }
+    setSelectedPost(selectedPost === index ? null : index);
+  };
 
   const handleOptionSelect = (option: string) => {
     // Handle the selected option here
-    console.log(`Selected option: ${option}`)
-    setSelectedPost(null)
-  }
+    console.log(`Selected option: ${option}`);
+    setSelectedPost(null);
+  };
 
   const handleUserRedirect = async () => {
-    router.navigate("/(tabs)/ProfilePage", { params: { user: String(data) } })
-  }
+    router.navigate("/(tabs)/ProfilePage", { params: { user: String(data) } });
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -41,7 +50,10 @@ const MainPage = () => {
 
       {/* Top Navigation */}
       <View style={styles.header}>
-        <Image source={require("../../assets/images/EchoesLogo.png")} style={styles.logo} />
+        <Image
+          source={require("../../assets/images/EchoesLogo.png")}
+          style={styles.logo}
+        />
         <View style={styles.headerIcons}>
           <TouchableOpacity style={styles.iconButton}>
             <Feather name="bell" size={24} color="#fff" />
@@ -55,9 +67,16 @@ const MainPage = () => {
       {/* Main Content */}
       <ScrollView style={styles.content}>
         {/* Stories */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.storiesContainer}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.storiesContainer}
+        >
           {stories.map((_, index) => (
-            <TouchableOpacity key={index} onPress={() => router.navigate("/(tabs)/ProfilePage")}>
+            <TouchableOpacity
+              key={index}
+              onPress={() => router.navigate("/(tabs)/ProfilePage")}
+            >
               <View style={styles.story}>
                 <View style={styles.storyRing}>
                   <View style={styles.storyImage} />
@@ -72,7 +91,11 @@ const MainPage = () => {
         <View style={styles.sectionTitle}>
           <Text style={styles.sectionTitleText}>Popular Songs</Text>
         </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.songsContainer}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.songsContainer}
+        >
           {songs.map((_, index) => (
             <View key={index} style={styles.songBlock}>
               <View style={styles.songImage} />
@@ -89,19 +112,26 @@ const MainPage = () => {
         {posts.map((_, index) => (
           <View key={index} style={styles.post}>
             <View style={styles.postHeader}>
-              <TouchableOpacity onPress={handleUserRedirect} style={styles.userInfo}>
+              <TouchableOpacity
+                onPress={() => handleUserRedirect()}
+                style={styles.userInfo}
+              >
                 <View style={styles.postAvatar} />
                 <View>
                   <Text style={styles.postUsername}>User {index + 1}</Text>
                   <Text style={styles.postTime}>2h ago</Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.ellipsisButton} onPress={() => handleEllipsisPress(index)}>
+              <TouchableOpacity
+                style={styles.ellipsisButton}
+                onPress={() => handleEllipsisPress(index)}
+              >
                 <Feather name="more-vertical" size={20} color="#fff" />
               </TouchableOpacity>
             </View>
             <Text style={styles.postContent}>
-              This is a sample post content. It can be about music, thoughts, or anything!
+              This is a sample post content. It can be about music, thoughts, or
+              anything!
             </Text>
             <View style={styles.postActions}>
               <TouchableOpacity style={styles.postAction}>
@@ -119,13 +149,22 @@ const MainPage = () => {
             </View>
             {selectedPost === index && (
               <View style={styles.optionsMenu}>
-                <TouchableOpacity style={styles.optionItem} onPress={() => handleOptionSelect("Not Interested")}>
+                <TouchableOpacity
+                  style={styles.optionItem}
+                  onPress={() => handleOptionSelect("Not Interested")}
+                >
                   <Text style={styles.optionText}>Not Interested</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.optionItem} onPress={() => handleOptionSelect("Report")}>
+                <TouchableOpacity
+                  style={styles.optionItem}
+                  onPress={() => handleOptionSelect("Report")}
+                >
                   <Text style={styles.optionText}>Report</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.optionItem} onPress={() => handleOptionSelect("Favorite")}>
+                <TouchableOpacity
+                  style={styles.optionItem}
+                  onPress={() => handleOptionSelect("Favorite")}
+                >
                   <Text style={styles.optionText}>Favorite</Text>
                 </TouchableOpacity>
               </View>
@@ -137,8 +176,8 @@ const MainPage = () => {
       {/* Bottom Fixed Container, player in components */}
       <BottomContainer />
     </SafeAreaView>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -304,7 +343,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 14,
   },
-})
+});
 
-export default MainPage
-
+export default MainPage;

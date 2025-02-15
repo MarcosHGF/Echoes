@@ -57,13 +57,13 @@ export default function HomeScreen() {
       </ThemedView>
       <TouchableOpacity
         style={styles.titleContainer}
-        onPress={() => router.push("/(tabs)/MainPage")}
+        onPress={() => router.navigate("/(tabs)/MainPage")}
       >
         <ThemedText type="defaultSemiBold">MAINPAGE</ThemedText>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.titleContainer}
-        onPress={() => router.push("/(tabs)/LoginPage")}
+        onPress={() => router.navigate("/(tabs)/LoginPage")}
       >
         <ThemedText type="defaultSemiBold">LOGINPAGE</ThemedText>
       </TouchableOpacity>
