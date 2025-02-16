@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { View, TouchableOpacity, StyleSheet, Text, Platform, Animated } from "react-native"
 import { Feather } from "@expo/vector-icons"
+import { router } from "expo-router";
 
 const BottomContainer = () => {
   const [isPlaying, setIsPlaying] = useState(false)
@@ -14,6 +15,35 @@ const BottomContainer = () => {
     { icon: "heart", label: "Favorites" },
     { icon: "user", label: "Profile" },
   ]
+
+  const goToPage = (item) =>{
+
+    const selectedLabel = item.label;
+    
+    switch (selectedLabel) {
+      case "Home":
+        console.log("Navegar para a tela Home");
+          router.navigate("/MainPage");
+        break;
+      case "Search":
+        console.log("Navegar para a tela Search");
+          router.navigate("/SearchPage");
+        break;
+      case "Favorites":
+        console.log("Navegar para a tela Favorites");
+          router.navigate("/SearchPage");
+        break;
+      case "Profile":
+        console.log("Navegar para a tela Profile");
+          router.navigate("/ProfilePage");
+        break;
+      default:
+        console.log("Label não reconhecida");
+          router.navigate("/MainPage");
+        break;
+       }
+  }
+
 
   // Placeholder function for Spotify API integration
   const togglePlayPause = () => {
@@ -84,7 +114,7 @@ const BottomContainer = () => {
       {/* Bottom Tab Bar */}
       <View style={styles.tabBar}>
         {tabItems.map((item, index) => (
-          <TouchableOpacity key={index} style={styles.tabItem}>
+          <TouchableOpacity key={index} style={styles.tabItem} onPress={() => goToPage(item)}>
             <Feather name={item.icon} size={24} color="#fff" />
             <Text style={styles.tabLabel}>{item.label}</Text>
           </TouchableOpacity>
