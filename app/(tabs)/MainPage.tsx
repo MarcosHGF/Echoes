@@ -75,7 +75,7 @@ const MainPage = () => {
           {stories.map((_, index) => (
             <TouchableOpacity
               key={index}
-              onPress={() => router.navigate("/ProfilePage")}
+              onPress={() => router.navigate("/(tabs)/ProfilePage")}
             >
               <View style={styles.story}>
                 <View style={styles.storyRing}>

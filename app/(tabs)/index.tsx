@@ -7,6 +7,10 @@ import { ThemedView } from "@/components/ThemedView";
 import { router } from "expo-router";
 
 export default function HomeScreen() {
+  const handleUserRedirect = async () => {
+    router.navigate("/LoginPage");
+  };
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
@@ -55,15 +59,10 @@ export default function HomeScreen() {
           <ThemedText type="defaultSemiBold">app-example</ThemedText>.
         </ThemedText>
       </ThemedView>
+
       <TouchableOpacity
         style={styles.titleContainer}
-        onPress={() => router.navigate("/(tabs)/MainPage")}
-      >
-        <ThemedText type="defaultSemiBold">MAINPAGE</ThemedText>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.titleContainer}
-        onPress={() => router.navigate("/(tabs)/LoginPage")}
+        onPress={handleUserRedirect}
       >
         <ThemedText type="defaultSemiBold">LOGINPAGE</ThemedText>
       </TouchableOpacity>
