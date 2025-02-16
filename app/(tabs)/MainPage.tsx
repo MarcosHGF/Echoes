@@ -41,7 +41,7 @@ const MainPage = () => {
   };
 
   const handleUserRedirect = async () => {
-    router.navigate("/(tabs)/ProfilePage", { params: { user: String(data) } });
+    router.navigate("/ProfilePage", { params: { user: String(data) } });
   };
 
   return (
@@ -75,7 +75,7 @@ const MainPage = () => {
           {stories.map((_, index) => (
             <TouchableOpacity
               key={index}
-              onPress={() => router.navigate("/(tabs)/ProfilePage")}
+              onPress={() => router.navigate("/ProfilePage")}
             >
               <View style={styles.story}>
                 <View style={styles.storyRing}>

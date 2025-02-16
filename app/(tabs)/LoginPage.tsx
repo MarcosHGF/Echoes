@@ -74,16 +74,13 @@ export default function LoginScreen({ navigation }) {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        "https://select-sheep-currently.ngrok-free.app/api/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ username, password }),
-        }
-      );
+      const response = await fetch("http://127.0.0.1:8080/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
       const data = await response.json();
 
@@ -221,7 +218,7 @@ export default function LoginScreen({ navigation }) {
         {/* Sign Up Link */}
         <View style={styles.signupContainer}>
           <Text style={styles.noAccountText}>don't have a account? </Text>
-          <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
+          <TouchableOpacity onPress={() => router.push("/(tabs)/SingUpPage")}>
             <Text style={styles.signupText}>Sign up</Text>
           </TouchableOpacity>
         </View>

@@ -49,7 +49,6 @@ class Like(db.Model):
         db.session.commit()
         return {"message": f"Like from {user_id} added to post {post_id}"}
 
-
 class User(db.Model):
     __tablename__ = 'user'
 
@@ -90,7 +89,6 @@ class User(db.Model):
         db.session.commit()
         return {"message": "User added successfully"}
 
-
 class Post(db.Model):
     __tablename__ = 'post'
 
@@ -124,7 +122,6 @@ class Post(db.Model):
         db.session.commit()
         return {"message": "Post added"}
 
-
 class UserProfile(db.Model):
     __tablename__ = 'user_profile'
 
@@ -149,7 +146,6 @@ class UserProfile(db.Model):
             "pfp": profile.pfp,
             "musics": profile.musics,
         }
-
 
 class Relationship(db.Model):
     __tablename__ = 'relationship'

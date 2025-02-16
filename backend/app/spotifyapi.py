@@ -1,12 +1,21 @@
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
+import os
+from dotenv import load_dotenv
 
 class SpotifyAPI:
-    def __init__(self, client_id, client_secret, redirect_uri, scope):
+    def __init__(self):
+        load_dotenv()
+        
+        client = os.environ['CLIENT_ID']
+        secret = os.environ['CLIENT_SECRET']
+        uri = os.environ['REDIRECT_URI']
+        scope = os.environ['SCOPE']
         self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
-            client_id=client_id,
-            client_secret=client_secret,
-            redirect_uri=redirect_uri,
+            
+            client_id=client,
+            client_secret=secret,
+            redirect_uri=uri,
             scope=scope
         ))
 
@@ -35,6 +44,6 @@ class SpotifyAPI:
         return {"message": "Tracks added successfully"}
         
 
-    def remove_tracks_from_playlist(self, playlist_id, track_uris):
+    def remove_tracks_from_playlist(self, playlist_id, track_uris): 
         self.sp.playlist_remove_all_occurrences_of_items(playlist_id, track_uris)
         return {"message": "Tracks removed successfully"}
