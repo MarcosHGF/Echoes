@@ -49,7 +49,7 @@ export default function SignUpScreen({ navigation }) {
         throw new Error("Login failed. Please check your credentials.");
       }
 
-      router.push("/(tabs)/MainPage");
+      router.push("/MainPage");
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "An unexpected error occurred."
@@ -132,7 +132,7 @@ export default function SignUpScreen({ navigation }) {
         {/* Login Link */}
         <View style={styles.loginContainer}>
           <Text style={styles.haveAccountText}>Already have an account? </Text>
-          <TouchableOpacity onPress={() => router.push("/(tabs)/LoginPage")}>
+          <TouchableOpacity onPress={() => router.push("/LoginPage")}>
             <Text style={styles.loginText}>Log in</Text>
           </TouchableOpacity>
         </View>

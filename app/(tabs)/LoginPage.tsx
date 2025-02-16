@@ -95,7 +95,7 @@ export default function LoginScreen({ navigation }) {
         },
       ]);
 
-      router.push("/(tabs)/MainPage");
+      router.push("/MainPage");
     } catch (err) {
       Alert.alert(
         "Login Failed",
