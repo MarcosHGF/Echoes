@@ -16,6 +16,7 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
+import { ScrollView } from "react-native-reanimated/lib/typescript/Animated";
 
 export default function LoginScreen() {
   const [username, setUsername] = useState("");
@@ -111,6 +112,8 @@ export default function LoginScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
+
+      <ScrollView>
 
       {/* Logo */}
       <View style={styles.logoContainer}>
@@ -223,6 +226,8 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
       </View>
+      </ScrollView>
+
     </SafeAreaView>
   );
 }

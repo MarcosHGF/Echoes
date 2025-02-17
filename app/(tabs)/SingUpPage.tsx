@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { router } from "expo-router";
+import { ScrollView } from "react-native-reanimated/lib/typescript/Animated";
 
 export default function SignUpScreen() {
   const [username, setUsername] = useState("");
@@ -61,6 +62,7 @@ export default function SignUpScreen() {
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
 
+      <ScrollView>
       {/* Logo */}
       <View style={styles.logoContainer}>
         <Image
@@ -137,6 +139,8 @@ export default function SignUpScreen() {
           </TouchableOpacity>
         </View>
       </View>
+      </ScrollView>
+
     </SafeAreaView>
   );
 }
