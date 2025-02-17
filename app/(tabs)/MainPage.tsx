@@ -41,7 +41,7 @@ const MainPage = () => {
   };
 
   const handleUserRedirect = async () => {
-    router.navigate("/ProfilePage", { params: { user: String(data) } });
+    router.navigate("/ProfilePage");
   };
 
   return (

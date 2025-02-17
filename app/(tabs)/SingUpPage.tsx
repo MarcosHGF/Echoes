@@ -15,7 +15,7 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { router } from "expo-router";
 
-export default function SignUpScreen({ navigation }) {
+export default function SignUpScreen() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
