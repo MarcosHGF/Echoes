@@ -11,10 +11,10 @@ import {
   Switch,
   Image,
   Alert,
+  ScrollView,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { router } from "expo-router";
-import { ScrollView } from "react-native-reanimated/lib/typescript/Animated";
 
 export default function SignUpScreen() {
   const [username, setUsername] = useState("");
@@ -63,84 +63,85 @@ export default function SignUpScreen() {
       <StatusBar style="light" />
 
       <ScrollView>
-      {/* Logo */}
-      <View style={styles.logoContainer}>
-        <Image
-          source={require("../../assets/images/EchoesLogo.png")}
-          style={styles.logo}
-        />
-      </View>
-
-      {/* Sign Up Form */}
-      <View style={styles.formContainer}>
-        <Text style={styles.headerText}>Sign Up:</Text>
-
-        <TextInput
-          style={styles.input}
-          placeholder="Username"
-          placeholderTextColor="#999"
-          value={username}
-          onChangeText={setUsername}
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          placeholderTextColor="#999"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="#999"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Confirm Password"
-          placeholderTextColor="#999"
-          secureTextEntry
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-        />
-
-        {/* Terms and Conditions */}
-        <View style={styles.termsContainer}>
-          <Switch
-            value={acceptTerms}
-            onValueChange={setAcceptTerms}
-            trackColor={{ false: "#444", true: "#00E5FF" }}
-            thumbColor={acceptTerms ? "#fff" : "#fff"}
+        {/* Logo */}
+        <View style={styles.logoContainer}>
+          <Image
+            source={require("../../assets/images/EchoesLogo.png")}
+            style={styles.logo}
           />
-          <Text style={styles.termsText}>Accept terms and conditions</Text>
         </View>
 
-        {/* Sign Up Button */}
-        <TouchableOpacity
-          style={styles.signUpButton}
-          onPress={handleSignUp}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.signUpButtonText}>Sign Up</Text>
-        </TouchableOpacity>
+        {/* Sign Up Form */}
+        <View style={styles.formContainer}>
+          <Text style={styles.headerText}>Sign Up:</Text>
 
-        {/* Login Link */}
-        <View style={styles.loginContainer}>
-          <Text style={styles.haveAccountText}>Already have an account? </Text>
-          <TouchableOpacity onPress={() => router.push("/LoginPage")}>
-            <Text style={styles.loginText}>Log in</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Username"
+            placeholderTextColor="#999"
+            value={username}
+            onChangeText={setUsername}
+          />
+
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor="#999"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor="#999"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
+
+          <TextInput
+            style={styles.input}
+            placeholder="Confirm Password"
+            placeholderTextColor="#999"
+            secureTextEntry
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+          />
+
+          {/* Terms and Conditions */}
+          <View style={styles.termsContainer}>
+            <Switch
+              value={acceptTerms}
+              onValueChange={setAcceptTerms}
+              trackColor={{ false: "#444", true: "#00E5FF" }}
+              thumbColor={acceptTerms ? "#fff" : "#fff"}
+            />
+            <Text style={styles.termsText}>Accept terms and conditions</Text>
+          </View>
+
+          {/* Sign Up Button */}
+          <TouchableOpacity
+            style={styles.signUpButton}
+            onPress={handleSignUp}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.signUpButtonText}>Sign Up</Text>
           </TouchableOpacity>
-        </View>
-      </View>
-      </ScrollView>
 
+          {/* Login Link */}
+          <View style={styles.loginContainer}>
+            <Text style={styles.haveAccountText}>
+              Already have an account?{" "}
+            </Text>
+            <TouchableOpacity onPress={() => router.push("/LoginPage")}>
+              <Text style={styles.loginText}>Log in</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

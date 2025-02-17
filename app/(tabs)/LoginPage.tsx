@@ -12,11 +12,11 @@ import {
   Image,
   Alert,
   Animated,
+  ScrollView,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
-import { ScrollView } from "react-native-reanimated/lib/typescript/Animated";
 
 export default function LoginScreen() {
   const [username, setUsername] = useState("");
@@ -114,120 +114,118 @@ export default function LoginScreen() {
       <StatusBar style="light" />
 
       <ScrollView>
-
-      {/* Logo */}
-      <View style={styles.logoContainer}>
-        <Image
-          source={require("../../assets/images/EchoesLogo.png")}
-          style={styles.logo}
-        />
-      </View>
-
-      {/* Login Form */}
-      <View style={styles.formContainer}>
-        <Text style={styles.headerText}>login:</Text>
-
-        <Animated.View
-          style={[
-            styles.inputContainer,
-            { transform: [{ translateX: shakeAnimation }] },
-            errors.username && styles.inputError,
-          ]}
-        >
-          <TextInput
-            style={styles.input}
-            placeholder="username:"
-            placeholderTextColor="#999"
-            value={username}
-            onChangeText={(text) => {
-              setUsername(text);
-              setErrors((prev) => ({ ...prev, username: false }));
-            }}
+        {/* Logo */}
+        <View style={styles.logoContainer}>
+          <Image
+            source={require("../../assets/images/EchoesLogo.png")}
+            style={styles.logo}
           />
-          {errors.username && (
-            <Text style={styles.errorText}>Username is required</Text>
-          )}
-        </Animated.View>
-
-        <Animated.View
-          style={[
-            styles.inputContainer,
-            { transform: [{ translateX: shakeAnimation }] },
-            errors.password && styles.inputError,
-          ]}
-        >
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor="#999"
-            secureTextEntry
-            value={password}
-            onChangeText={(text) => {
-              setPassword(text);
-              setErrors((prev) => ({ ...prev, password: false }));
-            }}
-          />
-          {errors.password && (
-            <Text style={styles.errorText}>Password is required</Text>
-          )}
-        </Animated.View>
-
-        {/* Remember me */}
-        <View style={styles.rememberMe}>
-          <Switch
-            value={rememberMe}
-            onValueChange={setRememberMe}
-            trackColor={{ false: "#444", true: "#00E5FF" }}
-            thumbColor={rememberMe ? "#fff" : "#fff"}
-          />
-          <Text style={styles.termsText}>Remember Me?</Text>
         </View>
 
-        {/* Submit */}
-        <TouchableOpacity
-          style={[styles.socialButton, isLoading && styles.buttonDisabled]}
-          onPress={handleLogin}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <Text style={styles.socialButtonText}>Loading...</Text>
-          ) : (
-            <>
-              <View style={styles.socialIcon} />
-              <Text style={styles.socialButtonText}>Login</Text>
-            </>
-          )}
-        </TouchableOpacity>
+        {/* Login Form */}
+        <View style={styles.formContainer}>
+          <Text style={styles.headerText}>login:</Text>
 
-        <TouchableOpacity onPress={() => {}}>
-          <Text style={styles.forgotText}>forgot username? password?</Text>
-        </TouchableOpacity>
+          <Animated.View
+            style={[
+              styles.inputContainer,
+              { transform: [{ translateX: shakeAnimation }] },
+              errors.username && styles.inputError,
+            ]}
+          >
+            <TextInput
+              style={styles.input}
+              placeholder="username:"
+              placeholderTextColor="#999"
+              value={username}
+              onChangeText={(text) => {
+                setUsername(text);
+                setErrors((prev) => ({ ...prev, username: false }));
+              }}
+            />
+            {errors.username && (
+              <Text style={styles.errorText}>Username is required</Text>
+            )}
+          </Animated.View>
 
-        {/* Social Login */}
-        <View style={styles.socialContainer}>
-          <Text style={styles.loginWithText}>login with:</Text>
+          <Animated.View
+            style={[
+              styles.inputContainer,
+              { transform: [{ translateX: shakeAnimation }] },
+              errors.password && styles.inputError,
+            ]}
+          >
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              placeholderTextColor="#999"
+              secureTextEntry
+              value={password}
+              onChangeText={(text) => {
+                setPassword(text);
+                setErrors((prev) => ({ ...prev, password: false }));
+              }}
+            />
+            {errors.password && (
+              <Text style={styles.errorText}>Password is required</Text>
+            )}
+          </Animated.View>
 
-          <TouchableOpacity style={styles.socialButton}>
-            <Feather name="music" size={24} color="#fff" />
-            <Text style={styles.socialButtonText}>Spotify</Text>
+          {/* Remember me */}
+          <View style={styles.rememberMe}>
+            <Switch
+              value={rememberMe}
+              onValueChange={setRememberMe}
+              trackColor={{ false: "#444", true: "#00E5FF" }}
+              thumbColor={rememberMe ? "#fff" : "#fff"}
+            />
+            <Text style={styles.termsText}>Remember Me?</Text>
+          </View>
+
+          {/* Submit */}
+          <TouchableOpacity
+            style={[styles.socialButton, isLoading && styles.buttonDisabled]}
+            onPress={handleLogin}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <Text style={styles.socialButtonText}>Loading...</Text>
+            ) : (
+              <>
+                <View style={styles.socialIcon} />
+                <Text style={styles.socialButtonText}>Login</Text>
+              </>
+            )}
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.socialButton}>
-            <Feather name="chrome" size={24} color="#fff" />
-            <Text style={styles.socialButtonText}>Google</Text>
+          <TouchableOpacity onPress={() => {}}>
+            <Text style={styles.forgotText}>forgot username? password?</Text>
           </TouchableOpacity>
+
+          {/* Social Login */}
+          <View style={styles.socialContainer}>
+            <Text style={styles.loginWithText}>login with:</Text>
+
+            <TouchableOpacity style={styles.socialButton}>
+              <Feather name="music" size={24} color="#fff" />
+              <Text style={styles.socialButtonText}>Spotify</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.socialButton}>
+              <Feather name="chrome" size={24} color="#fff" />
+              <Text style={styles.socialButtonText}>Google</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Sign Up Link */}
+          <View style={styles.signupContainer}>
+            <Text style={styles.noAccountText}>don't have a account? </Text>
+            <TouchableOpacity onPress={() => router.push("/(tabs)/SingUpPage")}>
+              <Text style={styles.signupText}>Sign up</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-
-        {/* Sign Up Link */}
-        <View style={styles.signupContainer}>
-          <Text style={styles.noAccountText}>don't have a account? </Text>
-          <TouchableOpacity onPress={() => router.push("/(tabs)/SingUpPage")}>
-            <Text style={styles.signupText}>Sign up</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
       </ScrollView>
-
     </SafeAreaView>
   );
 }
