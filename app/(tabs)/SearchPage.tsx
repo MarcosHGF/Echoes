@@ -1,13 +1,22 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { View, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Text, TextInput, Image } from "react-native"
-import { StatusBar } from "expo-status-bar"
-import { Feather } from "@expo/vector-icons"
-import BottomContainer from "../../components/BottomContainer"
+import { useState } from "react";
+import {
+  View,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  Text,
+  TextInput,
+  Image,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { Feather } from "@expo/vector-icons";
+import BottomContainer from "../../components/BottomContainer";
 
 const SearchPage = () => {
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedPost, setSelectedPost] = useState<number | null>(null);
   const trendingTopics = [
     "Summer Hits 2025",
@@ -15,147 +24,171 @@ const SearchPage = () => {
     "AI-Generated Melodies",
     "Virtual Concert Experiences",
     "Retro Synth Wave",
-  ]
+  ];
   const playlists = [
     { name: "Top 50 Global", image: "/placeholder.svg?height=80&width=80" },
     { name: "Viral Hits", image: "/placeholder.svg?height=80&width=80" },
     { name: "Chill Vibes", image: "/placeholder.svg?height=80&width=80" },
-    { name: "Workout Motivation", image: "/placeholder.svg?height=80&width=80" },
-  ]
+    {
+      name: "Workout Motivation",
+      image: "/placeholder.svg?height=80&width=80",
+    },
+  ];
   const tweets = [
-    { user: "MusicLover", content: "Just discovered an amazing new artist! #NewMusic", time: "2h ago" },
+    {
+      user: "MusicLover",
+      content: "Just discovered an amazing new artist! #NewMusic",
+      time: "2h ago",
+    },
     {
       user: "ConcertGoer",
-      content: "Last night's virtual concert was mind-blowing! 🎶🤯 #VirtualConcert",
+      content:
+        "Last night's virtual concert was mind-blowing! 🎶🤯 #VirtualConcert",
       time: "5h ago",
     },
     {
       user: "PlaylistMaker",
-      content: "Curated a perfect summer playlist. Who wants to listen? 🏖️🎧 #SummerVibes",
+      content:
+        "Curated a perfect summer playlist. Who wants to listen? 🏖️🎧 #SummerVibes",
       time: "1d ago",
     },
-  ]
+  ];
 
   const handleEllipsisPress = (index: number) => {
-    setSelectedPost(selectedPost === index ? null : index)
-  }
+    setSelectedPost(selectedPost === index ? null : index);
+  };
 
   const handleOptionSelect = (option: string) => {
     // Handle the selected option here
-    console.log(`Selected option: ${option}`)
-    setSelectedPost(null)
-  }
+    console.log(`Selected option: ${option}`);
+    setSelectedPost(null);
+  };
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar style="light" />
+    <>
+      <SafeAreaView style={styles.container}>
+        <StatusBar style="light" />
 
-      {/* Search Bar */}
-      <View style={styles.searchBarContainer}>
-        <Feather name="search" size={20} color="#999" style={styles.searchIcon} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search for songs, artists, or podcasts"
-          placeholderTextColor="#999"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-      </View>
-
-      <ScrollView style={styles.content}>
-        {/* Trending Topics */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Trending Topics</Text>
-          {trendingTopics.map((topic, index) => (
-            <TouchableOpacity key={index} style={styles.trendingItem}>
-              <Feather name="trending-up" size={16} color="#00E5FF" />
-              <Text style={styles.trendingText}>{topic}</Text>
-            </TouchableOpacity>
-          ))}
+        {/* Search Bar */}
+        <View style={styles.searchBarContainer}>
+          <Feather
+            name="search"
+            size={20}
+            color="#999"
+            style={styles.searchIcon}
+          />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search for songs, artists, or podcasts"
+            placeholderTextColor="#999"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
         </View>
 
-        {/* Playlists of the Moment */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Playlists of the Moment</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.playlistsContainer}>
-            {playlists.map((playlist, index) => (
-              <TouchableOpacity key={index} style={styles.playlistItem}>
-                <Image source={{ uri: playlist.image }} style={styles.playlistImage} />
-                <Text style={styles.playlistName}>{playlist.name}</Text>
+        <ScrollView style={styles.content}>
+          {/* Trending Topics */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Trending Topics</Text>
+            {trendingTopics.map((topic, index) => (
+              <TouchableOpacity key={index} style={styles.trendingItem}>
+                <Feather name="trending-up" size={16} color="#00E5FF" />
+                <Text style={styles.trendingText}>{topic}</Text>
               </TouchableOpacity>
             ))}
-          </ScrollView>
-        </View>
+          </View>
 
-        {/* Recent Tweets */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recent Tweets</Text>
-          {[1, 2, 3, 4].map((_, index) => (
-            <View key={index} style={styles.post}>
-              <View style={styles.postHeader}>
-                <View style={styles.userInfo}>
-                  <View style={styles.postAvatar} />
-                  <View>
-                    <Text style={styles.postUsername}>User {index + 1}</Text>
-                    <Text style={styles.postTime}>2h ago</Text>
+          {/* Playlists of the Moment */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Playlists of the Moment</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.playlistsContainer}
+            >
+              {playlists.map((playlist, index) => (
+                <TouchableOpacity key={index} style={styles.playlistItem}>
+                  <Image
+                    source={{ uri: playlist.image }}
+                    style={styles.playlistImage}
+                  />
+                  <Text style={styles.playlistName}>{playlist.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+
+          {/* Recent Tweets */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Recent Tweets</Text>
+            {[1, 2, 3, 4].map((_, index) => (
+              <View key={index} style={styles.post}>
+                <View style={styles.postHeader}>
+                  <View style={styles.userInfo}>
+                    <View style={styles.postAvatar} />
+                    <View>
+                      <Text style={styles.postUsername}>User {index + 1}</Text>
+                      <Text style={styles.postTime}>2h ago</Text>
+                    </View>
                   </View>
-                </View>
-                <TouchableOpacity
-                  style={styles.ellipsisButton}
-                  onPress={() => handleEllipsisPress(index)}
-                >
-                  <Feather name="more-vertical" size={20} color="#fff" />
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.postContent}>This is a sample tweet about music, life, or anything else!</Text>
-              <View style={styles.postActions}>
-                <TouchableOpacity style={styles.postAction}>
-                  <Feather name="heart" size={20} color="#fff" />
-                  <Text style={styles.postActionText}>Like</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.postAction}>
-                  <Feather name="message-circle" size={20} color="#fff" />
-                  <Text style={styles.postActionText}>Comment</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.postAction}>
-                  <Feather name="share-2" size={20} color="#fff" />
-                  <Text style={styles.postActionText}>Share</Text>
-                </TouchableOpacity>
-              </View>
-              {selectedPost === index && (
-                <View style={styles.optionsMenu}>
                   <TouchableOpacity
-                    style={styles.optionItem}
-                    onPress={() => handleOptionSelect("Not Interested")}
+                    style={styles.ellipsisButton}
+                    onPress={() => handleEllipsisPress(index)}
                   >
-                    <Text style={styles.optionText}>Not Interested</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.optionItem}
-                    onPress={() => handleOptionSelect("Report")}
-                  >
-                    <Text style={styles.optionText}>Report</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.optionItem}
-                    onPress={() => handleOptionSelect("Favorite")}
-                  >
-                    <Text style={styles.optionText}>Favorite</Text>
+                    <Feather name="more-vertical" size={20} color="#fff" />
                   </TouchableOpacity>
                 </View>
-              )}
-            </View>
-          ))}
-        </View>
+                <Text style={styles.postContent}>
+                  This is a sample tweet about music, life, or anything else!
+                </Text>
+                <View style={styles.postActions}>
+                  <TouchableOpacity style={styles.postAction}>
+                    <Feather name="heart" size={20} color="#fff" />
+                    <Text style={styles.postActionText}>Like</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.postAction}>
+                    <Feather name="message-circle" size={20} color="#fff" />
+                    <Text style={styles.postActionText}>Comment</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.postAction}>
+                    <Feather name="share-2" size={20} color="#fff" />
+                    <Text style={styles.postActionText}>Share</Text>
+                  </TouchableOpacity>
+                </View>
+                {selectedPost === index && (
+                  <View style={styles.optionsMenu}>
+                    <TouchableOpacity
+                      style={styles.optionItem}
+                      onPress={() => handleOptionSelect("Not Interested")}
+                    >
+                      <Text style={styles.optionText}>Not Interested</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.optionItem}
+                      onPress={() => handleOptionSelect("Report")}
+                    >
+                      <Text style={styles.optionText}>Report</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.optionItem}
+                      onPress={() => handleOptionSelect("Favorite")}
+                    >
+                      <Text style={styles.optionText}>Favorite</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+            ))}
+          </View>
 
-        {/* Bottom Padding for Content */}
-        <View style={styles.bottomPadding} />
-      </ScrollView>
-
+          {/* Bottom Padding for Content */}
+          <View style={styles.bottomPadding} />
+        </ScrollView>
+      </SafeAreaView>
       {/* Bottom Fixed Container */}
       <BottomContainer />
-    </SafeAreaView>
-  )
-}
+    </>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -300,6 +333,6 @@ const styles = StyleSheet.create({
   bottomPadding: {
     height: 140,
   },
-})
+});
 
-export default SearchPage
+export default SearchPage;

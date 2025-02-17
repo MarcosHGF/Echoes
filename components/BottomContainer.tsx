@@ -1,77 +1,83 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { View, TouchableOpacity, StyleSheet, Text, Platform, Animated } from "react-native"
-import { Feather } from "@expo/vector-icons"
+import { useState, useEffect } from "react";
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Text,
+  Platform,
+  Animated,
+} from "react-native";
+import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 const BottomContainer = () => {
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [progress, setProgress] = useState(0)
-  const [duration, setDuration] = useState(180) // Default duration of 3 minutes (180 seconds)
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(180); // Default duration of 3 minutes (180 seconds)
   const tabItems = [
     { icon: "home", label: "Home" },
     { icon: "search", label: "Search" },
     { icon: "heart", label: "Favorites" },
     { icon: "user", label: "Profile" },
-  ]
+  ];
 
-  const goToPage = (item) =>{
-
+  const goToPage = (item: { icon?: string; label: any }) => {
     const selectedLabel = item.label;
-    
+
     switch (selectedLabel) {
       case "Home":
         console.log("Navegar para a tela Home");
-          router.navigate("/MainPage");
+        router.navigate("/MainPage");
         break;
       case "Search":
         console.log("Navegar para a tela Search");
-          router.navigate("/SearchPage");
+        router.navigate("/SearchPage");
         break;
       case "Favorites":
         console.log("Navegar para a tela Favorites");
-          router.navigate("/SearchPage");
+        router.navigate("/SearchPage");
         break;
       case "Profile":
         console.log("Navegar para a tela Profile");
-          router.navigate("/ProfilePage");
+        router.navigate("/ProfilePage");
         break;
       default:
         console.log("Label não reconhecida");
-          router.navigate("/MainPage");
+        router.navigate("/MainPage");
         break;
-       }
-  }
-
+    }
+  };
 
   // Placeholder function for Spotify API integration
   const togglePlayPause = () => {
-    setIsPlaying(!isPlaying)
-  }
+    setIsPlaying(!isPlaying);
+  };
 
   useEffect(() => {
-    let interval : NodeJS.Timeout | number;
+    let interval: NodeJS.Timeout | number;
     if (isPlaying) {
       interval = setInterval(() => {
         setProgress((prevProgress) => {
           if (prevProgress >= duration) {
-            clearInterval(interval)
-            setIsPlaying(false)
-            return 0
+            clearInterval(interval);
+            setIsPlaying(false);
+            return 0;
           }
-          return prevProgress + 1
-        })
-      }, 1000)
+          return prevProgress + 1;
+        });
+      }, 1000);
     }
-    return () => clearInterval(interval)
-  }, [isPlaying, duration])
+    return () => clearInterval(interval);
+  }, [isPlaying, duration]);
 
   const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60)
-    const remainingSeconds = seconds % 60
-    return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`
-  }
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
+  };
 
   return (
     <View style={styles.bottomContainer}>
@@ -89,7 +95,12 @@ const BottomContainer = () => {
         <View style={styles.mainControls}>
           <View style={styles.timelineContainer}>
             <View style={styles.timeline}>
-              <Animated.View style={[styles.progressBar, { width: `${(progress / duration) * 100}%` }]} />
+              <Animated.View
+                style={[
+                  styles.progressBar,
+                  { width: `${(progress / duration) * 100}%` },
+                ]}
+              />
             </View>
             <View style={styles.timeInfo}>
               <Text style={styles.timeText}>{formatTime(progress)}</Text>
@@ -101,8 +112,15 @@ const BottomContainer = () => {
             <TouchableOpacity onPress={() => console.log("Previous")}>
               <Feather name="skip-back" size={20} color="#fff" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.playPauseButton} onPress={togglePlayPause}>
-              <Feather name={isPlaying ? "pause" : "play"} size={20} color="#fff" />
+            <TouchableOpacity
+              style={styles.playPauseButton}
+              onPress={togglePlayPause}
+            >
+              <Feather
+                name={isPlaying ? "pause" : "play"}
+                size={20}
+                color="#fff"
+              />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => console.log("Next")}>
               <Feather name="skip-forward" size={20} color="#fff" />
@@ -114,15 +132,19 @@ const BottomContainer = () => {
       {/* Bottom Tab Bar */}
       <View style={styles.tabBar}>
         {tabItems.map((item, index) => (
-          <TouchableOpacity key={index} style={styles.tabItem} onPress={() => goToPage(item)}>
+          <TouchableOpacity
+            key={index}
+            style={styles.tabItem}
+            onPress={() => goToPage(item)}
+          >
             <Feather name={item.icon} size={24} color="#fff" />
             <Text style={styles.tabLabel}>{item.label}</Text>
           </TouchableOpacity>
         ))}
       </View>
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   bottomContainer: {
@@ -222,7 +244,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
     opacity: 0.8,
   },
-})
+});
 
-export default BottomContainer
-
+export default BottomContainer;

@@ -1,158 +1,203 @@
-"use client"
+"use client";
 
-import { View, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Text, Image } from "react-native"
-import { StatusBar } from "expo-status-bar"
-import { Feather } from "@expo/vector-icons"
-import BottomContainer from "../../components/BottomContainer"
-import { useState } from "react"
+import {
+  View,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  Text,
+  Image,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { Feather } from "@expo/vector-icons";
+import BottomContainer from "../../components/BottomContainer";
+import { useState } from "react";
 
 const ProfilePage = () => {
-  const playlists = [1, 2, 3, 4, 5] // Array for playlists
-  const stories = [1, 2, 3, 4, 5] // Array for stories
-  const tweets = [1, 2, 3] // Array for tweets
+  const playlists = [1, 2, 3, 4, 5]; // Array for playlists
+  const stories = [1, 2, 3, 4, 5]; // Array for stories
+  const tweets = [1, 2, 3]; // Array for tweets
   const [selectedPost, setSelectedPost] = useState<number | null>(null);
 
   const handleEllipsisPress = (index: number) => {
-    setSelectedPost(selectedPost === index ? null : index)
-  }
+    setSelectedPost(selectedPost === index ? null : index);
+  };
 
   const handleOptionSelect = (option: string) => {
     // Handle the selected option here
-    console.log(`Selected option: ${option}`)
-    setSelectedPost(null)
-  }
+    console.log(`Selected option: ${option}`);
+    setSelectedPost(null);
+  };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar style="light" />
+    <>
+      <SafeAreaView style={styles.container}>
+        <StatusBar style="light" />
 
-      <ScrollView style={styles.content}>
-        {/* Banner and Profile Section */}
-        <View style={styles.bannerContainer}>
-          <View style={styles.banner} />
-          <View style={styles.profileSection}>
-            <View style={styles.profilePictureContainer}>
-              <Image source={require("../../assets/images/profile-picture.png")} style={styles.profilePicture} />
-            </View>
-            <View style={styles.profileInfo}>
-              <Text style={styles.profileName}>Calcifer</Text>
-              <View style={styles.currentlyPlayingContainer}>
-                <Text style={styles.currentlyPlaying}>
-                  <Feather name="music" size={14} color="#00E5FF" /> Currently playing: Song Name
-                </Text>
-                <TouchableOpacity style={styles.listButton} onPress={() => console.log("List song")}>
-                  <Feather name="list" size={14} color="#00E5FF" />
-                </TouchableOpacity>
+        <ScrollView style={styles.content}>
+          {/* Banner and Profile Section */}
+          <View style={styles.bannerContainer}>
+            <View style={styles.banner} />
+            <View style={styles.profileSection}>
+              <View style={styles.profilePictureContainer}>
+                <Image
+                  source={require("../../assets/images/profile-picture.png")}
+                  style={styles.profilePicture}
+                />
               </View>
-            </View>
-          </View>
-        </View>
-
-        {/* User Description */}
-        <View style={styles.section}>
-          <Text style={styles.userDescription}>Music enthusiast | Playlist curator | Always exploring new sounds</Text>
-        </View>
-
-        {/* Favorite Music Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Favorite Music</Text>
-          <View style={styles.favoriteMusicContainer}>
-            {[1, 2, 3].map((_, index) => (
-              <View key={index} style={styles.favoriteMusicItem}>
-                <View style={styles.favoriteMusicCover} />
-                <Text style={styles.favoriteMusicTitle}>Top Song {index + 1}</Text>
-                <Text style={styles.favoriteMusicArtist}>Artist {index + 1}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* Playlists Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>My Playlists</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.playlistsContainer}>
-            {playlists.map((_, index) => (
-              <View key={index} style={styles.playlistItem}>
-                <View style={styles.playlistCover} />
-                <Text style={styles.playlistTitle}>Playlist {index + 1}</Text>
-              </View>
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* Stories Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Stories</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.storiesContainer}>
-            {stories.map((_, index) => (
-              <View key={index} style={styles.storyItem}>
-                <View style={styles.storyRing}>
-                  <View style={styles.storyImage} />
+              <View style={styles.profileInfo}>
+                <Text style={styles.profileName}>Calcifer</Text>
+                <View style={styles.currentlyPlayingContainer}>
+                  <Text style={styles.currentlyPlaying}>
+                    <Feather name="music" size={14} color="#00E5FF" /> Currently
+                    playing: Song Name
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.listButton}
+                    onPress={() => console.log("List song")}
+                  >
+                    <Feather name="list" size={14} color="#00E5FF" />
+                  </TouchableOpacity>
                 </View>
-                <Text style={styles.storyText}>Story {index + 1}</Text>
               </View>
-            ))}
-          </ScrollView>
-        </View>
+            </View>
+          </View>
 
-        {/* Tweets Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recent Tweets</Text>
-          {[1, 2, 3, 4].map((_, index) => (
-            <View key={index} style={styles.post}>
-              <View style={styles.postHeader}>
-                <View style={styles.userInfo}>
-                  <View style={styles.postAvatar} />
-                  <View>
-                    <Text style={styles.postUsername}>User {index + 1}</Text>
-                    <Text style={styles.postTime}>2h ago</Text>
+          {/* User Description */}
+          <View style={styles.section}>
+            <Text style={styles.userDescription}>
+              Music enthusiast | Playlist curator | Always exploring new sounds
+            </Text>
+          </View>
+
+          {/* Favorite Music Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Favorite Music</Text>
+            <View style={styles.favoriteMusicContainer}>
+              {[1, 2, 3].map((_, index) => (
+                <View key={index} style={styles.favoriteMusicItem}>
+                  <View style={styles.favoriteMusicCover} />
+                  <Text style={styles.favoriteMusicTitle}>
+                    Top Song {index + 1}
+                  </Text>
+                  <Text style={styles.favoriteMusicArtist}>
+                    Artist {index + 1}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          {/* Playlists Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>My Playlists</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.playlistsContainer}
+            >
+              {playlists.map((_, index) => (
+                <View key={index} style={styles.playlistItem}>
+                  <View style={styles.playlistCover} />
+                  <Text style={styles.playlistTitle}>Playlist {index + 1}</Text>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+
+          {/* Stories Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Stories</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.storiesContainer}
+            >
+              {stories.map((_, index) => (
+                <View key={index} style={styles.storyItem}>
+                  <View style={styles.storyRing}>
+                    <View style={styles.storyImage} />
                   </View>
+                  <Text style={styles.storyText}>Story {index + 1}</Text>
                 </View>
-                <TouchableOpacity style={styles.ellipsisButton} onPress={() => handleEllipsisPress(index)}>
-                  <Feather name="more-vertical" size={20} color="#fff" />
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.postContent}>This is a sample tweet about music, life, or anything else!</Text>
-              <View style={styles.postActions}>
-                <TouchableOpacity style={styles.postAction}>
-                  <Feather name="heart" size={20} color="#fff" />
-                  <Text style={styles.postActionText}>Like</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.postAction}>
-                  <Feather name="message-circle" size={20} color="#fff" />
-                  <Text style={styles.postActionText}>Comment</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.postAction}>
-                  <Feather name="share-2" size={20} color="#fff" />
-                  <Text style={styles.postActionText}>Share</Text>
-                </TouchableOpacity>
-              </View>
-              {selectedPost === index && (
-                <View style={styles.optionsMenu}>
-                  <TouchableOpacity style={styles.optionItem} onPress={() => handleOptionSelect("Not Interested")}>
-                    <Text style={styles.optionText}>Not Interested</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.optionItem} onPress={() => handleOptionSelect("Report")}>
-                    <Text style={styles.optionText}>Report</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.optionItem} onPress={() => handleOptionSelect("Favorite")}>
-                    <Text style={styles.optionText}>Favorite</Text>
+              ))}
+            </ScrollView>
+          </View>
+
+          {/* Tweets Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Recent Tweets</Text>
+            {[1, 2, 3, 4].map((_, index) => (
+              <View key={index} style={styles.post}>
+                <View style={styles.postHeader}>
+                  <View style={styles.userInfo}>
+                    <View style={styles.postAvatar} />
+                    <View>
+                      <Text style={styles.postUsername}>User {index + 1}</Text>
+                      <Text style={styles.postTime}>2h ago</Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity
+                    style={styles.ellipsisButton}
+                    onPress={() => handleEllipsisPress(index)}
+                  >
+                    <Feather name="more-vertical" size={20} color="#fff" />
                   </TouchableOpacity>
                 </View>
-              )}
-            </View>
-          ))}
-        </View>
+                <Text style={styles.postContent}>
+                  This is a sample tweet about music, life, or anything else!
+                </Text>
+                <View style={styles.postActions}>
+                  <TouchableOpacity style={styles.postAction}>
+                    <Feather name="heart" size={20} color="#fff" />
+                    <Text style={styles.postActionText}>Like</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.postAction}>
+                    <Feather name="message-circle" size={20} color="#fff" />
+                    <Text style={styles.postActionText}>Comment</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.postAction}>
+                    <Feather name="share-2" size={20} color="#fff" />
+                    <Text style={styles.postActionText}>Share</Text>
+                  </TouchableOpacity>
+                </View>
+                {selectedPost === index && (
+                  <View style={styles.optionsMenu}>
+                    <TouchableOpacity
+                      style={styles.optionItem}
+                      onPress={() => handleOptionSelect("Not Interested")}
+                    >
+                      <Text style={styles.optionText}>Not Interested</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.optionItem}
+                      onPress={() => handleOptionSelect("Report")}
+                    >
+                      <Text style={styles.optionText}>Report</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.optionItem}
+                      onPress={() => handleOptionSelect("Favorite")}
+                    >
+                      <Text style={styles.optionText}>Favorite</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+            ))}
+          </View>
 
-        {/* Bottom Padding for Content */}
-        <View style={styles.bottomPadding} />
-      </ScrollView>
+          {/* Bottom Padding for Content */}
+          <View style={styles.bottomPadding} />
+        </ScrollView>
 
-      {/* Bottom Fixed Container */}
+        {/* Bottom Fixed Container */}
+      </SafeAreaView>
       <BottomContainer />
-    </SafeAreaView>
-  )
-}
+    </>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -370,7 +415,6 @@ const styles = StyleSheet.create({
   bottomPadding: {
     height: 140,
   },
-})
+});
 
-export default ProfilePage
-
+export default ProfilePage;

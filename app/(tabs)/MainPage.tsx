@@ -45,137 +45,138 @@ const MainPage = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar style="light" />
+    <>
+      <SafeAreaView style={styles.container}>
+        <StatusBar style="light" />
 
-      {/* Top Navigation */}
-      <View style={styles.header}>
-        <Image
-          source={require("../../assets/images/EchoesLogo.png")}
-          style={styles.logo}
-        />
-        <View style={styles.headerIcons}>
-          <TouchableOpacity style={styles.iconButton}>
-            <Feather name="bell" size={24} color="#fff" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
-            <Feather name="settings" size={24} color="#fff" />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Main Content */}
-      <ScrollView style={styles.content}>
-        {/* Stories */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.storiesContainer}
-        >
-          {stories.map((_, index) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() => router.navigate("/ProfilePage")}
-            >
-              <View style={styles.story}>
-                <View style={styles.storyRing}>
-                  <View style={styles.storyImage} />
-                </View>
-                <Text style={styles.storyText}>User {index + 1}</Text>
-              </View>
+        {/* Top Navigation */}
+        <View style={styles.header}>
+          <Image
+            source={require("../../assets/images/EchoesLogo.png")}
+            style={styles.logo}
+          />
+          <View style={styles.headerIcons}>
+            <TouchableOpacity style={styles.iconButton}>
+              <Feather name="bell" size={24} color="#fff" />
             </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        {/* Song Blocks */}
-        <View style={styles.sectionTitle}>
-          <Text style={styles.sectionTitleText}>Popular Songs</Text>
+            <TouchableOpacity style={styles.iconButton}>
+              <Feather name="settings" size={24} color="#fff" />
+            </TouchableOpacity>
+          </View>
         </View>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.songsContainer}
-        >
-          {songs.map((_, index) => (
-            <View key={index} style={styles.songBlock}>
-              <View style={styles.songImage} />
-              <Text style={styles.songTitle}>Song {index + 1}</Text>
-              <Text style={styles.songArtist}>Artist {index + 1}</Text>
-            </View>
-          ))}
-        </ScrollView>
 
-        {/* Posts */}
-        <View style={styles.sectionTitle}>
-          <Text style={styles.sectionTitleText}>Latest Posts</Text>
-        </View>
-        {posts.map((_, index) => (
-          <View key={index} style={styles.post}>
-            <View style={styles.postHeader}>
+        {/* Main Content */}
+        <ScrollView style={styles.content}>
+          {/* Stories */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.storiesContainer}
+          >
+            {stories.map((_, index) => (
               <TouchableOpacity
-                onPress={() => handleUserRedirect()}
-                style={styles.userInfo}
+                key={index}
+                onPress={() => router.navigate("/ProfilePage")}
               >
-                <View style={styles.postAvatar} />
-                <View>
-                  <Text style={styles.postUsername}>User {index + 1}</Text>
-                  <Text style={styles.postTime}>2h ago</Text>
+                <View style={styles.story}>
+                  <View style={styles.storyRing}>
+                    <View style={styles.storyImage} />
+                  </View>
+                  <Text style={styles.storyText}>User {index + 1}</Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.ellipsisButton}
-                onPress={() => handleEllipsisPress(index)}
-              >
-                <Feather name="more-vertical" size={20} color="#fff" />
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.postContent}>
-              This is a sample post content. It can be about music, thoughts, or
-              anything!
-            </Text>
-            <View style={styles.postActions}>
-              <TouchableOpacity style={styles.postAction}>
-                <Feather name="heart" size={20} color="#fff" />
-                <Text style={styles.postActionText}>Like</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.postAction}>
-                <Feather name="message-circle" size={20} color="#fff" />
-                <Text style={styles.postActionText}>Comment</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.postAction}>
-                <Feather name="share-2" size={20} color="#fff" />
-                <Text style={styles.postActionText}>Share</Text>
-              </TouchableOpacity>
-            </View>
-            {selectedPost === index && (
-              <View style={styles.optionsMenu}>
+            ))}
+          </ScrollView>
+
+          {/* Song Blocks */}
+          <View style={styles.sectionTitle}>
+            <Text style={styles.sectionTitleText}>Popular Songs</Text>
+          </View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.songsContainer}
+          >
+            {songs.map((_, index) => (
+              <View key={index} style={styles.songBlock}>
+                <View style={styles.songImage} />
+                <Text style={styles.songTitle}>Song {index + 1}</Text>
+                <Text style={styles.songArtist}>Artist {index + 1}</Text>
+              </View>
+            ))}
+          </ScrollView>
+
+          {/* Posts */}
+          <View style={styles.sectionTitle}>
+            <Text style={styles.sectionTitleText}>Latest Posts</Text>
+          </View>
+          {posts.map((_, index) => (
+            <View key={index} style={styles.post}>
+              <View style={styles.postHeader}>
                 <TouchableOpacity
-                  style={styles.optionItem}
-                  onPress={() => handleOptionSelect("Not Interested")}
+                  onPress={() => handleUserRedirect()}
+                  style={styles.userInfo}
                 >
-                  <Text style={styles.optionText}>Not Interested</Text>
+                  <View style={styles.postAvatar} />
+                  <View>
+                    <Text style={styles.postUsername}>User {index + 1}</Text>
+                    <Text style={styles.postTime}>2h ago</Text>
+                  </View>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.optionItem}
-                  onPress={() => handleOptionSelect("Report")}
+                  style={styles.ellipsisButton}
+                  onPress={() => handleEllipsisPress(index)}
                 >
-                  <Text style={styles.optionText}>Report</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.optionItem}
-                  onPress={() => handleOptionSelect("Favorite")}
-                >
-                  <Text style={styles.optionText}>Favorite</Text>
+                  <Feather name="more-vertical" size={20} color="#fff" />
                 </TouchableOpacity>
               </View>
-            )}
-          </View>
-        ))}
-      </ScrollView>
-
+              <Text style={styles.postContent}>
+                This is a sample post content. It can be about music, thoughts,
+                or anything!
+              </Text>
+              <View style={styles.postActions}>
+                <TouchableOpacity style={styles.postAction}>
+                  <Feather name="heart" size={20} color="#fff" />
+                  <Text style={styles.postActionText}>Like</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.postAction}>
+                  <Feather name="message-circle" size={20} color="#fff" />
+                  <Text style={styles.postActionText}>Comment</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.postAction}>
+                  <Feather name="share-2" size={20} color="#fff" />
+                  <Text style={styles.postActionText}>Share</Text>
+                </TouchableOpacity>
+              </View>
+              {selectedPost === index && (
+                <View style={styles.optionsMenu}>
+                  <TouchableOpacity
+                    style={styles.optionItem}
+                    onPress={() => handleOptionSelect("Not Interested")}
+                  >
+                    <Text style={styles.optionText}>Not Interested</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.optionItem}
+                    onPress={() => handleOptionSelect("Report")}
+                  >
+                    <Text style={styles.optionText}>Report</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.optionItem}
+                    onPress={() => handleOptionSelect("Favorite")}
+                  >
+                    <Text style={styles.optionText}>Favorite</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          ))}
+        </ScrollView>
+      </SafeAreaView>
       {/* Bottom Fixed Container, player in components */}
       <BottomContainer />
-    </SafeAreaView>
+    </>
   );
 };
 
