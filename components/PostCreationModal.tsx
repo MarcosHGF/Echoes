@@ -11,8 +11,10 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native"
 import { Feather } from "@expo/vector-icons"
+import getAPI from "@/app/(tabs)/Ngrok"
 
 interface PostCreationModalProps {
   visible: boolean
@@ -21,13 +23,35 @@ interface PostCreationModalProps {
 
 const PostCreationModal: React.FC<PostCreationModalProps> = ({ visible, onClose }) => {
   const [postText, setPostText] = useState("")
+    
+  const API_URL = getAPI();
+    
 
-  const handlePost = () => {
-    // Implement post creation logic here
-    console.log("Post created:", postText)
-    setPostText("")
-    onClose()
-  }
+  const handlePost = async () => {
+  
+      try {
+        const response = await fetch(API_URL + "/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ postText })
+        });
+  
+        const data = await response.json();
+  
+        if (!response.ok) {
+          throw new Error(data.message || "Invalid credentials");
+        }
+  
+      } catch (err) {
+        Alert.alert(
+          "Post Failed",
+          err instanceof Error ? err.message : "An unexpected error occurred.",
+          [{ text: "Try Again" }]
+        );
+        shakeField();
+    };
 
   return (
     <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onClose}>
@@ -123,4 +147,3 @@ const styles = StyleSheet.create({
 })
 
 export default PostCreationModal
-
