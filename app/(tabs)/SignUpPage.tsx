@@ -15,6 +15,9 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { router } from "expo-router";
+import getAPI from '.';
+
+const API_URL = getAPI();
 
 export default function SignUpScreen() {
   const [username, setUsername] = useState("");
@@ -36,7 +39,7 @@ export default function SignUpScreen() {
     }
 
     try {
-      const response = await fetch("http://127.0.0.1:8080/api/users/0", {
+      const response = await fetch("API_URL", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
