@@ -34,7 +34,30 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)/index" options={{ headerShown: false }} />
+        {/* Nested screen structure inside tabs */}
+        <Stack.Screen name="(tabs)/MainPage" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="(tabs)/SignUpPage"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="(tabs)/LoginPage"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="(tabs)/SettingsPage"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="(tabs)/SearchPage"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="(tabs)/ProfilePage"
+          options={{ headerShown: false }}
+        />
+
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />

@@ -11,7 +11,7 @@ import { HelloWave } from "@/components/HelloWave";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { router } from "expo-router";
-import BottomContainer from "../components/BottomContainer";
+import BottomContainer from "../../components/BottomContainer";
 
 export default function HomeScreen() {
   const handleUserRedirect = async () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo, useCallback, useMemo } from "react";
 import {
   View,
   TouchableOpacity,
@@ -10,51 +10,50 @@ import {
   Animated,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { useNavigation } from "@react-navigation/native";
 
-const BottomContainer = () => {
+const BottomContainer = memo(() => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(180); // Default duration of 3 minutes (180 seconds)
-  const tabItems = [
-    { icon: "home", label: "Home" },
-    { icon: "search", label: "Search" },
-    { icon: "heart", label: "Favorites" },
-    { icon: "user", label: "Profile" },
-  ];
 
-  const goToPage = (item: { icon?: string; label: any }) => {
-    const selectedLabel = item.label;
+  const navigation = useNavigation();
 
-    switch (selectedLabel) {
-      case "Home":
-        console.log("Navegar para a tela Home");
-        router.navigate("/MainPage");
-        break;
-      case "Search":
-        console.log("Navegar para a tela Search");
-        router.navigate("/SearchPage");
-        break;
-      case "Favorites":
-        console.log("Navegar para a tela Favorites");
-        router.navigate("/SearchPage");
-        break;
-      case "Profile":
-        console.log("Navegar para a tela Profile");
-        router.navigate("/ProfilePage");
-        break;
-      default:
-        console.log("Label não reconhecida");
-        router.navigate("/MainPage");
-        break;
-    }
-  };
+  const tabItems = useMemo(
+    () => [
+      { icon: "home", label: "Home" },
+      { icon: "search", label: "Search" },
+      { icon: "heart", label: "Favorites" },
+      { icon: "user", label: "Profile" },
+    ],
+    []
+  );
 
-  // Placeholder function for Spotify API integration
-  const togglePlayPause = () => {
-    setIsPlaying(!isPlaying);
-  };
+  const goToPage = useCallback(
+    (item: { icon?: string; label: string }) => {
+      const selectedLabel = item.label;
+      console.log("Navigating to:", item.label);
+
+      switch (selectedLabel) {
+        case "Home":
+          navigation.navigate("(tabs)/MainPage");
+          break;
+        case "Search":
+          navigation.navigate("(tabs)/SearchPage");
+          break;
+        case "Favorites":
+          navigation.navigate("(tabs)/SearchPage");
+          break;
+        case "Profile":
+          navigation.navigate("(tabs)/ProfilePage");
+          break;
+        default:
+          navigation.navigate("(tabs)/MainPage");
+          break;
+      }
+    },
+    [navigation]
+  );
 
   useEffect(() => {
     let interval: NodeJS.Timeout | number;
@@ -82,7 +81,7 @@ const BottomContainer = () => {
   return (
     <View style={styles.bottomContainer}>
       {/* Player */}
-      <View style={styles.player}>
+      <View style={styles.player} pointerEvents="box-none">
         <View style={styles.songInfo}>
           <Text style={styles.songTitle} numberOfLines={1}>
             Song Name
@@ -114,7 +113,7 @@ const BottomContainer = () => {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.playPauseButton}
-              onPress={togglePlayPause}
+              onPress={() => setIsPlaying(!isPlaying)}
             >
               <Feather
                 name={isPlaying ? "pause" : "play"}
@@ -133,6 +132,7 @@ const BottomContainer = () => {
       <View style={styles.tabBar}>
         {tabItems.map((item, index) => (
           <TouchableOpacity
+            activeOpacity={0.7} // Adjust for better feedback
             key={index}
             style={styles.tabItem}
             onPress={() => goToPage(item)}
@@ -144,9 +144,21 @@ const BottomContainer = () => {
       </View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
+  tabBar: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    backgroundColor: "#1A1A1A",
+    paddingTop: 12,
+    paddingBottom: Platform.OS === "ios" ? 30 : 12,
+  },
+  tabItem: {
+    alignItems: "center",
+    paddingHorizontal: 15,
+  },
   bottomContainer: {
     position: "absolute",
     bottom: 0,
@@ -226,18 +238,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: "rgba(255,255,255,0.2)",
   },
-  tabBar: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    backgroundColor: "#1A1A1A",
-    paddingTop: 12,
-    paddingBottom: Platform.OS === "ios" ? 30 : 12,
-  },
-  tabItem: {
-    alignItems: "center",
-    paddingHorizontal: 15,
-  },
+
   tabLabel: {
     color: "#fff",
     fontSize: 12,

@@ -174,7 +174,6 @@ const MainPage = () => {
           ))}
         </ScrollView>
       </SafeAreaView>
-      {/* Bottom Fixed Container, player in components */}
       <BottomContainer />
     </>
   );
