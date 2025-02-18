@@ -25,18 +25,21 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
   visible,
   onClose,
 }) => {
-  const [postText, setPostText] = useState("");
+  const [content, setContent] = useState("");
 
+  const name = "GOAT";
+  const user_id = 1;
   const API_URL = getAPI();
 
   const handlePost = async () => {
+    console.log(content);
     try {
-      const response = await fetch(API_URL + "/login", {
+      const response = await fetch(API_URL + "/posts/0", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ postText }),
+        body: JSON.stringify({ content, user_id, name }),
       });
 
       const data = await response.json();
@@ -50,7 +53,6 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
         err instanceof Error ? err.message : "An unexpected error occurred.",
         [{ text: "Try Again" }]
       );
-      shakeField();
     }
   };
 
@@ -73,7 +75,7 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
             <TouchableOpacity
               style={styles.postButton}
               onPress={handlePost}
-              disabled={postText.length === 0}
+              disabled={content.length === 0}
             >
               <Text style={styles.postButtonText}>Post</Text>
             </TouchableOpacity>
@@ -83,11 +85,11 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
             multiline
             placeholder="What's on your mind?"
             placeholderTextColor="#999"
-            value={postText}
-            onChangeText={setPostText}
+            value={content}
+            onChangeText={setContent}
             maxLength={250}
           />
-          <Text style={styles.charCount}>{postText.length}/250</Text>
+          <Text style={styles.charCount}>{content.length}/250</Text>
           <View style={styles.mediaButtons}>
             <TouchableOpacity style={styles.mediaButton}>
               <Feather name="image" size={24} color="#00E5FF" />
