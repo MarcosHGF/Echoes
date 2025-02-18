@@ -1,23 +1,18 @@
-"use client";
+"use client"
 
-import { useState, useEffect, memo, useCallback, useMemo } from "react";
-import {
-  View,
-  TouchableOpacity,
-  StyleSheet,
-  Text,
-  Platform,
-  Animated,
-} from "react-native";
-import { Feather } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useState, useEffect, memo, useCallback, useMemo } from "react"
+import { View, TouchableOpacity, StyleSheet, Text, Platform, Animated } from "react-native"
+import { Feather } from "@expo/vector-icons"
+import { useNavigation } from "@react-navigation/native"
+import PostCreationModal from "./PostCreationModal"
 
 const BottomContainer = memo(() => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [duration, setDuration] = useState(180); // Default duration of 3 minutes (180 seconds)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const [duration, setDuration] = useState(180) // Default duration of 3 minutes (180 seconds)
+  const [isPostModalVisible, setIsPostModalVisible] = useState(false)
 
-  const navigation = useNavigation();
+  const navigation = useNavigation()
 
   const tabItems = useMemo(
     () => [
@@ -26,125 +21,119 @@ const BottomContainer = memo(() => {
       { icon: "heart", label: "Favorites" },
       { icon: "user", label: "Profile" },
     ],
-    []
-  );
+    [],
+  )
 
   const goToPage = useCallback(
     (item: { icon?: string; label: string }) => {
-      const selectedLabel = item.label;
-      console.log("Navigating to:", item.label);
+      const selectedLabel = item.label
+      console.log("Navigating to:", item.label)
 
       switch (selectedLabel) {
         case "Home":
-          navigation.navigate("(tabs)/MainPage");
-          break;
+          navigation.navigate("(tabs)/MainPage")
+          break
         case "Search":
-          navigation.navigate("(tabs)/SearchPage");
-          break;
+          navigation.navigate("(tabs)/SearchPage")
+          break
         case "Favorites":
-          navigation.navigate("(tabs)/SearchPage");
-          break;
+          navigation.navigate("(tabs)/SearchPage")
+          break
         case "Profile":
-          navigation.navigate("(tabs)/ProfilePage");
-          break;
+          navigation.navigate("(tabs)/ProfilePage")
+          break
         default:
-          navigation.navigate("(tabs)/MainPage");
-          break;
+          navigation.navigate("(tabs)/MainPage")
+          break
       }
     },
-    [navigation]
-  );
+    [navigation],
+  )
 
   useEffect(() => {
-    let interval: NodeJS.Timeout | number;
+    let interval: NodeJS.Timeout | number
     if (isPlaying) {
       interval = setInterval(() => {
         setProgress((prevProgress) => {
           if (prevProgress >= duration) {
-            clearInterval(interval);
-            setIsPlaying(false);
-            return 0;
+            clearInterval(interval)
+            setIsPlaying(false)
+            return 0
           }
-          return prevProgress + 1;
-        });
-      }, 1000);
+          return prevProgress + 1
+        })
+      }, 1000)
     }
-    return () => clearInterval(interval);
-  }, [isPlaying, duration]);
+    return () => clearInterval(interval)
+  }, [isPlaying, duration])
 
   const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
-  };
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`
+  }
 
   return (
-    <View style={styles.bottomContainer}>
-      {/* Player */}
-      <View style={styles.player} pointerEvents="box-none">
-        <View style={styles.songInfo}>
-          <Text style={styles.songTitle} numberOfLines={1}>
-            Song Name
-          </Text>
-          <Text style={styles.artistName} numberOfLines={1}>
-            Artist
-          </Text>
-        </View>
-
-        <View style={styles.mainControls}>
-          <View style={styles.timelineContainer}>
-            <View style={styles.timeline}>
-              <Animated.View
-                style={[
-                  styles.progressBar,
-                  { width: `${(progress / duration) * 100}%` },
-                ]}
-              />
-            </View>
-            <View style={styles.timeInfo}>
-              <Text style={styles.timeText}>{formatTime(progress)}</Text>
-              <Text style={styles.timeText}>{formatTime(duration)}</Text>
-            </View>
+    <>
+      <View style={styles.bottomContainer}>
+        {/* Player */}
+        <View style={styles.player} pointerEvents="box-none">
+          <View style={styles.songInfo}>
+            <Text style={styles.songTitle} numberOfLines={1}>
+              Song Name
+            </Text>
+            <Text style={styles.artistName} numberOfLines={1}>
+              Artist
+            </Text>
           </View>
 
-          <View style={styles.controls}>
-            <TouchableOpacity onPress={() => console.log("Previous")}>
-              <Feather name="skip-back" size={20} color="#fff" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.playPauseButton}
-              onPress={() => setIsPlaying(!isPlaying)}
-            >
-              <Feather
-                name={isPlaying ? "pause" : "play"}
-                size={20}
-                color="#fff"
-              />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => console.log("Next")}>
-              <Feather name="skip-forward" size={20} color="#fff" />
-            </TouchableOpacity>
+          <View style={styles.mainControls}>
+            <View style={styles.timelineContainer}>
+              <View style={styles.timeline}>
+                <Animated.View style={[styles.progressBar, { width: `${(progress / duration) * 100}%` }]} />
+              </View>
+              <View style={styles.timeInfo}>
+                <Text style={styles.timeText}>{formatTime(progress)}</Text>
+                <Text style={styles.timeText}>{formatTime(duration)}</Text>
+              </View>
+            </View>
+
+            <View style={styles.controls}>
+              <TouchableOpacity onPress={() => console.log("Previous")}>
+                <Feather name="skip-back" size={20} color="#fff" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.playPauseButton} onPress={() => setIsPlaying(!isPlaying)}>
+                <Feather name={isPlaying ? "pause" : "play"} size={20} color="#fff" />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => console.log("Next")}>
+                <Feather name="skip-forward" size={20} color="#fff" />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
 
-      {/* Bottom Tab Bar */}
-      <View style={styles.tabBar}>
-        {tabItems.map((item, index) => (
+        {/* Bottom Tab Bar */}
+        <View style={styles.tabBar}>
+          {tabItems.map((item, index) => (
+            <TouchableOpacity activeOpacity={0.7} key={index} style={styles.tabItem} onPress={() => goToPage(item)}>
+              <Feather name={item.icon} size={24} color="#fff" />
+              <Text style={styles.tabLabel}>{item.label}</Text>
+            </TouchableOpacity>
+          ))}
           <TouchableOpacity
-            activeOpacity={0.7} // Adjust for better feedback
-            key={index}
-            style={styles.tabItem}
-            onPress={() => goToPage(item)}
+            activeOpacity={0.7}
+            style={styles.createPostButton}
+            onPress={() => setIsPostModalVisible(true)}
           >
-            <Feather name={item.icon} size={24} color="#fff" />
-            <Text style={styles.tabLabel}>{item.label}</Text>
+            <Feather name="plus-circle" size={24} color="#00E5FF" />
+            <Text style={[styles.tabLabel, styles.createPostLabel]}>Post</Text>
           </TouchableOpacity>
-        ))}
+        </View>
       </View>
-    </View>
-  );
-});
+      <PostCreationModal visible={isPostModalVisible} onClose={() => setIsPostModalVisible(false)} />
+    </>
+  )
+})
 
 const styles = StyleSheet.create({
   tabBar: {
@@ -238,13 +227,20 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: "rgba(255,255,255,0.2)",
   },
-
   tabLabel: {
     color: "#fff",
     fontSize: 12,
     marginTop: 4,
     opacity: 0.8,
   },
-});
+  createPostButton: {
+    alignItems: "center",
+    paddingHorizontal: 15,
+  },
+  createPostLabel: {
+    color: "#00E5FF",
+  },
+})
 
-export default BottomContainer;
+export default BottomContainer
+
