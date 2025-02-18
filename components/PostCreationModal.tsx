@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
+import type React from "react";
+import { useState } from "react";
 import {
   Modal,
   View,
@@ -12,56 +12,69 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
-} from "react-native"
-import { Feather } from "@expo/vector-icons"
-import getAPI from "@/app/(tabs)/Ngrok"
+} from "react-native";
+import { Feather } from "@expo/vector-icons";
+import getAPI from "@/app/(tabs)/Ngrok";
 
 interface PostCreationModalProps {
-  visible: boolean
-  onClose: () => void
+  visible: boolean;
+  onClose: () => void;
 }
 
-const PostCreationModal: React.FC<PostCreationModalProps> = ({ visible, onClose }) => {
-  const [postText, setPostText] = useState("")
-    
+const PostCreationModal: React.FC<PostCreationModalProps> = ({
+  visible,
+  onClose,
+}) => {
+  const [postText, setPostText] = useState("");
+
   const API_URL = getAPI();
-    
 
   const handlePost = async () => {
-  
-      try {
-        const response = await fetch(API_URL + "/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ postText })
-        });
-  
-        const data = await response.json();
-  
-        if (!response.ok) {
-          throw new Error(data.message || "Invalid credentials");
-        }
-  
-      } catch (err) {
-        Alert.alert(
-          "Post Failed",
-          err instanceof Error ? err.message : "An unexpected error occurred.",
-          [{ text: "Try Again" }]
-        );
-        shakeField();
-    };
+    try {
+      const response = await fetch(API_URL + "/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ postText }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Invalid credentials");
+      }
+    } catch (err) {
+      Alert.alert(
+        "Post Failed",
+        err instanceof Error ? err.message : "An unexpected error occurred.",
+        [{ text: "Try Again" }]
+      );
+      shakeField();
+    }
+  };
 
   return (
-    <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onClose}>
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.centeredView}>
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={visible}
+      onRequestClose={onClose}
+    >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.centeredView}
+      >
         <View style={styles.modalView}>
           <View style={styles.header}>
             <TouchableOpacity onPress={onClose}>
               <Feather name="x" size={24} color="#fff" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.postButton} onPress={handlePost} disabled={postText.length === 0}>
+            <TouchableOpacity
+              style={styles.postButton}
+              onPress={handlePost}
+              disabled={postText.length === 0}
+            >
               <Text style={styles.postButtonText}>Post</Text>
             </TouchableOpacity>
           </View>
@@ -86,8 +99,8 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({ visible, onClose 
         </View>
       </KeyboardAvoidingView>
     </Modal>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   centeredView: {
@@ -144,6 +157,6 @@ const styles = StyleSheet.create({
   mediaButton: {
     marginRight: 20,
   },
-})
+});
 
-export default PostCreationModal
+export default PostCreationModal;
