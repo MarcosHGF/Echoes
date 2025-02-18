@@ -17,7 +17,7 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
-import getAPI from '.';
+import getAPI from ".";
 
 const API_URL = getAPI();
 
@@ -78,7 +78,6 @@ export default function LoginScreen() {
     setIsLoading(true);
 
     try {
-<<<<<<< HEAD
       const response = await fetch("API_URL", {
         method: "POST",
         headers: {
@@ -86,18 +85,6 @@ export default function LoginScreen() {
         },
         body: JSON.stringify({ username, password }),
       });
-=======
-      const response = await fetch(
-        "https://select-sheep-currently.ngrok-free.app/api/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ username, password }),
-        }
-      );
->>>>>>> d2b5552d1d340ed5f5c86ebce770e25938d05b3d
 
       const data = await response.json();
 
