@@ -1,26 +1,57 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { View, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Text, Switch } from "react-native"
-import { StatusBar } from "expo-status-bar"
-import { Feather } from "@expo/vector-icons"
+import {
+  JSXElementConstructor,
+  ReactElement,
+  ReactNode,
+  useState,
+} from "react";
+import {
+  View,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  Platform,
+  Text,
+  Switch,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { Feather } from "@expo/vector-icons";
 
 const SettingsPage = () => {
-  const [darkMode, setDarkMode] = useState(true)
-  const [notifications, setNotifications] = useState(true)
-  const [privateAccount, setPrivateAccount] = useState(false)
+  const [darkMode, setDarkMode] = useState(true);
+  const [notifications, setNotifications] = useState(true);
+  const [privateAccount, setPrivateAccount] = useState(false);
 
   const tabItems = [
     { icon: "home", label: "Home" },
     { icon: "search", label: "Search" },
     { icon: "heart", label: "Favorites" },
     { icon: "user", label: "Profile" },
-  ]
+  ];
 
-  const renderSettingItem = (icon, title, value, onValueChange) => (
+  const renderSettingItem = (
+    icon,
+    title:
+      | string
+      | number
+      | boolean
+      | ReactElement<any, string | JSXElementConstructor<any>>
+      | Iterable<ReactNode>
+      | null
+      | undefined,
+    value: boolean | undefined,
+    onValueChange: ((value: boolean) => Promise<void> | void) | null | undefined
+  ) => (
     <View style={styles.settingItem}>
       <View style={styles.settingItemLeft}>
-        <Feather name={icon} size={20} color="#fff" style={styles.settingIcon} />
+        <Feather
+          name={icon}
+          size={20}
+          color="#fff"
+          style={styles.settingIcon}
+        />
         <Text style={styles.settingText}>{title}</Text>
       </View>
       <Switch
@@ -30,7 +61,7 @@ const SettingsPage = () => {
         thumbColor={value ? "#f4f3f4" : "#f4f3f4"}
       />
     </View>
-  )
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -43,10 +74,20 @@ const SettingsPage = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>General</Text>
           {renderSettingItem("moon", "Dark Mode", darkMode, setDarkMode)}
-          {renderSettingItem("bell", "Notifications", notifications, setNotifications)}
+          {renderSettingItem(
+            "bell",
+            "Notifications",
+            notifications,
+            setNotifications
+          )}
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingItemLeft}>
-              <Feather name="globe" size={20} color="#fff" style={styles.settingIcon} />
+              <Feather
+                name="globe"
+                size={20}
+                color="#fff"
+                style={styles.settingIcon}
+              />
               <Text style={styles.settingText}>Language</Text>
             </View>
             <Feather name="chevron-right" size={20} color="#999" />
@@ -56,10 +97,20 @@ const SettingsPage = () => {
         {/* Privacy Settings */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Privacy</Text>
-          {renderSettingItem("lock", "Private Account", privateAccount, setPrivateAccount)}
+          {renderSettingItem(
+            "lock",
+            "Private Account",
+            privateAccount,
+            setPrivateAccount
+          )}
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingItemLeft}>
-              <Feather name="users" size={20} color="#fff" style={styles.settingIcon} />
+              <Feather
+                name="users"
+                size={20}
+                color="#fff"
+                style={styles.settingIcon}
+              />
               <Text style={styles.settingText}>Blocked Users</Text>
             </View>
             <Feather name="chevron-right" size={20} color="#999" />
@@ -71,14 +122,24 @@ const SettingsPage = () => {
           <Text style={styles.sectionTitle}>Security</Text>
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingItemLeft}>
-              <Feather name="key" size={20} color="#fff" style={styles.settingIcon} />
+              <Feather
+                name="key"
+                size={20}
+                color="#fff"
+                style={styles.settingIcon}
+              />
               <Text style={styles.settingText}>Change Password</Text>
             </View>
             <Feather name="chevron-right" size={20} color="#999" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingItemLeft}>
-              <Feather name="shield" size={20} color="#fff" style={styles.settingIcon} />
+              <Feather
+                name="shield"
+                size={20}
+                color="#fff"
+                style={styles.settingIcon}
+              />
               <Text style={styles.settingText}>Two-Factor Authentication</Text>
             </View>
             <Feather name="chevron-right" size={20} color="#999" />
@@ -88,10 +149,9 @@ const SettingsPage = () => {
         {/* Bottom Padding for Content */}
         <View style={styles.bottomPadding} />
       </ScrollView>
-      
     </SafeAreaView>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -140,7 +200,6 @@ const styles = StyleSheet.create({
   bottomPadding: {
     height: 140,
   },
-})
+});
 
-export default SettingsPage
-
+export default SettingsPage;
