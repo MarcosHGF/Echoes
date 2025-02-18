@@ -17,7 +17,7 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
-import getAPI from ".";
+import getAPI from "../(tabs)/Ngrok";
 
 
 const API_URL = getAPI();
@@ -79,7 +79,7 @@ export default function LoginScreen() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("API_URL", {
+      const response = await fetch(API_URL + "/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
