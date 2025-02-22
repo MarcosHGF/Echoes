@@ -113,6 +113,7 @@ class Post(db.Model):
             "id": post.id,
             "name": post.name,
             "completed": post.completed,
+            "content": post.content,
             "date_created": post.date_created.isoformat() if post.date_created else None
         }
 
