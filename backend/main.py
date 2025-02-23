@@ -1,4 +1,5 @@
 from app import create_app, db
+from app.spotifyapi import SpotifyAPI
 from flask_cors import CORS
 
 app = create_app()
@@ -11,3 +12,7 @@ with app.app_context():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+spoti = SpotifyAPI()
+
+spoti.play_song("spotify:track:3S0ylB7IxKRBy7VwjyHMfn")
