@@ -18,7 +18,7 @@ const BottomContainer = memo(() => {
     () => [
       { icon: "home", label: "Home" },
       { icon: "search", label: "Search" },
-      { icon: "heart", label: "Favorites" },
+      { icon: "heart", label: "Make" },
       { icon: "user", label: "Profile" },
     ],
     [],
@@ -36,8 +36,8 @@ const BottomContainer = memo(() => {
         case "Search":
           navigation.navigate("(tabs)/SearchPage")
           break
-        case "Favorites":
-          navigation.navigate("(tabs)/SearchPage")
+        case "Make":
+          navigation.navigate("(tabs)/MakePage")
           break
         case "Profile":
           navigation.navigate("(tabs)/ProfilePage")
