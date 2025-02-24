@@ -161,3 +161,11 @@ class Relationship(db.Model):
     def get_relationship_followers(user_id):
         relations = db.session.execute(select(Relationship).where(Relationship.following_id == user_id)).scalars().all()
         return [{"follower_id": rel.follower_id, "date_created": rel.date_created.isoformat()} for rel in relations]
+
+class Track(db.Model):
+    track_uri = Column(Integer, primary_key=True, index=True)
+    
+    @staticmethod
+    def get_track(track_uri):
+        track = db.session.execute(select(Track).where(Track.track_uri == track_uri)).scalars().all()
+        return track

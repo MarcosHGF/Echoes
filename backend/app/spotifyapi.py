@@ -42,11 +42,11 @@ class SpotifyAPI:
         
         
 
-    def search_track(self, query, limit=10):
+    def search_track(self, query, limit):
         results = self.sp.search(q=query, type='track', limit=limit)
         return results
 
-    def search_album(self, query, limit=10):
+    def search_album(self, query, limit):
         results = self.sp.search(q=query, type='album', limit=limit)
         return results['albums']['items']
     

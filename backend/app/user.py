@@ -12,7 +12,6 @@ class UserAccount:
         scope = os.environ['SCOPE']
         self.sp = spotipy.SpotifyPKCE(
             client_id=client,
-            client_secret=secret,
             redirect_uri=uri,
             scope=scope    
         )
