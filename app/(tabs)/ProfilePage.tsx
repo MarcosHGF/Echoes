@@ -1,34 +1,29 @@
-"use client";
+"use client"
 
-import {
-  View,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  SafeAreaView,
-  Text,
-  Image,
-} from "react-native";
-import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
-import BottomContainer from "../../components/BottomContainer";
-import { useState } from "react";
+import { useState } from "react"
+import { View, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Text, Image, Dimensions } from "react-native"
+import { StatusBar } from "expo-status-bar"
+import { Feather } from "@expo/vector-icons"
+import BottomContainer from "../../components/BottomContainer"
+import { router } from "expo-router"
+
+const { width, height } = Dimensions.get("window")
 
 const ProfilePage = () => {
-  const playlists = [1, 2, 3, 4, 5]; // Array for playlists
-  const stories = [1, 2, 3, 4, 5]; // Array for stories
-  const tweets = [1, 2, 3]; // Array for tweets
-  const [selectedPost, setSelectedPost] = useState<number | null>(null);
+  const playlists = [1, 2, 3, 4, 5] // Array for playlists
+  const stories = [1, 2, 3, 4, 5] // Array for stories
+  const tweets = [1, 2, 3] // Array for tweets
+  const [selectedPost, setSelectedPost] = useState<number | null>(null)
 
   const handleEllipsisPress = (index: number) => {
-    setSelectedPost(selectedPost === index ? null : index);
-  };
+    setSelectedPost(selectedPost === index ? null : index)
+  }
 
   const handleOptionSelect = (option: string) => {
     // Handle the selected option here
-    console.log(`Selected option: ${option}`);
-    setSelectedPost(null);
-  };
+    console.log(`Selected option: ${option}`)
+    setSelectedPost(null)
+  }
 
   return (
     <>
@@ -41,22 +36,15 @@ const ProfilePage = () => {
             <View style={styles.banner} />
             <View style={styles.profileSection}>
               <View style={styles.profilePictureContainer}>
-                <Image
-                  source={require("../../assets/images/profile-picture.png")}
-                  style={styles.profilePicture}
-                />
+                <Image source={require("../../assets/images/profile-picture.png")} style={styles.profilePicture} />
               </View>
               <View style={styles.profileInfo}>
                 <Text style={styles.profileName}>Calcifer</Text>
                 <View style={styles.currentlyPlayingContainer}>
                   <Text style={styles.currentlyPlaying}>
-                    <Feather name="music" size={14} color="#00E5FF" /> Currently
-                    playing: Song Name
+                    <Feather name="music" size={14} color="#00E5FF" /> Currently playing: Song Name
                   </Text>
-                  <TouchableOpacity
-                    style={styles.listButton}
-                    onPress={() => console.log("List song")}
-                  >
+                  <TouchableOpacity style={styles.listButton} onPress={() => console.log("List song")}>
                     <Feather name="list" size={14} color="#00E5FF" />
                   </TouchableOpacity>
                 </View>
@@ -78,12 +66,8 @@ const ProfilePage = () => {
               {[1, 2, 3].map((_, index) => (
                 <View key={index} style={styles.favoriteMusicItem}>
                   <View style={styles.favoriteMusicCover} />
-                  <Text style={styles.favoriteMusicTitle}>
-                    Top Song {index + 1}
-                  </Text>
-                  <Text style={styles.favoriteMusicArtist}>
-                    Artist {index + 1}
-                  </Text>
+                  <Text style={styles.favoriteMusicTitle}>Top Song {index + 1}</Text>
+                  <Text style={styles.favoriteMusicArtist}>Artist {index + 1}</Text>
                 </View>
               ))}
             </View>
@@ -92,11 +76,7 @@ const ProfilePage = () => {
           {/* Playlists Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>My Playlists</Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.playlistsContainer}
-            >
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.playlistsContainer}>
               {playlists.map((_, index) => (
                 <View key={index} style={styles.playlistItem}>
                   <View style={styles.playlistCover} />
@@ -109,18 +89,24 @@ const ProfilePage = () => {
           {/* Stories Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Stories</Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.storiesContainer}
-            >
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.storiesContainer}>
               {stories.map((_, index) => (
-                <View key={index} style={styles.storyItem}>
-                  <View style={styles.storyRing}>
-                    <View style={styles.storyImage} />
+                <TouchableOpacity
+                  key={index}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/StoriesPage",
+                      params: { initialStoryId: index + 1, userId: "Calcifer" },
+                    })
+                  }
+                >
+                  <View style={styles.storyItem}>
+                    <View style={styles.storyRing}>
+                      <View style={styles.storyImage} />
+                    </View>
+                    <Text style={styles.storyText}>Story {index + 1}</Text>
                   </View>
-                  <Text style={styles.storyText}>Story {index + 1}</Text>
-                </View>
+                </TouchableOpacity>
               ))}
             </ScrollView>
           </View>
@@ -138,16 +124,11 @@ const ProfilePage = () => {
                       <Text style={styles.postTime}>2h ago</Text>
                     </View>
                   </View>
-                  <TouchableOpacity
-                    style={styles.ellipsisButton}
-                    onPress={() => handleEllipsisPress(index)}
-                  >
+                  <TouchableOpacity style={styles.ellipsisButton} onPress={() => handleEllipsisPress(index)}>
                     <Feather name="more-vertical" size={20} color="#fff" />
                   </TouchableOpacity>
                 </View>
-                <Text style={styles.postContent}>
-                  This is a sample tweet about music, life, or anything else!
-                </Text>
+                <Text style={styles.postContent}>This is a sample tweet about music, life, or anything else!</Text>
                 <View style={styles.postActions}>
                   <TouchableOpacity style={styles.postAction}>
                     <Feather name="heart" size={20} color="#fff" />
@@ -164,22 +145,13 @@ const ProfilePage = () => {
                 </View>
                 {selectedPost === index && (
                   <View style={styles.optionsMenu}>
-                    <TouchableOpacity
-                      style={styles.optionItem}
-                      onPress={() => handleOptionSelect("Not Interested")}
-                    >
+                    <TouchableOpacity style={styles.optionItem} onPress={() => handleOptionSelect("Not Interested")}>
                       <Text style={styles.optionText}>Not Interested</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.optionItem}
-                      onPress={() => handleOptionSelect("Report")}
-                    >
+                    <TouchableOpacity style={styles.optionItem} onPress={() => handleOptionSelect("Report")}>
                       <Text style={styles.optionText}>Report</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.optionItem}
-                      onPress={() => handleOptionSelect("Favorite")}
-                    >
+                    <TouchableOpacity style={styles.optionItem} onPress={() => handleOptionSelect("Favorite")}>
                       <Text style={styles.optionText}>Favorite</Text>
                     </TouchableOpacity>
                   </View>
@@ -196,8 +168,8 @@ const ProfilePage = () => {
       </SafeAreaView>
       <BottomContainer />
     </>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
