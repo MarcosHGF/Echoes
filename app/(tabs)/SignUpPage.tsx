@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { router } from "expo-router";
-import getAPI from ".";
+import getAPI from "./Ngrok";
 
 const API_URL = getAPI();
 
@@ -28,6 +28,7 @@ export default function SignUpScreen() {
   const [error, setError] = useState("");
 
   const handleSignUp = async () => {
+    console.log("Signup");
     if (!username || !password || !confirmPassword || !email || !acceptTerms) {
       Alert.alert("Error", "fill all the blank fields.");
       return;
@@ -39,22 +40,26 @@ export default function SignUpScreen() {
     }
 
     try {
-      const response = await fetch(API_URL + "/users/0", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password, email }),
-      });
+      const response = await fetch(
+        "https://select-sheep-currently.ngrok-free.app/api/users/1",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, password, email }),
+        }
+      );
 
       const data = await response.json(); // Parsing JSON response
 
       if (!response.ok) {
-        throw new Error("Login failed. Please check your credentials.");
+        throw new Error(data.message || "Invalid credentials");
       }
 
       router.push("/MainPage");
     } catch (err) {
+      console.log(error);
       setError(
         err instanceof Error ? err.message : "An unexpected error occurred."
       );
@@ -235,3 +240,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
+function setIsLoading(arg0: boolean) {
+  throw new Error("Function not implemented.");
+}

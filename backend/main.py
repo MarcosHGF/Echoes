@@ -1,4 +1,5 @@
 from app import create_app, db
+from app.user import UserAccount
 from flask_cors import CORS
 
 app = create_app()
@@ -11,3 +12,6 @@ with app.app_context():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+user = UserAccount()
+user.login()

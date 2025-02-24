@@ -64,6 +64,40 @@ export default function LoginScreen() {
     ]).start();
   };
 
+  const handleSpotifyLogin = async () => {
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(API_URL + "/spotifylogin", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Invalid credentials");
+      }
+
+      if (data.url) {
+        router.push(data.url);
+      } else {
+        throw new Error("Authorization URL not received.");
+      }
+    } catch (err) {
+      Alert.alert(
+        "Login Failed",
+        err instanceof Error ? err.message : "An unexpected error occurred.",
+        [{ text: "Try Again" }]
+      );
+      shakeField();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleLogin = async () => {
     if (!validateForm()) {
       shakeField();
@@ -209,7 +243,10 @@ export default function LoginScreen() {
           <View style={styles.socialContainer}>
             <Text style={styles.loginWithText}>login with:</Text>
 
-            <TouchableOpacity style={styles.socialButton}>
+            <TouchableOpacity
+              style={styles.socialButton}
+              onPress={handleSpotifyLogin}
+            >
               <Feather name="music" size={24} color="#fff" />
               <Text style={styles.socialButtonText}>Spotify</Text>
             </TouchableOpacity>

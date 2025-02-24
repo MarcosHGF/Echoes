@@ -97,6 +97,7 @@ class Post(db.Model):
     name = Column(String(200), nullable=False)
     date_created = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     completed = Column(Integer, default=0)
+    content = Column(String(250), nullable=False)
     likes = Column(Integer, default=0)
     tags_id = Column(Integer, unique=True)
 
@@ -112,12 +113,13 @@ class Post(db.Model):
             "id": post.id,
             "name": post.name,
             "completed": post.completed,
+            "content": post.content,
             "date_created": post.date_created.isoformat() if post.date_created else None
         }
 
     @staticmethod
     def add_post(data):
-        post = Post(name=data.get("name"), user_id=data.get("user_id"))
+        post = Post(name=data.get("name"), user_id=data.get("user_id"), content=data.get("content"))
         db.session.add(post)
         db.session.commit()
         return {"message": "Post added"}
