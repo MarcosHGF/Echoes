@@ -68,15 +68,16 @@ const MainPage = () => {
         {/* Main Content */}
         <ScrollView style={styles.content}>
           {/* Stories */}
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.storiesContainer}
-          >
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.storiesContainer}>
             {stories.map((_, index) => (
               <TouchableOpacity
                 key={index}
-                onPress={() => router.navigate("/ProfilePage")}
+                onPress={() =>
+                  router.push({
+                    pathname: "(tabs)/StoriesPage",
+                    params: { initialStoryId: index + 1 },
+                  })
+                }
               >
                 <View style={styles.story}>
                   <View style={styles.storyRing}>
