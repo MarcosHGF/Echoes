@@ -2,12 +2,14 @@ from flask import request, jsonify, Blueprint
 from sqlalchemy import select
 from werkzeug.security import check_password_hash
 from app.DBClasses import Like, User, UserProfile, Post, db
+from app.user import UserAccount
 
 likes_bp = Blueprint("likes", __name__)  
 users_bp = Blueprint("users", __name__)  
 login_bp = Blueprint("login", __name__)  
 profile_bp = Blueprint("profile", __name__)  
 posts_bp = Blueprint("posts", __name__)
+spotify_login = Blueprint("spotify_login", __name__)
 
 @likes_bp.route("/api/likes/<postID>", methods=["GET", "POST"])
 def handle_likes(postID):
@@ -60,3 +62,9 @@ def posts(postID):
     
     else:
         return jsonify(str(Post.get_post(postID))) 
+    
+@spotify_login.route("/api/spotifylogin", methods=["GET"])
+def spotifylogin():
+    url = UserAccount.login()
+    print(url)
+    return jsonify(url)

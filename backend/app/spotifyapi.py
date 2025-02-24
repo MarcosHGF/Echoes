@@ -1,5 +1,5 @@
 import spotipy
-from spotipy.oauth2 import SpotifyOAuth
+from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials, SpotifyPKCE
 import os
 from dotenv import load_dotenv
 
@@ -19,6 +19,25 @@ class SpotifyAPI:
             redirect_uri=uri,
             scope=scope    
         ))
+
+       
+
+        self.sp
+        user = self.sp.me()
+
+        print(user)
+        
+        auth_manager = SpotifyClientCredentials(client_id=client, client_secret=secret)  
+        spauth = spotipy.Spotify(auth_manager=auth_manager)
+
+        playlists = spauth.user_playlists(user['id'])
+        while playlists:
+            for i, playlist in enumerate(playlists['items']):
+                print("%4d %s %s" % (i + 1 + playlists['offset'], playlist['uri'],  playlist['name']))
+            if playlists['next']:
+                playlists = spauth.next(playlists)
+            else:
+                playlists = None
 
         
         
@@ -52,11 +71,8 @@ class SpotifyAPI:
         return {"message": "Tracks removed successfully"}
     
     def play_song(self, song_uri):
-        devs = self.sp.devices()
-        print(devs)
-        devices = devs['devices']
-        dev = devices[0]
-        play = dev['id']
-
         self.sp.start_playback(uris=[song_uri])
+
+    def pause(self):
+        self.sp.pause_playback()
 

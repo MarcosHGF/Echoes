@@ -1,5 +1,24 @@
-from app.extensions import db
-from app.spotifyapi import SpotifyAPI
+import os
+from dotenv import load_dotenv
+import spotipy
 
-def spotifyLoginHandler():
-    spotify = SpotifyAPI()
+class UserAccount:
+    def __init__(self):  
+        load_dotenv()
+        
+        client = os.environ['CLIENT_ID']
+        secret = os.environ['CLIENT_SECRET']
+        uri = os.environ['REDIRECT_URI']
+        scope = os.environ['SCOPE']
+        self.sp = spotipy.SpotifyPKCE(
+            client_id=client,
+            client_secret=secret,
+            redirect_uri=uri,
+            scope=scope    
+        )
+
+    def login(self) -> str:
+        url = self.sp.get_authorize_url()
+        return url 
+        
+
