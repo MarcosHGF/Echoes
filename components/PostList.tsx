@@ -25,22 +25,29 @@ const PostList: React.FC<PostListProps> = ({ userId }) => {
   // Fetch posts from the backend
   const fetchPosts = async (): Promise<void> => {
     try {
-      const response = await fetch(`/api/posts?user_id=${userId}`, {
+      const response = await fetch(`https://select-sheep-currently.ngrok-free.app/api/userposts/1`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
       });
-
+  
       if (!response.ok) {
         throw new Error(`Error fetching posts: ${response.statusText}`);
       }
-
+  
       const data: Post[] = await response.json();
+  
+      // Ensure the response is an array
+      if (!Array.isArray(data)) {
+        throw new Error("Expected an array of posts but got something else.");
+      }
+  
       setPosts(data);
       setLoading(false);
     } catch (err: any) {
-      setError(err.message);
+      console.error("Error fetching posts:", err.message);
+      setError(err.message || "An unexpected error occurred");
       setLoading(false);
     }
   };
@@ -68,29 +75,29 @@ const PostList: React.FC<PostListProps> = ({ userId }) => {
 
   return (
     <View style={styles.resourceGrid}>
-      {posts.length === 0 ? (
-        <Text style={styles.noPostsText}>No posts available.</Text>
-      ) : (
-        posts.map((post) => (
-          <View key={post.id} style={styles.resourceCard}>
-            <View style={styles.resourceHeader}>
-              <Text style={styles.resourceType}>{post.completed ? "Completed" : "Active"}</Text>
-              <Text style={styles.resourcePrice}>{post.likes} Likes</Text>
-            </View>
-            <Text style={styles.postName}>{post.name}</Text>
-            <Text style={styles.postContent}>{post.content}</Text>
-            <View style={styles.resourceStats}>
-              <Text style={styles.statText}>
-                <Text>{new Date(post.date_created).toLocaleDateString()}</Text>
-              </Text>
-              <Text style={styles.statText}>
-                <Text>{post.likes} Likes</Text>
-              </Text>
-            </View>
+    {posts && posts.length > 0 ? (
+      posts.map((post) => (
+        <View key={post.id} style={styles.resourceCard}>
+          <View style={styles.resourceHeader}>
+            <Text style={styles.resourceType}>{post.completed ? "Completed" : "Active"}</Text>
+            <Text style={styles.resourcePrice}>{post.likes} Likes</Text>
           </View>
-        ))
-      )}
-    </View>
+          <Text style={styles.postName}>{post.name}</Text>
+          <Text style={styles.postContent}>{post.content}</Text>
+          <View style={styles.resourceStats}>
+            <Text style={styles.statText}>
+              <Text>{new Date(post.date_created).toLocaleDateString()}</Text>
+            </Text>
+            <Text style={styles.statText}>
+              <Text>{post.likes} Likes</Text>
+            </Text>
+          </View>
+        </View>
+      ))
+    ) : (
+      <Text style={styles.noPostsText}>No posts available.</Text>
+    )}
+  </View>
   );
 };
 
