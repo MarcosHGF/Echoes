@@ -11,13 +11,14 @@ def create_app():
     db.init_app(app)
     
     # Import and register blueprints
-    from app.routes import likes_bp, users_bp, profile_bp, login_bp, posts_bp, spotify_login
+    from app.routes import likes_bp, users_bp, profile_bp, login_bp, posts_bp, spotify_login, tracks_bp
     app.register_blueprint(likes_bp)
     app.register_blueprint(users_bp)
     app.register_blueprint(profile_bp)
     app.register_blueprint(login_bp)
     app.register_blueprint(posts_bp)
     app.register_blueprint(spotify_login)
+    app.register_blueprint(tracks_bp)
     
     return app
 

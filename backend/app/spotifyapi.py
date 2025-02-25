@@ -4,7 +4,6 @@ import os
 from dotenv import load_dotenv
 
 class SpotifyAPI:
-    sp: spotipy.Spotify
     def __init__(self):
         load_dotenv()
         
@@ -39,8 +38,6 @@ class SpotifyAPI:
             else:
                 playlists = None
 
-        
-        
 
     def search_track(self, query, limit):
         results = self.sp.search(q=query, type='track', limit=limit)

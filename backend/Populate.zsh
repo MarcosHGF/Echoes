@@ -24,7 +24,8 @@ curl -X GET $API_URL/users/2
 echo "Creating a post..."
 curl -X POST $API_URL/posts/1 -H "Content-Type: application/json" -d '{
     "name": "Test Post",
-    "user_id": 1
+    "user_id": 1,
+    "content": "lol"
 }'
 
 sleep 1

@@ -163,9 +163,42 @@ class Relationship(db.Model):
         return [{"follower_id": rel.follower_id, "date_created": rel.date_created.isoformat()} for rel in relations]
 
 class Track(db.Model):
+    __tablename__ = 'track'
+
     track_uri = Column(Integer, primary_key=True, index=True)
-    
+    track_photo = Column(String(260))
+    track_name = Column(String(260))
+    track_artists = Column(String(260))
+    track_album = Column(Integer, ForeignKey('album.album_uri'), index=True)
+
     @staticmethod
     def get_track(track_uri):
-        track = db.session.execute(select(Track).where(Track.track_uri == track_uri)).scalars().all()
+        track = db.session.execute(select(Track).where(Track.track_uri == track_uri)).scalars().one()
         return track
+    
+    @staticmethod
+    def addTrack(data):
+        track = Track(track_uri=data.get("uri"), track_photo=data.get("track_photo"))
+        db.session.add(track)
+        db.session.commit()
+        return {"message": "Track added"}
+    
+class Album(db.Model):
+    __tablename__ = 'album'
+
+    album_uri = Column(Integer, primary_key=True, index=True)
+    album_photo = Column(String(260))
+    album_name = Column(String(260))
+    album_artists = Column(String(260))
+
+    @staticmethod
+    def get_track(album_uri):
+        album = db.session.execute(select(Album).where(Album.album_uri == album_uri)).scalars().one()
+        return album
+    
+    @staticmethod
+    def addTrack(data):
+        album = Album(album_uri=data.get("uri"), album_photo=data.get("album_photo"))
+        db.session.add(album)
+        db.session.commit()
+        return {"message": "Track added"}
