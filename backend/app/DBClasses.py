@@ -109,13 +109,13 @@ class Post(db.Model):
         if not post:
             return {"error": "Post not found"}
 
-        return {
+        return [{
             "id": post.id,
             "name": post.name,
             "completed": post.completed,
             "content": post.content,
             "date_created": post.date_created.isoformat() if post.date_created else None
-        }
+        }]
 
     @staticmethod
     def add_post(data):

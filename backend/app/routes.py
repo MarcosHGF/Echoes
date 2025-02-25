@@ -9,6 +9,7 @@ users_bp = Blueprint("users", __name__)
 login_bp = Blueprint("login", __name__)  
 profile_bp = Blueprint("profile", __name__)  
 posts_bp = Blueprint("posts", __name__)
+userposts_bp = Blueprint("userposts", __name__)
 spotify_login = Blueprint("spotify_login", __name__)
 tracks_bp = Blueprint("tracks", __name__)
 
@@ -63,7 +64,21 @@ def posts(postID):
        return jsonify(str(Post.add_post(request.get_json())))
     
     else:
+        print(str(Post.get_post(postID)))
         return jsonify(str(Post.get_post(postID))) 
+    
+@userposts_bp.route("/api/userposts/<userID>",methods=["GET"])
+def posts(userID):
+    posts = db.session.execute(select(Post).where(Post.user_id==userID)).scalars().all()
+    return [ {
+        "id": post.id,
+        "user": post.name,
+        "date": post.date_created,
+        "content": post.content,
+        "likes": post.likes,
+        "tags_id": post.tags_id
+    } for post in posts ]
+
     
 @spotify_login.route("/api/spotifylogin", methods=["GET"])
 def spotifylogin():
