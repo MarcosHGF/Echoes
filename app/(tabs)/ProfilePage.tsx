@@ -2,172 +2,138 @@
 
 import { useState } from "react"
 import { View, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Text, Image, Dimensions } from "react-native"
-import { StatusBar } from "expo-status-bar"
 import { Feather } from "@expo/vector-icons"
 import BottomContainer from "../../components/BottomContainer"
 import { router } from "expo-router"
+import PostList from "@/components/PostList" // Import the PostList component
 
 const { width, height } = Dimensions.get("window")
 
 const ProfilePage = () => {
   const playlists = [1, 2, 3, 4, 5] // Array for playlists
   const stories = [1, 2, 3, 4, 5] // Array for stories
-  const tweets = [1, 2, 3] // Array for tweets
   const [selectedPost, setSelectedPost] = useState<number | null>(null)
+  const [posts, setPosts] = useState<any[]>([]) // State to store fetched posts
+  const [loading, setLoading] = useState(false) // State to track loading state
+  const profileUserId = 1 // Example user ID for the profile
 
-  const handleEllipsisPress = (index: number) => {
-    setSelectedPost(selectedPost === index ? null : index)
-  }
+  // Function to fetch posts when the "Follow" button is pressed
+  const fetchUserFollow = async () => {
+    try {
+      setLoading(true) // Start loading
+      const response = await fetch(`https://select-sheep-currently.ngrok-free.app/api/follow/2`,{  //user id do usuario atual
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({profileUserId}),// profile page que ira ser seguida
+    });
 
-  const handleOptionSelect = (option: string) => {
-    // Handle the selected option here
-    console.log(`Selected option: ${option}`)
-    setSelectedPost(null)
+      if (!response.ok) {
+        throw new Error("Failed to fetch follow")
+      }
+
+    } catch (error) {
+      console.error("Error fetching posts:", error)
+      alert("An error occurred while fetching follow.")
+    } finally {
+      setLoading(false) // Stop loading
+    }
   }
 
   return (
-    <>
-      <SafeAreaView style={styles.container}>
-        <StatusBar style="light" />
-
-        <ScrollView style={styles.content}>
-          {/* Banner and Profile Section */}
-          <View style={styles.bannerContainer}>
-            <View style={styles.banner} />
-            <View style={styles.profileSection}>
-              <View style={styles.profilePictureContainer}>
-                <Image source={require("../../assets/images/profile-picture.png")} style={styles.profilePicture} />
-              </View>
-              <View style={styles.profileInfo}>
-                <Text style={styles.profileName}>Calcifer</Text>
-                <View style={styles.currentlyPlayingContainer}>
-                  <Text style={styles.currentlyPlaying}>
-                    <Feather name="music" size={14} color="#00E5FF" /> Currently playing: Song Name
-                  </Text>
-                  <TouchableOpacity style={styles.listButton} onPress={() => console.log("List song")}>
-                    <Feather name="list" size={14} color="#00E5FF" />
-                  </TouchableOpacity>
-                </View>
-              </View>
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.content}>
+        {/* Banner and Profile Section */}
+        <View style={styles.bannerContainer}>
+          <View style={styles.banner}></View>
+          <View style={styles.profileSection}>
+            <View style={styles.profilePictureContainer}>
+              <Image source={{ uri: "https://via.placeholder.com/84" }} style={styles.profilePicture} />
+            </View>
+            <View style={styles.profileInfo}>
+              <Text style={styles.profileName}>Calcifer</Text>
+              <TouchableOpacity style={styles.currentlyPlayingContainer} onPress={() => console.log("List song")}>
+                <Text style={styles.currentlyPlaying}>Currently playing: Song Name</Text>
+                <Feather name="chevron-right" size={16} color="#00E5FF" style={styles.listButton} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.followbutton} onPress={fetchUserFollow}>
+                <Text style={{ color: "#000", fontWeight: "bold" }}>Follow</Text>
+              </TouchableOpacity>
             </View>
           </View>
+        </View>
 
-          {/* User Description */}
-          <View style={styles.section}>
-            <Text style={styles.userDescription}>
-              Music enthusiast | Playlist curator | Always exploring new sounds
-            </Text>
-          </View>
+        {/* User Description */}
+        <View style={styles.section}>
+          <Text style={styles.userDescription}>Music enthusiast | Playlist curator | Always exploring new sounds</Text>
+        </View>
 
-          {/* Favorite Music Section */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Favorite Music</Text>
-            <View style={styles.favoriteMusicContainer}>
-              {[1, 2, 3].map((_, index) => (
-                <View key={index} style={styles.favoriteMusicItem}>
-                  <View style={styles.favoriteMusicCover} />
-                  <Text style={styles.favoriteMusicTitle}>Top Song {index + 1}</Text>
-                  <Text style={styles.favoriteMusicArtist}>Artist {index + 1}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-
-          {/* Playlists Section */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>My Playlists</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.playlistsContainer}>
-              {playlists.map((_, index) => (
-                <View key={index} style={styles.playlistItem}>
-                  <View style={styles.playlistCover} />
-                  <Text style={styles.playlistTitle}>Playlist {index + 1}</Text>
-                </View>
-              ))}
-            </ScrollView>
-          </View>
-
-          {/* Stories Section */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Stories</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.storiesContainer}>
-              {stories.map((_, index) => (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() =>
-                    router.push({
-                      pathname: "/StoriesPage",
-                      params: { initialStoryId: index + 1, userId: "Calcifer" },
-                    })
-                  }
-                >
-                  <View style={styles.storyItem}>
-                    <View style={styles.storyRing}>
-                      <View style={styles.storyImage} />
-                    </View>
-                    <Text style={styles.storyText}>Story {index + 1}</Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-
-          {/* Tweets Section */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Recent Tweets</Text>
-            {[1, 2, 3, 4].map((_, index) => (
-              <View key={index} style={styles.post}>
-                <View style={styles.postHeader}>
-                  <View style={styles.userInfo}>
-                    <View style={styles.postAvatar} />
-                    <View>
-                      <Text style={styles.postUsername}>User {index + 1}</Text>
-                      <Text style={styles.postTime}>2h ago</Text>
-                    </View>
-                  </View>
-                  <TouchableOpacity style={styles.ellipsisButton} onPress={() => handleEllipsisPress(index)}>
-                    <Feather name="more-vertical" size={20} color="#fff" />
-                  </TouchableOpacity>
-                </View>
-                <Text style={styles.postContent}>This is a sample tweet about music, life, or anything else!</Text>
-                <View style={styles.postActions}>
-                  <TouchableOpacity style={styles.postAction}>
-                    <Feather name="heart" size={20} color="#fff" />
-                    <Text style={styles.postActionText}>Like</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.postAction}>
-                    <Feather name="message-circle" size={20} color="#fff" />
-                    <Text style={styles.postActionText}>Comment</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.postAction}>
-                    <Feather name="share-2" size={20} color="#fff" />
-                    <Text style={styles.postActionText}>Share</Text>
-                  </TouchableOpacity>
-                </View>
-                {selectedPost === index && (
-                  <View style={styles.optionsMenu}>
-                    <TouchableOpacity style={styles.optionItem} onPress={() => handleOptionSelect("Not Interested")}>
-                      <Text style={styles.optionText}>Not Interested</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.optionItem} onPress={() => handleOptionSelect("Report")}>
-                      <Text style={styles.optionText}>Report</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.optionItem} onPress={() => handleOptionSelect("Favorite")}>
-                      <Text style={styles.optionText}>Favorite</Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
+        {/* Favorite Music Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Favorite Music</Text>
+          <View style={styles.favoriteMusicContainer}>
+            {[1, 2, 3].map((_, index) => (
+              <View key={index} style={styles.favoriteMusicItem}>
+                <View style={styles.favoriteMusicCover}></View>
+                <Text style={styles.favoriteMusicTitle}>Top Song {index + 1}</Text>
+                <Text style={styles.favoriteMusicArtist}>Artist {index + 1}</Text>
               </View>
             ))}
           </View>
+        </View>
 
-          {/* Bottom Padding for Content */}
-          <View style={styles.bottomPadding} />
-        </ScrollView>
+        {/* Playlists Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>My Playlists</Text>
+          <View style={styles.playlistsContainer}>
+            {playlists.map((_, index) => (
+              <View key={index} style={styles.playlistItem}>
+                <View style={styles.playlistCover}></View>
+                <Text style={styles.playlistTitle}>Playlist {index + 1}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
 
-        {/* Bottom Fixed Container */}
-      </SafeAreaView>
+        {/* Stories Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Stories</Text>
+          <View style={styles.storiesContainer}>
+            {stories.map((_, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.storyItem}
+                onPress={() =>
+                  router.push({
+                    pathname: "/StoriesPage",
+                    params: { initialStoryId: index + 1, userId: "Calcifer" },
+                  })
+                }
+              >
+                <View style={styles.storyRing}>
+                  <View style={styles.storyImage}></View>
+                </View>
+                <Text style={styles.storyText}>Story {index + 1}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* Tweets Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Recent Tweets</Text>
+          {/* Use the PostList component here */}
+          <PostList userId={profileUserId} />
+        </View>
+
+        {/* Bottom Padding for Content */}
+        <View style={styles.bottomPadding}></View>
+      </ScrollView>
+
+      {/* Bottom Fixed Container */}
       <BottomContainer />
-    </>
+    </SafeAreaView>
   )
 }
 
@@ -177,7 +143,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#030303",
   },
   content: {
-    flex: 1,
+    flexGrow: 1,
   },
   bannerContainer: {
     position: "relative",
@@ -387,6 +353,14 @@ const styles = StyleSheet.create({
   bottomPadding: {
     height: 140,
   },
-});
+  followbutton:{
+    backgroundColor: "#00E5FF",
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginTop: 10,
+    width: 85,
+  },
+})
 
-export default ProfilePage;
+export default ProfilePage
