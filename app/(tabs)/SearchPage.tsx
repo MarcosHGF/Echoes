@@ -14,6 +14,7 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { Feather } from "@expo/vector-icons";
 import BottomContainer from "../../components/BottomContainer";
+import PostList from "@/components/PostList" // Import the PostList component
 
 const SearchPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -53,6 +54,8 @@ const SearchPage = () => {
       time: "1d ago",
     },
   ];
+
+  const profileUserId = 1 // Example user ID for the profile
 
   const handleEllipsisPress = (index: number) => {
     setSelectedPost(selectedPost === index ? null : index);
@@ -119,65 +122,8 @@ const SearchPage = () => {
 
           {/* Recent Tweets */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Recent Tweets</Text>
-            {[1, 2, 3, 4].map((_, index) => (
-              <View key={index} style={styles.post}>
-                <View style={styles.postHeader}>
-                  <View style={styles.userInfo}>
-                    <View style={styles.postAvatar} />
-                    <View>
-                      <Text style={styles.postUsername}>User {index + 1}</Text>
-                      <Text style={styles.postTime}>2h ago</Text>
-                    </View>
-                  </View>
-                  <TouchableOpacity
-                    style={styles.ellipsisButton}
-                    onPress={() => handleEllipsisPress(index)}
-                  >
-                    <Feather name="more-vertical" size={20} color="#fff" />
-                  </TouchableOpacity>
-                </View>
-                <Text style={styles.postContent}>
-                  This is a sample tweet about music, life, or anything else!
-                </Text>
-                <View style={styles.postActions}>
-                  <TouchableOpacity style={styles.postAction}>
-                    <Feather name="heart" size={20} color="#fff" />
-                    <Text style={styles.postActionText}>Like</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.postAction}>
-                    <Feather name="message-circle" size={20} color="#fff" />
-                    <Text style={styles.postActionText}>Comment</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.postAction}>
-                    <Feather name="share-2" size={20} color="#fff" />
-                    <Text style={styles.postActionText}>Share</Text>
-                  </TouchableOpacity>
-                </View>
-                {selectedPost === index && (
-                  <View style={styles.optionsMenu}>
-                    <TouchableOpacity
-                      style={styles.optionItem}
-                      onPress={() => handleOptionSelect("Not Interested")}
-                    >
-                      <Text style={styles.optionText}>Not Interested</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.optionItem}
-                      onPress={() => handleOptionSelect("Report")}
-                    >
-                      <Text style={styles.optionText}>Report</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.optionItem}
-                      onPress={() => handleOptionSelect("Favorite")}
-                    >
-                      <Text style={styles.optionText}>Favorite</Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
-              </View>
-            ))}
+            <Text style={styles.sectionTitle}>Trend Tweets</Text>
+            <PostList userId={profileUserId} />
           </View>
 
           {/* Bottom Padding for Content */}

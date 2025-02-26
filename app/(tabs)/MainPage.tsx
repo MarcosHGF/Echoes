@@ -15,6 +15,7 @@ import { Feather } from "@expo/vector-icons";
 import BottomContainer from "../../components/BottomContainer";
 import { router } from "expo-router";
 import { useState } from "react";
+import PostList from "@/components/PostList" // Import the PostList component
 
 const MainPage = () => {
   const stories = [1, 2, 3, 4, 5]; // Array for stories
@@ -27,6 +28,7 @@ const MainPage = () => {
     { icon: "user", label: "Profile" },
   ];
   const data = 0;
+  const profileUserId = 1 // Example user ID for the profile
 
   const [selectedPost, setSelectedPost] = useState<number | null>(null);
 
@@ -111,68 +113,7 @@ const MainPage = () => {
           <View style={styles.sectionTitle}>
             <Text style={styles.sectionTitleText}>Latest Posts</Text>
           </View>
-          {posts.map((_, index) => (
-            <View key={index} style={styles.post}>
-              <View style={styles.postHeader}>
-                <TouchableOpacity
-                  onPress={() => handleUserRedirect()}
-                  style={styles.userInfo}
-                >
-                  <View style={styles.postAvatar} />
-                  <View>
-                    <Text style={styles.postUsername}>User {index + 1}</Text>
-                    <Text style={styles.postTime}>2h ago</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.ellipsisButton}
-                  onPress={() => handleEllipsisPress(index)}
-                >
-                  <Feather name="more-vertical" size={20} color="#fff" />
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.postContent}>
-                This is a sample post content. It can be about music, thoughts,
-                or anything!
-              </Text>
-              <View style={styles.postActions}>
-                <TouchableOpacity style={styles.postAction}>
-                  <Feather name="heart" size={20} color="#fff" />
-                  <Text style={styles.postActionText}>Like</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.postAction}>
-                  <Feather name="message-circle" size={20} color="#fff" />
-                  <Text style={styles.postActionText}>Comment</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.postAction}>
-                  <Feather name="share-2" size={20} color="#fff" />
-                  <Text style={styles.postActionText}>Share</Text>
-                </TouchableOpacity>
-              </View>
-              {selectedPost === index && (
-                <View style={styles.optionsMenu}>
-                  <TouchableOpacity
-                    style={styles.optionItem}
-                    onPress={() => handleOptionSelect("Not Interested")}
-                  >
-                    <Text style={styles.optionText}>Not Interested</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.optionItem}
-                    onPress={() => handleOptionSelect("Report")}
-                  >
-                    <Text style={styles.optionText}>Report</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.optionItem}
-                    onPress={() => handleOptionSelect("Favorite")}
-                  >
-                    <Text style={styles.optionText}>Favorite</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </View>
-          ))}
+          <PostList userId={profileUserId} />
         </ScrollView>
       </SafeAreaView>
       <BottomContainer />
