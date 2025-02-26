@@ -1,7 +1,7 @@
 from flask import request, jsonify, Blueprint
 from sqlalchemy import select
 from werkzeug.security import check_password_hash
-from app.DBClasses import Like, User, UserProfile, Post, Track,db
+from app.DBClasses import Like, User, UserProfile, Post, Track, Relationship, db
 from app.user import UserAccount
 
 likes_bp = Blueprint("likes", __name__)
@@ -12,7 +12,8 @@ posts_bp = Blueprint("posts", __name__)
 userposts_bp = Blueprint("userposts", __name__)
 spotify_login = Blueprint("spotify_login", __name__)
 tracks_bp = Blueprint("tracks", __name__)
-
+getPostsUser_bp = Blueprint("getPostsUser", __name__)
+add_follower_bp = Blueprint("add_follower_bp", __name__)
 
 @likes_bp.route("/api/likes/<postID>", methods=["GET", "POST"])
 def handle_likes(postID):
@@ -94,3 +95,31 @@ def tracks(track_uri):
 
     track = Track().get_track(track_uri=track_uri)
     return jsonify(track)
+
+@getPostsUser_bp.route("/api/getPostsUser/<userID>", methods=["GET"])
+def getPosts(userID):
+    following = db.session.execute(select(Relationship).where(Relationship.follower_id==userID)).scalars().all()
+    posts = []
+
+    for user in following:
+        posts.append(db.session.execute(select(Post).where(Post.user_id==user.following_id)))
+    
+    return [ {
+        "id": post.id,
+        "user": post.name,
+        "date": post.date_created,
+        "content": post.content,
+        "likes": post.likes,
+        "tags_id": post.tags_id
+    } for post in posts ]
+
+
+@add_follower_bp.route("/api/follow/<userID>", methods=["POST"])
+def follow(userID):
+    data = request.get_json()
+
+
+    relation = Relationship(follower_id=userID, following_id=data.get("profileUserId"))
+    db.session.add(relation)
+    db.session.commit()
+    return '"message": "follower added"'

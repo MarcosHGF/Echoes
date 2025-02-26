@@ -11,7 +11,7 @@ def create_app():
     db.init_app(app)
     
     # Import and register blueprints
-    from app.routes import likes_bp, users_bp, profile_bp, login_bp, posts_bp, spotify_login, tracks_bp, userposts_bp
+    from app.routes import likes_bp, users_bp, profile_bp, login_bp, posts_bp, spotify_login, tracks_bp, userposts_bp, getPostsUser_bp, add_follower_bp
     app.register_blueprint(likes_bp)
     app.register_blueprint(users_bp)
     app.register_blueprint(profile_bp)
@@ -20,6 +20,9 @@ def create_app():
     app.register_blueprint(userposts_bp)
     app.register_blueprint(spotify_login)
     app.register_blueprint(tracks_bp)
+    app.register_blueprint(getPostsUser_bp)
+    app.register_blueprint(add_follower_bp)
+
     
     return app
 

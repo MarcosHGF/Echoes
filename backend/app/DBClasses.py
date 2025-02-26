@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from app.extensions import db
-from sqlalchemy import select, Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import CheckConstraint, UniqueConstraint, select, Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash
 
@@ -152,10 +152,16 @@ class UserProfile(db.Model):
 class Relationship(db.Model):
     __tablename__ = 'relationship'
 
-    follower_id = Column(Integer, ForeignKey('user.id'), primary_key=True, index=True)
-    following_id = Column(Integer, ForeignKey('user.id'), primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    follower_id = Column(Integer, ForeignKey('user.id'), index=True)
+    following_id = Column(Integer, ForeignKey('user.id'), index=True)
     date_created = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     completed = Column(Integer, default=0)
+
+    __table_args__ = (
+        UniqueConstraint('follower_id', 'following_id', name='uq_follower_following'),
+        CheckConstraint('follower_id <> following_id', name='chk_no_self_follow'),
+    )
 
     @staticmethod
     def get_relationship_followers(user_id):
