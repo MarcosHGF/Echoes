@@ -15,7 +15,7 @@ import { Feather } from "@expo/vector-icons";
 import BottomContainer from "../../components/BottomContainer";
 import { router } from "expo-router";
 import { useState } from "react";
-import PostList from "@/components/PostList" // Import the PostList component
+import PostList from "@/components/PostList"; // Import the PostList component
 
 const MainPage = () => {
   const stories = [1, 2, 3, 4, 5]; // Array for stories
@@ -28,7 +28,7 @@ const MainPage = () => {
     { icon: "user", label: "Profile" },
   ];
   const data = 0;
-  const profileUserId = 1 // Example user ID for the profile
+  const profileUserId = 1; // Example user ID for the profile
 
   const [selectedPost, setSelectedPost] = useState<number | null>(null);
 
@@ -70,7 +70,11 @@ const MainPage = () => {
         {/* Main Content */}
         <ScrollView style={styles.content}>
           {/* Stories */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.storiesContainer}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.storiesContainer}
+          >
             {stories.map((_, index) => (
               <TouchableOpacity
                 key={index}

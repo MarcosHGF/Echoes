@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+} from "react-native";
 import { Feather } from "@expo/vector-icons";
 
 // Define the shape of a Post object
@@ -27,24 +33,27 @@ const PostList: React.FC<PostListProps> = ({ userId }) => {
   // Fetch posts from the backend
   const fetchPosts = async (): Promise<void> => {
     try {
-      const response = await fetch(`https://select-sheep-currently.ngrok-free.app/api/userposts/${userId}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-  
+      const response = await fetch(
+        `https://select-sheep-currently.ngrok-free.app/api/getpostsuser/${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
       if (!response.ok) {
         throw new Error(`Error fetching posts: ${response.statusText}`);
       }
-  
+
       const data: Post[] = await response.json();
-  
+
       // Ensure the response is an array
       if (!Array.isArray(data)) {
         throw new Error("Expected an array of posts but got something else.");
       }
-  
+
       setPosts(data);
       setLoading(false);
     } catch (err: any) {
@@ -61,7 +70,6 @@ const PostList: React.FC<PostListProps> = ({ userId }) => {
     console.log(`Selected option: ${option}`);
     setSelectedPost(null);
   };
-
 
   // Fetch posts when the component mounts
   useEffect(() => {
