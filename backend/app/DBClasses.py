@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from app.extensions import db
-from sqlalchemy import CheckConstraint, UniqueConstraint, select, Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import CheckConstraint, UniqueConstraint, select, Column, Integer, String, ForeignKey, DateTime, Boolean, func
 from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash
 
@@ -10,9 +10,9 @@ class Like(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)
     post_id = Column(Integer, ForeignKey('post.id'), nullable=False, index=True)
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False, index=True)
-    completed = Column(Integer, default=0)
+    completed = Column(Boolean, default=0)
     name = Column(String(200))
-    date_created = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    date_created = Column(DateTime, server_default=func.now())
 
     @staticmethod
     def get_like_data(post_id) -> list:
@@ -33,13 +33,11 @@ class Like(db.Model):
 
     @staticmethod
     def add_like(data, post_id):
-        db.session.begin()
         name = data.get("name")
         user_id = data.get("id")
 
         post = db.session.execute(select(Post).where(Post.id == post_id)).scalar()
         if post is None:
-            db.session.rollback()
             return {"error": "Post not found"}
 
         like = Like(name=name, post_id=post_id, user_id=user_id)
@@ -58,8 +56,8 @@ class User(db.Model):
     spotify_client = Column(String(200), unique=True)
     name = Column(String(200))
     password = Column(String(260), nullable=False)
-    date_created = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    completed = Column(Integer, default=0)
+    date_created = Column(DateTime, server_default=func.now())
+    completed = Column(Boolean, default=0)
 
     profile = relationship("UserProfile", uselist=False, back_populates="user")
     posts = relationship("Post", back_populates="user")
@@ -95,8 +93,8 @@ class Post(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False, index=True)
     name = Column(String(200), nullable=False)
-    date_created = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    completed = Column(Integer, default=0)
+    date_created = Column(DateTime, server_default=func.now())
+    completed = Column(Boolean, default=0)
     content = Column(String(250), nullable=False)
     likes = Column(Integer, default=0)
     tags_id = Column(Integer, unique=True)
@@ -155,8 +153,8 @@ class Relationship(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)
     follower_id = Column(Integer, ForeignKey('user.id'), index=True)
     following_id = Column(Integer, ForeignKey('user.id'), index=True)
-    date_created = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    completed = Column(Integer, default=0)
+    date_created = Column(DateTime, server_default=func.now())
+    completed = Column(Boolean, default=0)
 
     __table_args__ = (
         UniqueConstraint('follower_id', 'following_id', name='uq_follower_following'),
@@ -171,7 +169,8 @@ class Relationship(db.Model):
 class Track(db.Model):
     __tablename__ = 'track'
 
-    track_uri = Column(Integer, primary_key=True, index=True)
+    track_id = Column(Integer, primary_key=True, index=True)
+    track_uri = Column(String(255), index=True)
     track_photo = Column(String(260))
     track_name = Column(String(260))
     track_artists = Column(String(260))
@@ -192,7 +191,8 @@ class Track(db.Model):
 class Album(db.Model):
     __tablename__ = 'album'
 
-    album_uri = Column(Integer, primary_key=True, index=True)
+    album_id = Column(Integer, primary_key=True, index=True)
+    album_uri = Column(String(255), index=True)
     album_photo = Column(String(260))
     album_name = Column(String(260))
     album_artists = Column(String(260))
