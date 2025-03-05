@@ -2,9 +2,7 @@ from flask import request, jsonify, Blueprint
 from sqlalchemy import select
 from werkzeug.security import check_password_hash
 from app.DBClasses import Like, User, UserProfile, Post, Track, Relationship, db
-from app.user import UserAccount
-from utils import generate_state
-from user import redis_client
+from app.user import UserAccount, redis_client
 
 likes_bp = Blueprint("likes", __name__)
 users_bp = Blueprint("users", __name__)
