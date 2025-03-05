@@ -16,7 +16,7 @@ class SpotifyAPI:
             client_id=client,
             client_secret=secret,
             redirect_uri=uri,
-            scope=scope    
+            scope=scope 
         ))
 
        

@@ -19,7 +19,7 @@ def create_app():
     migrate = Migrate(app, db)  # Initialize Flask-Migrate
     
     # Import and register blueprints
-    from app.routes import likes_bp, users_bp, profile_bp, login_bp, posts_bp, spotify_login, tracks_bp, userposts_bp, getPostsUser_bp, add_follower_bp
+    from app.routes import likes_bp, users_bp, profile_bp, login_bp, posts_bp, spotify_login, tracks_bp, userposts_bp, getPostsUser_bp, add_follower_bp, spotify_auth
     app.register_blueprint(likes_bp)
     app.register_blueprint(users_bp)
     app.register_blueprint(profile_bp)
@@ -30,6 +30,7 @@ def create_app():
     app.register_blueprint(tracks_bp)
     app.register_blueprint(getPostsUser_bp)
     app.register_blueprint(add_follower_bp)
+    app.register_blueprint(spotify_auth)
 
     
     return app

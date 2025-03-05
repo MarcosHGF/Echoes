@@ -34,7 +34,7 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
   const handlePost = async () => {
     console.log(content);
     try {
-      const response = await fetch(API_URL + "/posts/0", {
+      const response = await fetch(API_URL + `/posts/${user_id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

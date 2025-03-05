@@ -1,125 +1,209 @@
 from flask import request, jsonify, Blueprint
 from sqlalchemy import select
 from werkzeug.security import check_password_hash
-from app.DBClasses import Like, User, UserProfile, Post, Track, Relationship, db
+from app.DBClasses import Like, User, UserProfile, Post, Track, Relationship, SpotifyCredential, db
 from app.user import UserAccount
+import spotipy as sp
 
 likes_bp = Blueprint("likes", __name__)
-users_bp = Blueprint("users", __name__)  
-login_bp = Blueprint("login", __name__)  
-profile_bp = Blueprint("profile", __name__)  
+users_bp = Blueprint("users", __name__)
+login_bp = Blueprint("login", __name__)
+profile_bp = Blueprint("profile", __name__)
 posts_bp = Blueprint("posts", __name__)
 userposts_bp = Blueprint("userposts", __name__)
 spotify_login = Blueprint("spotify_login", __name__)
+spotify_auth = Blueprint("spotify_auth", __name__)
 tracks_bp = Blueprint("tracks", __name__)
 getPostsUser_bp = Blueprint("getPostsUser", __name__)
 add_follower_bp = Blueprint("add_follower_bp", __name__)
 
-@likes_bp.route("/api/likes/<postID>", methods=["GET", "POST"])
-def handle_likes(postID):
+# Likes Route
+@likes_bp.route("/api/likes/<post_id>", methods=["GET", "POST"])
+def handle_likes(post_id):
     if request.method == 'GET':
-        likedata = Like.get_like_data(post_id=postID)
-        return jsonify({"likes_data": likedata})
+        likes_data = Like.get_like_data(post_id=post_id)
+        return jsonify({"likes_data": likes_data})
 
     elif request.method == 'POST':
-        dbdata = request.get_json()
-        return jsonify(Like.add_like(data=dbdata, post_id=postID))
+        data = request.get_json()
+        result = Like.add_like(data=data, post_id=post_id)
+        return jsonify(result)
 
+# Users Route
 @users_bp.route("/api/users/<user_id>", methods=["GET", "POST"])
-def get_users(user_id):
+def handle_users(user_id):
     if request.method == 'GET':
-        users = User.get_user_data(user_id=user_id)
-        return jsonify({"user_data": users})
-    
-    elif request.method == 'POST':
-        User.add_user(request.get_json())
-        return jsonify({"message": "User added"})
+        user_data = User.get_user_data(user_id=user_id)
+        if "error" in user_data:
+            return jsonify(user_data), 404
+        return jsonify({"user_data": user_data})
 
+    elif request.method == 'POST':
+        data = request.get_json()
+        result = User.add_user(data)
+        return jsonify(result)
+
+# Login Route
 @login_bp.route("/api/login", methods=["POST"])
 def login():
     data = request.get_json()
-    user = db.session.execute(select(User).where(User.username == data["username"])).scalar_one()
+    user = db.session.execute(select(User).where(User.username == data["username"])).scalar()
 
     if not user:
-        return jsonify({"error": "Email ou senha incorretos"}), 401
-    
+        return jsonify({"error": "Invalid username or password"}), 401
 
-    if not check_password_hash(user.password, data["password"]):  
-        return jsonify({"error": "Email ou senha incorretos"}), 401
+    if not check_password_hash(user.password, data["password"]):
+        return jsonify({"error": "Invalid username or password"}), 401
 
-    return jsonify({"message": "Login bem-sucedido", "user_id": user.id})
+    return jsonify({"message": "Login successful", "user_id": user.id})
 
+# Profile Route
 @profile_bp.route("/api/profile/<username>", methods=["GET", "PATCH"])
-def profile(username):
+def handle_profile(username):
+    user = db.session.execute(select(User).where(User.username == username)).scalar()
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
     if request.method == "GET":
-        user = db.session.execute(select(User).where(User.username == username)).scalar()
-        
-        if not user:
-            return jsonify({"error": "User not found"}), 404
+        profile_data = UserProfile.get_user_profile(user_id=user.id)
+        return jsonify(profile_data)
 
-        return jsonify(UserProfile.get_user_profile(user_id=user.id))
-    
-@posts_bp.route("/api/posts/<postID>",methods=["GET", "POST"])
-def posts(postID):
+    elif request.method == "PATCH":
+        data = request.get_json()
+        profile = db.session.execute(select(UserProfile).where(UserProfile.user_id == user.id)).scalar()
+
+        if not profile:
+            return jsonify({"error": "Profile not found"}), 404
+
+        # Update profile fields
+        if "musics" in data:
+            profile.musics = data["musics"]
+        if "pfp" in data:
+            profile.pfp = data["pfp"]
+
+        db.session.commit()
+        return jsonify({"message": "Profile updated successfully"})
+
+# Posts Route
+@posts_bp.route("/api/posts/<post_id>", methods=["GET", "POST"])
+def handle_posts(post_id):
     if request.method == "POST":
-       return jsonify(str(Post.add_post(request.get_json())))
-    
-    else:
-        print(str(Post.get_post(postID)))
-        return jsonify(str(Post.get_post(postID))) 
-    
-@userposts_bp.route("/api/userposts/<userID>",methods=["GET"])
-def posts(userID):
-    posts = db.session.execute(select(Post).where(Post.user_id==userID)).scalars().all()
-    return [ {
-        "id": post.id,
-        "user": post.name,
-        "date": post.date_created,
-        "content": post.content,
-        "likes": post.likes,
-        "tags_id": post.tags_id
-    } for post in posts ]
+        data = request.get_json()
+        result = Post.add_post(data)
+        return jsonify(result)
 
-    
+    post_data = Post.get_post(post_id=post_id)
+    if "error" in post_data:
+        return jsonify(post_data), 404
+    return jsonify(post_data)
+
+# User Posts Route
+@userposts_bp.route("/api/userposts/<user_id>", methods=["GET"])
+def get_user_posts(user_id):
+    posts = db.session.execute(select(Post).where(Post.user_id == user_id)).scalars().all()
+    return jsonify([
+        {
+            "id": post.id,
+            "user": post.name,
+            "date": post.date_created.isoformat(),
+            "content": post.content,
+            "likes": post.likes,
+            "tags_id": post.tags_id
+        } for post in posts
+    ])
+
+# Spotify Login Route
 @spotify_login.route("/api/spotifylogin", methods=["GET"])
-def spotifylogin():
-    url = UserAccount.login()
-    print(url)
-    return jsonify(url)
+def spotify_login_route():
+    user_account = UserAccount()
+    url = user_account.login()
 
+    db.session.execute(select(User).where(User.email == sp.Spotify.current_user))
+
+    credentials = SpotifyCredential()
+    credentials.access_token = user_account.sp.get_access_token()
+    credentials.code_verifier = user_account.sp.code_verifier()
+    credentials.
+    db.session.add(user_account)
+    return jsonify({"authorization_url": url})
+
+# Spotify Auth Route
+@spotify_auth.route("/auth", methods=["GET"])
+def spotify_auth_route():
+    auth_code = request.args.get("code")
+    if not auth_code:
+        return jsonify({"error": "Authorization code not found"}), 400
+
+    user_account = UserAccount()
+    token_info = user_account.onLogin(request.args)
+
+    if token_info is None:
+        return jsonify({"error": "Authentication failed"}), 400
+
+    # Store tokens in the database
+    user_id = token_info.get("user_id")  # Assuming you have a way to associate tokens with users
+    SpotifyCredential.update_credentials(
+        user_id=user_id,
+        access_token=token_info["access_token"],
+        refresh_token=token_info["refresh_token"],
+        token_expiry=token_info["expires_in"]
+    )
+
+    return jsonify({"message": "Authentication successful", "token_info": token_info})
+
+# Tracks Route
 @tracks_bp.route("/api/track/<track_uri>", methods=["GET", "POST"])
-def tracks(track_uri):
+def handle_tracks(track_uri):
     if request.method == "POST":
-        trackadd = request.get_json()
-        return jsonify(Track.addTrack(trackadd))
+        data = request.get_json()
+        result = Track.add_track(data)
+        return jsonify(result)
 
-    track = Track().get_track(track_uri=track_uri)
-    return jsonify(track)
+    track_data = Track.get_track(track_uri=track_uri)
+    if "error" in track_data:
+        return jsonify(track_data), 404
+    return jsonify(track_data)
 
-@getPostsUser_bp.route("/api/getPostsUser/<userID>", methods=["GET"])
-def getPosts(userID):
-    following = db.session.execute(select(Relationship).where(Relationship.follower_id==userID)).scalars().all()
+# Get Posts from Followed Users Route
+@getPostsUser_bp.route("/api/getPostsUser/<user_id>", methods=["GET"])
+def get_posts_from_followed_users(user_id):
+    following = db.session.execute(
+        select(Relationship).where(Relationship.follower_id == user_id)
+    ).scalars().all()
+
     posts = []
+    if following:
+        for relation in following:
+            posts.extend(
+                db.session.execute(
+                    select(Post).where(Post.user_id == relation.following_id)
+                ).scalars().all()
+            )
+    else:
+        posts = db.session.execute(select(Post).where(Post.user_id == user_id)).scalars().all()
 
-    for user in following:
-        posts.append(db.session.execute(select(Post).where(Post.user_id==user.following_id)))
-    
-    return [ {
-        "id": post.id,
-        "user": post.name,
-        "date": post.date_created,
-        "content": post.content,
-        "likes": post.likes,
-        "tags_id": post.tags_id
-    } for post in posts ]
+    return jsonify([
+        {
+            "id": post.id,
+            "user": post.name,
+            "date": post.date_created.isoformat(),
+            "content": post.content,
+            "likes": post.likes,
+        } for post in posts
+    ])
 
-
-@add_follower_bp.route("/api/follow/<userID>", methods=["POST"])
-def follow(userID):
+# Follow Route
+@add_follower_bp.route("/api/follow/<user_id>", methods=["POST"])
+def follow_user(user_id):
     data = request.get_json()
+    profile_user_id = data.get("profileUserId")
 
+    if not profile_user_id:
+        return jsonify({"error": "Missing profileUserId"}), 400
 
-    relation = Relationship(follower_id=userID, following_id=data.get("profileUserId"))
+    relation = Relationship(follower_id=user_id, following_id=profile_user_id)
     db.session.add(relation)
     db.session.commit()
-    return '"message": "follower added"'
+
+    return jsonify({"message": "Follower added successfully"})

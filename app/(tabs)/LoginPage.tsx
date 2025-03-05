@@ -77,12 +77,9 @@ export default function LoginScreen() {
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || "Invalid credentials");
-      }
-
-      if (data.url) {
-        router.push(data.url);
+      if (data) {
+        console.log("got here");
+        router.push(data);
       } else {
         throw new Error("Authorization URL not received.");
       }
