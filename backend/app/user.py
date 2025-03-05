@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from spotipy.oauth2 import SpotifyPKCE, SpotifyClientCredentials
+from spotipy.oauth2 import SpotifyPKCE
 import spotipy
 import redis
 from app.utils import generate_state
