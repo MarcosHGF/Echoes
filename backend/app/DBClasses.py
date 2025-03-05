@@ -2,7 +2,7 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 from app.extensions import db
-from sqlalchemy import CheckConstraint, UniqueConstraint, select, Column, Integer, String, ForeignKey, DateTime, Boolean, func
+from sqlalchemy import CheckConstraint, UniqueConstraint, select, Column, Integer, String, ForeignKey, DateTime, func
 from sqlalchemy.orm import relationship
 from cryptography.fernet import Fernet
 
