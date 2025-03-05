@@ -1,9 +1,10 @@
 from flask import request, jsonify, Blueprint
 from sqlalchemy import select
 from werkzeug.security import check_password_hash
-from app.DBClasses import Like, User, UserProfile, Post, Track, Relationship, SpotifyCredential, db
+from app.DBClasses import Like, User, UserProfile, Post, Track, Relationship, db
 from app.user import UserAccount
-import spotipy as sp
+from utils import generate_state
+from user import redis_client
 
 likes_bp = Blueprint("likes", __name__)
 users_bp = Blueprint("users", __name__)
@@ -117,35 +118,42 @@ def get_user_posts(user_id):
 @spotify_login.route("/api/spotifylogin", methods=["GET"])
 def spotify_login_route():
     user_account = UserAccount()
-    url = user_account.login()
-    # db.session.execute(select(User).where(User.email == user_account.sp.)).scalar_one_or_none() #Acessar email de usuário
-    
-    return jsonify({"authorization_url": url})
+    login_data = user_account.login()
+    return jsonify(login_data)
 
 # Spotify Auth Route
 @spotify_auth.route("/auth", methods=["GET"])
 def spotify_auth_route():
     auth_code = request.args.get("code")
-    if not auth_code:
-        return jsonify({"error": "Authorization code not found"}), 400
+    state = request.args.get("state")
 
-    user_account = UserAccount()
-    token_info = user_account.onLogin(request.args)
-    print("TOKEN INFO :: ", token_info)
+    if not auth_code or not state:
+        return jsonify({"error": "Authorization code or state parameter missing"}), 400
 
-    if token_info is None:
-        return jsonify({"error": "Authentication failed"}), 400
+    try:
+        # Retrieve the code_verifier from Redis using the state
+        code_verifier = redis_client.get(f"state:{state}")
+        if not code_verifier:
+            return jsonify({"error": "Invalid or expired state parameter"}), 400
 
-    # Store tokens in the database
-    # user_id = db.session.execute(select(User).where())
-    """ SpotifyCredential.update_credentials(
-        user_id=user_id,
-        access_token=token_info["access_token"],
-        refresh_token=token_info["refresh_token"],
-        token_expiry=token_info["expires_in"]
-    ) """
+        print("Code Verifier (Token Exchange):", code_verifier.decode())
 
-    return jsonify({"message": "Authentication successful", "token_info": token_info})
+        # Initialize the UserAccount and exchange the authorization code for tokens
+        user_account = UserAccount()
+        token_info = user_account.onLogin(auth_code, code_verifier.decode())
+
+        if token_info is None:
+            return jsonify({"error": "Authentication failed"}), 400
+
+        # Optionally, store tokens in the database
+        # user_id = db.session.execute(select(User).where(...)).scalar()
+        # SpotifyCredential.update_credentials(user_id=user_id, ...)
+
+        return jsonify({"message": "Authentication successful", "token_info": token_info})
+
+    except Exception as e:
+        print("Error during token exchange:", e)
+        return jsonify({"error": str(e)}), 500
 
 # Tracks Route
 @tracks_bp.route("/api/track/<track_uri>", methods=["GET", "POST"])
