@@ -118,14 +118,8 @@ def get_user_posts(user_id):
 def spotify_login_route():
     user_account = UserAccount()
     url = user_account.login()
-
-    db.session.execute(select(User).where(User.email == sp.Spotify.current_user))
-
-    credentials = SpotifyCredential()
-    credentials.access_token = user_account.sp.get_access_token()
-    credentials.code_verifier = user_account.sp.code_verifier()
-    credentials.
-    db.session.add(user_account)
+    # db.session.execute(select(User).where(User.email == user_account.sp.)).scalar_one_or_none() #Acessar email de usuário
+    
     return jsonify({"authorization_url": url})
 
 # Spotify Auth Route
@@ -137,18 +131,19 @@ def spotify_auth_route():
 
     user_account = UserAccount()
     token_info = user_account.onLogin(request.args)
+    print("TOKEN INFO :: ", token_info)
 
     if token_info is None:
         return jsonify({"error": "Authentication failed"}), 400
 
     # Store tokens in the database
-    user_id = token_info.get("user_id")  # Assuming you have a way to associate tokens with users
-    SpotifyCredential.update_credentials(
+    # user_id = db.session.execute(select(User).where())
+    """ SpotifyCredential.update_credentials(
         user_id=user_id,
         access_token=token_info["access_token"],
         refresh_token=token_info["refresh_token"],
         token_expiry=token_info["expires_in"]
-    )
+    ) """
 
     return jsonify({"message": "Authentication successful", "token_info": token_info})
 

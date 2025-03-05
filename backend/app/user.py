@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from spotipy.oauth2 import SpotifyPKCE
+from spotipy.oauth2 import SpotifyPKCE, SpotifyClientCredentials
 import spotipy
 import redis
 
@@ -13,9 +13,10 @@ class UserAccount:
         self.client_id = os.environ['CLIENT_ID']
         self.redirect_uri = os.environ['REDIRECT_URI']
         self.scope = os.environ['SCOPE']
+        self.client_secret = os.environ['CLIENT_SECRET']
 
         # Initialize SpotifyPKCE
-        self.sp = SpotifyPKCE(
+        self.auth_manager = SpotifyPKCE(
             client_id=self.client_id,
             redirect_uri=self.redirect_uri,
             scope=self.scope
@@ -26,13 +27,12 @@ class UserAccount:
         Generate Spotify authorization URL for user login.
         """
         # Get the authorization URL (includes code_challenge internally)
-        url = self.sp.get_authorize_url()
+        url = self.auth_manager.get_authorize_url()
 
         # Store the code_verifier in Redis
-        redis_client.set('code_verifier', self.sp.code_verifier)
+        redis_client.set('code_verifier', self.auth_manager.code_verifier)
 
-        print("Authorization URL:", url)
-        print("Code Verifier (Authorization):", self.sp.code_verifier)
+        print("Code Verifier (Authorization):", self.auth_manager.code_verifier)
         return url
 
     def onLogin(self, url):
@@ -45,6 +45,7 @@ class UserAccount:
         if not auth_code:
             print("No auth code found!")
             return None
+        
 
         try:
             # Retrieve the code_verifier from Redis
@@ -55,9 +56,23 @@ class UserAccount:
 
             print("Code Verifier (Token Exchange):", code_verifier)
 
+
+            self.sp = spotipy.Spotify(
+                auth=token_info['access_token'], 
+                client_credentials_manager=None,
+                auth_manager=self.auth_manager
+                )
+            
+            print(self.sp.current_user())
+            
             # Exchange the authorization code for an access token
-            token_info = self.sp.get_access_token(code=auth_code, code_verifier=code_verifier)
-            print("Token Info:", token_info)
+            token_info = self.auth_manager.get_access_token(code=auth_code, code_verifier=code_verifier)
+            expired = self.auth_manager.is_token_expired(token_info=token_info)
+
+            if expired:
+                self.login()
+
+
             return token_info
         except Exception as e:
             print("Error during token exchange:", e)
@@ -68,7 +83,7 @@ class UserAccount:
         Get a Spotipy client with a valid access token.
         """
         # Retrieve a valid access token
-        access_token = self.sp.get_access_token(user_id)
+        access_token = self.auth_manager.get_access_token(user_id)
 
         # Initialize Spotipy with the access token
         return spotipy.Spotify(auth=access_token)
