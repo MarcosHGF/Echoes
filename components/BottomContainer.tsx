@@ -5,11 +5,15 @@ import { View, TouchableOpacity, StyleSheet, Text, Platform, Animated } from "re
 import { Feather } from "@expo/vector-icons"
 import { useNavigation } from "@react-navigation/native"
 import PostCreationModal from "./PostCreationModal"
+import getAPI from "../app/(tabs)/Ngrok"
+
+const API_URL = getAPI();
 
 const BottomContainer = memo(() => {
   const [isPlaying, setIsPlaying] = useState(false)
-  const [progress, setProgress] = useState(0)
+  const [progress, setProgress] = useState(0) // Progress in seconds
   const [duration, setDuration] = useState(180) // Default duration of 3 minutes (180 seconds)
+  const [currentTrack, setCurrentTrack] = useState({ name: "Song Name", artist: "Artist" })
   const [isPostModalVisible, setIsPostModalVisible] = useState(false)
 
   const navigation = useNavigation()
@@ -25,7 +29,7 @@ const BottomContainer = memo(() => {
   )
 
   const goToPage = useCallback(
-    (item: { icon?: string; label: string }) => {
+    (item) => {
       const selectedLabel = item.label
       console.log("Navigating to:", item.label)
 
@@ -50,24 +54,50 @@ const BottomContainer = memo(() => {
     [navigation],
   )
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout | number
-    if (isPlaying) {
-      interval = setInterval(() => {
-        setProgress((prevProgress) => {
-          if (prevProgress >= duration) {
-            clearInterval(interval)
-            setIsPlaying(false)
-            return 0
-          }
-          return prevProgress + 1
-        })
-      }, 1000)
-    }
-    return () => clearInterval(interval)
-  }, [isPlaying, duration])
+  // Fetch current playback state from the backend
+  const fetchPlaybackState = useCallback(async () => {
+    try {
+      const response = await fetch(API_URL + "/current-playback")
+      const data = await response.json()
 
-  const formatTime = (seconds: number) => {
+      if (data.is_playing !== undefined) {
+        setIsPlaying(data.is_playing)
+        setProgress(data.progress_ms / 1000) // Convert milliseconds to seconds
+        setDuration(data.duration_ms / 1000) // Convert milliseconds to seconds
+        setCurrentTrack({
+          name: data.item?.name || "Song Name",
+          artist: data.item?.artists?.[0]?.name || "Artist",
+        })
+      }
+    } catch (error) {
+      console.error("Error fetching playback state:", error)
+    }
+  }, [])
+
+  // Play or pause the song via the backend
+  const handlePlayPause = useCallback(async () => {
+    try {
+      if (!isPlaying) {
+        await fetch(API_URL + "/play", {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uri: 'spotify:track:4cOdK2wGLETKBW3PvgPWqT' }), // Example track URI
+        })
+      } else {
+        await fetch(API_URL + "/pause", { method: 'POST' })
+      }
+    } catch (error) {
+      console.error("Error controlling playback:", error)
+    }
+  }, [isPlaying])
+
+  // Poll for playback updates every second
+  useEffect(() => {
+    const interval = setInterval(fetchPlaybackState, 1000)
+    return () => clearInterval(interval)
+  }, [fetchPlaybackState])
+
+  const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
     return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`
@@ -80,10 +110,10 @@ const BottomContainer = memo(() => {
         <View style={styles.player} pointerEvents="box-none">
           <View style={styles.songInfo}>
             <Text style={styles.songTitle} numberOfLines={1}>
-              Song Name
+              {currentTrack.name}
             </Text>
             <Text style={styles.artistName} numberOfLines={1}>
-              Artist
+              {currentTrack.artist}
             </Text>
           </View>
 
@@ -102,7 +132,7 @@ const BottomContainer = memo(() => {
               <TouchableOpacity onPress={() => console.log("Previous")}>
                 <Feather name="skip-back" size={20} color="#fff" />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.playPauseButton} onPress={() => setIsPlaying(!isPlaying)}>
+              <TouchableOpacity style={styles.playPauseButton} onPress={handlePlayPause}>
                 <Feather name={isPlaying ? "pause" : "play"} size={20} color="#fff" />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => console.log("Next")}>
@@ -243,4 +273,3 @@ const styles = StyleSheet.create({
 })
 
 export default BottomContainer
-
