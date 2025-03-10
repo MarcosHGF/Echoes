@@ -5,7 +5,7 @@ from sqlalchemy import select
 from werkzeug.security import check_password_hash
 from app.DBClasses import Like, User, UserProfile, Post, Track, Relationship, db
 from app.user import UserAccount, redis_client
-from app.utils import create_jwt
+from app.utils import create_jwt, verify_jwt
 
 likes_bp = Blueprint("likes", __name__)
 users_bp = Blueprint("users", __name__)
@@ -162,12 +162,12 @@ def spotify_auth_route():
         return jsonify({"error": "Authorization code or state parameter missing"}), 400
 
     if not auth_code:
-        redis_client.set(f"spotify_state:{state}", "failure")
+        redis_client.setex(f"spotify_state:{state}", 300,"failure")
         return jsonify({"error": "Authorization code or state parameter missing"}), 400
 
     # Validate state in Redis
     if not redis_client.get(f"spotify_state:{state}"):
-        redis_client.set(f"spotify_state:{state}", "failure")
+        redis_client.setex(f"spotify_state:{state}", 300,"failure")
         return jsonify({"error": "Invalid or expired state parameter"}), 400
 
     try:
@@ -176,32 +176,27 @@ def spotify_auth_route():
         if serialized_user_account:
             user_account: UserAccount = pickle.loads(serialized_user_account)  # Deserialize binary data into object
         else:
-            redis_client.set(f"spotify_state:{state}", "failure")
+            redis_client.setex(f"spotify_state:{state}", 300,"failure")
             return jsonify({"error": "User account not found"}), 400
 
         # Proceed with the token exchange, keeping the same `user_account` object
         token_info = user_account.on_login(auth_code, state)
 
         if not token_info or "error" in token_info:
-            redis_client.set(f"spotify_state:{state}", "failure")
+            redis_client.setex(f"spotify_state:{state}", 300,"failure")
             return jsonify({"error": "Authentication failed"}), 400
 
         # Fetch Spotify data or perform any additional actions
-        redis_client.set(f"spotify_state:{state}", "success")
-
-        # Generate JWT for the authenticated user
-        user_id = token_info.get("user_id")  # Assuming you store user_id in token_info
-        token = create_jwt(user_id)
+        redis_client.setex(f"spotify_state:{state}", 300,"success")
 
         return jsonify({
             "message": "Authentication successful",
             "token_info": token_info,
-            "token": token  # Include the JWT in the response
         })
 
     except Exception as e:
         print("Error during token exchange:", e)
-        redis_client.set(f"spotify_state:{state}", "failure")
+        redis_client.setex(f"spotify_state:{state}", 300,"failure")
 
         return jsonify({"error": "Internal Server Error"}), 500
     
@@ -222,6 +217,13 @@ def check_auth_status():
         # Authentication is still in progress
         return jsonify({"status": "pending", "message": "Authentication in progress"}), 200
     elif auth_status == b"success":
+        serialized_user_account: bytes = redis_client.get(f"spotify_user_account:{state}")
+        if serialized_user_account:
+            user_account: UserAccount = pickle.loads(serialized_user_account)  # Deserialize binary data into object
+        else:
+            redis_client.setex(f"spotify_state:{state}", 300,"failure")
+            return jsonify({"error": "User account not found"}), 400
+        jwt_token = create_jwt()
         # Authentication succeeded
         return jsonify({"status": "success", "message": "Authentication successful"}), 200
     elif auth_status == b"failure":

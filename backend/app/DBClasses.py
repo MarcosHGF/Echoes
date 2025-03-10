@@ -23,7 +23,7 @@ class User(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)
     email = Column(String(200), nullable=False, unique=True, index=True)
     username = Column(String(200), nullable=False, unique=True)
-    spotify_client = Column(String(200), unique=True)
+    spotify_id = Column(String(200), unique=True)
     name = Column(String(200))
     password = Column(String(260), nullable=False)  # Encrypted password
     date_created = Column(DateTime, server_default=func.now())
@@ -43,6 +43,10 @@ class User(db.Model):
         db.session.add(user)
         db.session.commit()
         return {"message": "User added successfully"}
+    
+    @staticmethod
+    def add_user_spotify(data):
+        User.
 
     @staticmethod
     def get_user_data(user_id):

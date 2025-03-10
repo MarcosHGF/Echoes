@@ -1,9 +1,11 @@
 import os
 from dotenv import load_dotenv
+from flask import jsonify
 from spotipy.oauth2 import SpotifyPKCE, SpotifyClientCredentials
 import spotipy
 import redis
 from app.utils import generate_state
+from app.DBClasses import User, SpotifyCredential
 
 # Initialize Redis client
 redis_client = redis.StrictRedis(host='localhost', port=7777, db=0, decode_responses=False)
@@ -60,12 +62,25 @@ class UserAccount:
 
             # Initialize Spotipy client
             self.sp = spotipy.Spotify(auth=token_info, client_credentials_manager=self.credentials, auth_manager=self.auth_manager)
+            self.add_user()
             
             return token_info
 
         except Exception as e:
             print(f"Object Error during token exchange: {e}")
             return {"error": "Token exchange failed"}, 500
+
+    def add_user(self):
+        print(self.sp.current_user())
+        user = self.sp.current_user()
+        email = user['email']
+        username = user['display_name']
+
+        User.add_user(jsonify(email, username))
+
+
+
+        return
 
     def refresh_access_token(self, state):
         """
