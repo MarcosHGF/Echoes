@@ -1,9 +1,9 @@
-from datetime import datetime
 import os
 from dotenv import load_dotenv
 from app.extensions import db
 from sqlalchemy import CheckConstraint, UniqueConstraint, select, Column, Integer, String, ForeignKey, DateTime, func
 from sqlalchemy.orm import relationship
+from werkzeug.security import generate_password_hash
 from cryptography.fernet import Fernet
 
 load_dotenv()
@@ -37,7 +37,7 @@ class User(db.Model):
     def add_user(data):
         email = data.get("email")
         username = data.get("username")
-        password = encrypt_data(data.get("password"))  # Encrypt password before storing
+        password = generate_password_hash(password=data.get("password"))  # Encrypt password before storing
 
         user = User(username=username, email=email, password=password)
         db.session.add(user)

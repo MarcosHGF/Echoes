@@ -1,5 +1,4 @@
 from app import create_app, db
-from app.spotifyapi import SpotifyAPI
 from flask_cors import CORS
 
 app = create_app()

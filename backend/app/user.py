@@ -1,20 +1,20 @@
 import os
 from dotenv import load_dotenv
-from spotipy.oauth2 import SpotifyPKCE
+from spotipy.oauth2 import SpotifyPKCE, SpotifyClientCredentials
 import spotipy
 import redis
 from app.utils import generate_state
 
 # Initialize Redis client
-redis_client = redis.StrictRedis(host='localhost', port=7777, db=0, decode_responses=True)
+redis_client = redis.StrictRedis(host='localhost', port=7777, db=0, decode_responses=False)
 
 class UserAccount:
     def __init__(self):
         load_dotenv()
-        self.client_id = os.environ['CLIENT_ID']
-        self.redirect_uri = os.environ['REDIRECT_URI']
-        self.scope = os.environ['SCOPE']
-        self.client_secret = os.environ['CLIENT_SECRET']
+        self.client_id = os.getenv("CLIENT_ID")
+        self.redirect_uri = os.getenv("REDIRECT_URI")
+        self.scope = os.getenv("SCOPE")
+        self.client_secret = os.getenv("CLIENT_SECRET")
 
         # Initialize SpotifyPKCE
         self.auth_manager = SpotifyPKCE(
@@ -23,47 +23,80 @@ class UserAccount:
             scope=self.scope
         )
 
+        self.credentials = SpotifyClientCredentials(
+            client_id=self.client_id,
+            client_secret=self.client_secret
+        )
+
+
     def login(self):
         """
-        Generate Spotify authorization URL for user login.
+        Generate Spotify authorization URL for user login and store state in Redis.
         """
-        # Generate a unique state parameter
         state = generate_state()
+        
+        # Store state temporarily in Redis (5-minute expiration)
+        redis_client.setex(f"spotify_state:{state}", 300, "active")
 
-        # Get the authorization URL (includes code_challenge internally)
         url = self.auth_manager.get_authorize_url(state=state)
-
-        # Store the code_verifier and state in Redis
-        redis_client.set(f"state:{state}", self.auth_manager.code_verifier, ex=300)  # Expires in 5 minutes
-
-        print("Code Verifier (Authorization):", self.auth_manager.code_verifier)
-        print("State:", state)
-
         return {"authorization_url": url, "state": state}
 
-    def onLogin(self, auth_code, code_verifier):
+    def on_login(self, auth_code, state):
         """
-        Handle the redirect URL and exchange it for an access token.
+        Handle the redirect URL, validate state, and exchange the auth code for an access token.
         """
+
+        # Verify state exists in Redis
+        if not redis_client.get(f"spotify_state:{state}"):
+            return {"error": "Invalid or expired state"}, 400
+
         try:
-            # Exchange the authorization code for an access token
-            token_info = self.auth_manager.get_access_token(code=auth_code, code_verifier=code_verifier)
+            # Exchange auth code for access token
+            token_info = self.auth_manager.get_access_token(code=auth_code, check_cache=False)
+            print("Token Info:", token_info)  # Log the token info for debugging
 
-            # Initialize the Spotipy client with the access token
-            self.sp = spotipy.Spotify(auth=token_info['access_token'], auth_manager=self.auth_manager)
+            if not token_info:
+                return {"error": "Failed to retrieve access token"}, 400
 
+            # Initialize Spotipy client
+            self.sp = spotipy.Spotify(auth=token_info, client_credentials_manager=self.credentials, auth_manager=self.auth_manager)
+            
             return token_info
 
         except Exception as e:
-            print("Error during token exchange:", e)
-            return None
-        
-    def get_spotify_client(self, user_id):
+            print(f"Object Error during token exchange: {e}")
+            return {"error": "Token exchange failed"}, 500
+
+    def refresh_access_token(self, state):
+        """
+        Refresh the Spotify access token using the stored refresh token.
+        """
+        refresh_token = redis_client.get(f"spotify_refresh:{state}")
+        if not refresh_token:
+            return {"error": "No refresh token found"}, 401
+
+        try:
+            new_token_info = self.auth_manager.refresh_access_token(refresh_token)
+            redis_client.setex(f"spotify_access:{state}", 3600, new_token_info["access_token"])
+
+            return new_token_info
+
+        except Exception as e:
+            print(f"Error refreshing access token: {e}")
+            return {"error": "Failed to refresh access token"}, 500
+
+    def get_spotify_client(self, state):
         """
         Get a Spotipy client with a valid access token.
         """
-        # Retrieve a valid access token
-        access_token = self.auth_manager.get_access_token(user_id)
+        access_token = redis_client.get(f"spotify_access:{state}")
 
-        # Initialize Spotipy with the access token
+        if not access_token:
+            # Attempt to refresh token
+            new_token_info = self.refresh_access_token(state)
+            if "error" in new_token_info:
+                return None  # Return None if refresh fails
+
+            access_token = new_token_info["access_token"]
+
         return spotipy.Spotify(auth=access_token)

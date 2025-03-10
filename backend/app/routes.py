@@ -1,8 +1,11 @@
+import pickle
 from flask import request, jsonify, Blueprint
+from flask_jwt_extended import jwt_required
 from sqlalchemy import select
 from werkzeug.security import check_password_hash
 from app.DBClasses import Like, User, UserProfile, Post, Track, Relationship, db
 from app.user import UserAccount, redis_client
+from app.utils import create_jwt
 
 likes_bp = Blueprint("likes", __name__)
 users_bp = Blueprint("users", __name__)
@@ -15,9 +18,12 @@ spotify_auth = Blueprint("spotify_auth", __name__)
 tracks_bp = Blueprint("tracks", __name__)
 getPostsUser_bp = Blueprint("getPostsUser", __name__)
 add_follower_bp = Blueprint("add_follower_bp", __name__)
+check_auth_status_bp = Blueprint("check_auth_status", __name__)
+
 
 # Likes Route
 @likes_bp.route("/api/likes/<post_id>", methods=["GET", "POST"])
+@jwt_required
 def handle_likes(post_id):
     if request.method == 'GET':
         likes_data = Like.get_like_data(post_id=post_id)
@@ -30,6 +36,7 @@ def handle_likes(post_id):
 
 # Users Route
 @users_bp.route("/api/users/<user_id>", methods=["GET", "POST"])
+@jwt_required
 def handle_users(user_id):
     if request.method == 'GET':
         user_data = User.get_user_data(user_id=user_id)
@@ -54,10 +61,18 @@ def login():
     if not check_password_hash(user.password, data["password"]):
         return jsonify({"error": "Invalid username or password"}), 401
 
-    return jsonify({"message": "Login successful", "user_id": user.id})
+    # Generate JWT
+    token = create_jwt(user.id)
+
+    return jsonify({
+        "message": "Login successful",
+        "user_id": user.id,
+        "token": token  # Include the JWT in the response
+    })
 
 # Profile Route
 @profile_bp.route("/api/profile/<username>", methods=["GET", "PATCH"])
+@jwt_required
 def handle_profile(username):
     user = db.session.execute(select(User).where(User.username == username)).scalar()
 
@@ -86,6 +101,7 @@ def handle_profile(username):
 
 # Posts Route
 @posts_bp.route("/api/posts/<post_id>", methods=["GET", "POST"])
+@jwt_required
 def handle_posts(post_id):
     if request.method == "POST":
         data = request.get_json()
@@ -99,6 +115,7 @@ def handle_posts(post_id):
 
 # User Posts Route
 @userposts_bp.route("/api/userposts/<user_id>", methods=["GET"])
+@jwt_required
 def get_user_posts(user_id):
     posts = db.session.execute(select(Post).where(Post.user_id == user_id)).scalars().all()
     return jsonify([
@@ -115,46 +132,108 @@ def get_user_posts(user_id):
 # Spotify Login Route
 @spotify_login.route("/api/spotifylogin", methods=["GET"])
 def spotify_login_route():
+    """
+    Generates Spotify authorization URL and stores the entire UserAccount object in Redis.
+    """
     user_account = UserAccount()
     login_data = user_account.login()
+
+    # Serialize the user_account object (entire object) for later use
+    serialized_user_account = pickle.dumps(user_account)
+
+    # Store the serialized object as binary data in Redis with a short expiration (5 minutes)
+    redis_client.setex(f"spotify_user_account:{login_data['state']}", 300, serialized_user_account)
+
+    # Store state in Redis with a short expiration for validation
+    redis_client.setex(f"spotify_state:{login_data['state']}", 300, "active")
+
     return jsonify(login_data)
 
 # Spotify Auth Route
 @spotify_auth.route("/auth", methods=["GET"])
 def spotify_auth_route():
+    """
+    Handles Spotify OAuth callback, exchanges the auth code for an access token.
+    """
     auth_code = request.args.get("code")
     state = request.args.get("state")
 
-    if not auth_code or not state:
+    if not state:
         return jsonify({"error": "Authorization code or state parameter missing"}), 400
 
+    if not auth_code:
+        redis_client.set(f"spotify_state:{state}", "failure")
+        return jsonify({"error": "Authorization code or state parameter missing"}), 400
+
+    # Validate state in Redis
+    if not redis_client.get(f"spotify_state:{state}"):
+        redis_client.set(f"spotify_state:{state}", "failure")
+        return jsonify({"error": "Invalid or expired state parameter"}), 400
+
     try:
-        # Retrieve the code_verifier from Redis using the state
-        code_verifier = redis_client.get(f"state:{state}")
-        if not code_verifier:
-            return jsonify({"error": "Invalid or expired state parameter"}), 400
+        # Retrieve the serialized user_account object from Redis as binary data
+        serialized_user_account: bytes = redis_client.get(f"spotify_user_account:{state}")
+        if serialized_user_account:
+            user_account: UserAccount = pickle.loads(serialized_user_account)  # Deserialize binary data into object
+        else:
+            redis_client.set(f"spotify_state:{state}", "failure")
+            return jsonify({"error": "User account not found"}), 400
 
-        print("Code Verifier (Token Exchange):", code_verifier.decode())
+        # Proceed with the token exchange, keeping the same `user_account` object
+        token_info = user_account.on_login(auth_code, state)
 
-        # Initialize the UserAccount and exchange the authorization code for tokens
-        user_account = UserAccount()
-        token_info = user_account.onLogin(auth_code, code_verifier.decode())
-
-        if token_info is None:
+        if not token_info or "error" in token_info:
+            redis_client.set(f"spotify_state:{state}", "failure")
             return jsonify({"error": "Authentication failed"}), 400
 
-        # Optionally, store tokens in the database
-        # user_id = db.session.execute(select(User).where(...)).scalar()
-        # SpotifyCredential.update_credentials(user_id=user_id, ...)
+        # Fetch Spotify data or perform any additional actions
+        redis_client.set(f"spotify_state:{state}", "success")
 
-        return jsonify({"message": "Authentication successful", "token_info": token_info})
+        # Generate JWT for the authenticated user
+        user_id = token_info.get("user_id")  # Assuming you store user_id in token_info
+        token = create_jwt(user_id)
+
+        return jsonify({
+            "message": "Authentication successful",
+            "token_info": token_info,
+            "token": token  # Include the JWT in the response
+        })
 
     except Exception as e:
         print("Error during token exchange:", e)
-        return jsonify({"error": str(e)}), 500
+        redis_client.set(f"spotify_state:{state}", "failure")
 
+        return jsonify({"error": "Internal Server Error"}), 500
+    
+@check_auth_status_bp.route("/api/check-auth-status", methods=["GET"])
+def check_auth_status():
+    """
+    Checks the status of the authentication process for a given state.
+    """
+    state = request.args.get("state")
+    print(state)
+    if not state:
+        return jsonify({"status": "failure", "message": "State parameter missing"}), 400
+
+    # Check if the state exists in Redis
+    auth_status = redis_client.get(f"spotify_state:{state}")
+    print(auth_status)
+    if auth_status == b"active":
+        # Authentication is still in progress
+        return jsonify({"status": "pending", "message": "Authentication in progress"}), 200
+    elif auth_status == b"success":
+        # Authentication succeeded
+        return jsonify({"status": "success", "message": "Authentication successful"}), 200
+    elif auth_status == b"failure":
+        # Authentication failed
+        return jsonify({"status": "failure", "message": "Authentication failed"}), 200
+    else:
+        # State expired or invalid
+        return jsonify({"status": "failure", "message": "Invalid or expired state"}), 400
+    
 # Tracks Route
 @tracks_bp.route("/api/track/<track_uri>", methods=["GET", "POST"])
+@jwt_required
 def handle_tracks(track_uri):
     if request.method == "POST":
         data = request.get_json()
@@ -168,6 +247,7 @@ def handle_tracks(track_uri):
 
 # Get Posts from Followed Users Route
 @getPostsUser_bp.route("/api/getPostsUser/<user_id>", methods=["GET"])
+@jwt_required
 def get_posts_from_followed_users(user_id):
     following = db.session.execute(
         select(Relationship).where(Relationship.follower_id == user_id)
@@ -196,6 +276,7 @@ def get_posts_from_followed_users(user_id):
 
 # Follow Route
 @add_follower_bp.route("/api/follow/<user_id>", methods=["POST"])
+@jwt_required
 def follow_user(user_id):
     data = request.get_json()
     profile_user_id = data.get("profileUserId")

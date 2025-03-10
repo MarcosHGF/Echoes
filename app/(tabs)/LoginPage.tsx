@@ -15,11 +15,48 @@ import {
   ScrollView,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { useRouter } from "expo-router";
+import { RelativePathString, router, useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import getAPI from "../(tabs)/Ngrok";
+import { UrlObject } from "expo-router/build/LocationProvider";
+import { rotationHandlerName } from "react-native-gesture-handler/lib/typescript/handlers/RotationGestureHandler";
 
 const API_URL = getAPI();
+
+async function checkAuthStatus(state: string) {
+  const interval = 2000; // Poll every 2 seconds
+  const maxAttempts = 15; // Stop after 30 seconds (15 attempts)
+  let attempts = 0;
+
+  const poll = setInterval(async () => {
+    try {
+      const response = await fetch(
+        API_URL + `/check-auth-status?state=${state}`
+      );
+      const data = await response.json();
+
+      if (data.status === "success") {
+        clearInterval(poll); // Stop polling
+        console.log("Authentication succeeded:", data);
+        // Redirect or update UI as needed
+        router.push("(tabs)/MainPage");
+      } else if (data.status === "failure") {
+        clearInterval(poll); // Stop polling
+        console.error("Authentication failed:", data);
+        alert("Login failed. Please try again.");
+      }
+
+      attempts++;
+      if (attempts >= maxAttempts) {
+        clearInterval(poll); // Stop polling after max attempts
+        console.error("Authentication timed out.");
+        alert("Login timed out. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error during polling:", error);
+    }
+  }, interval);
+}
 
 export default function LoginScreen() {
   const [username, setUsername] = useState("");
@@ -78,8 +115,12 @@ export default function LoginScreen() {
       const data = await response.json();
 
       if (data) {
-        console.log("got here");
-        router.push(data);
+        const url: string = data["authorization_url"];
+        const state: string = data["state"];
+        if (state) {
+          checkAuthStatus(state);
+        }
+        router.push(url as RelativePathString);
       } else {
         throw new Error("Authorization URL not received.");
       }
