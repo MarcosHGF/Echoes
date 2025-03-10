@@ -25,7 +25,7 @@ class User(db.Model):
     username = Column(String(200), nullable=False, unique=True)
     spotify_id = Column(String(200), unique=True)
     name = Column(String(200))
-    password = Column(String(260), nullable=False)  # Encrypted password
+    password = Column(String(260), nullable=True)  # Encrypted password
     date_created = Column(DateTime, server_default=func.now())
 
     # Relationships
@@ -45,8 +45,20 @@ class User(db.Model):
         return {"message": "User added successfully"}
     
     @staticmethod
-    def add_user_spotify(data):
-        User.
+    def add_user_spotify(email, username, spotify_id, access_token, refresh_token, token_expiry):
+        user = User(username=username, email=email, spotify_id=spotify_id)
+        try:
+            db.session.add(user)
+            db.session.commit()
+
+            SpotifyCredential.update_credentials(
+                user_id=user.id,
+                access_token=access_token, 
+                refresh_token=refresh_token, 
+                token_expiry=token_expiry
+                )
+        except Exception as e:
+            return e
 
     @staticmethod
     def get_user_data(user_id):
@@ -93,8 +105,7 @@ class SpotifyCredential(db.Model):
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False, unique=True, index=True)
     access_token = Column(String(512), nullable=False)  # Encrypted access token
     refresh_token = Column(String(512), nullable=False)  # Encrypted refresh token
-    token_expiry = Column(DateTime, nullable=False)
-    code_verifier = Column(String(128), nullable=True)  # Temporary storage for PKCE
+    token_expiry = Column(String(200), nullable=False)
 
     user = relationship("User", back_populates="spotify_credential")
 

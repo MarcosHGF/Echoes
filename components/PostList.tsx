@@ -33,12 +33,16 @@ const PostList: React.FC<PostListProps> = ({ userId }) => {
   // Fetch posts from the backend
   const fetchPosts = async (): Promise<void> => {
     try {
+      const auth = sessionStorage.getItem("jwt_token");
       const response = await fetch(
         `https://select-sheep-currently.ngrok-free.app/api/getPostsUser/${userId}`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+
+            Authorization: `"Bearer ${auth}"`,
           },
         }
       );

@@ -13,8 +13,8 @@ def create_jwt(user_id):
     """
     payload = {
         "user_id": user_id,
-        "exp": datetime.now("UTC") + TOKEN_EXPIRATION,  # Token expiration
-        "iat": datetime.now("UTC"),  # Issued at
+        "exp": datetime.now() + TOKEN_EXPIRATION,  # Token expiration
+        "iat": datetime.now(),  # Issued at
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
     return token

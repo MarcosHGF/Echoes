@@ -55,7 +55,6 @@ class UserAccount:
         try:
             # Exchange auth code for access token
             token_info = self.auth_manager.get_access_token(code=auth_code, check_cache=False)
-            print("Token Info:", token_info)  # Log the token info for debugging
 
             if not token_info:
                 return {"error": "Failed to retrieve access token"}, 400
@@ -71,14 +70,21 @@ class UserAccount:
             return {"error": "Token exchange failed"}, 500
 
     def add_user(self):
-        print(self.sp.current_user())
         user = self.sp.current_user()
         email = user['email']
         username = user['display_name']
+        id = user['id']
 
-        User.add_user(jsonify(email, username))
+        token = self.auth_manager.cache_handler.get_cached_token()
 
-
+        User.add_user_spotify(
+            email=email,
+            username=username,
+            spotify_id=id,
+            access_token=token['access_token'],
+            refresh_token=token['refresh_token'],
+            token_expiry=token['expires_at']
+            )
 
         return
 

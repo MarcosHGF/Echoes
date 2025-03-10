@@ -18,26 +18,31 @@ import { StatusBar } from "expo-status-bar";
 import { RelativePathString, router, useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import getAPI from "../(tabs)/Ngrok";
-import { UrlObject } from "expo-router/build/LocationProvider";
-import { rotationHandlerName } from "react-native-gesture-handler/lib/typescript/handlers/RotationGestureHandler";
 
 const API_URL = getAPI();
 
 async function checkAuthStatus(state: string) {
   const interval = 2000; // Poll every 2 seconds
-  const maxAttempts = 15; // Stop after 30 seconds (15 attempts)
+  const maxAttempts = 10; // Stop after 30 seconds (15 attempts)
   let attempts = 0;
 
   const poll = setInterval(async () => {
     try {
       const response = await fetch(
-        API_URL + `/check-auth-status?state=${state}`
+        API_URL + `/check-auth-status?state=${state}`,
+        {
+          headers: {
+            "ngrok-skip-browser-warning": "true",
+          },
+        }
       );
       const data = await response.json();
 
       if (data.status === "success") {
         clearInterval(poll); // Stop polling
         console.log("Authentication succeeded:", data);
+        sessionStorage.removeItem("state");
+        sessionStorage.setItem("jwt_token", data.token);
         // Redirect or update UI as needed
         router.push("(tabs)/MainPage");
       } else if (data.status === "failure") {
@@ -51,9 +56,11 @@ async function checkAuthStatus(state: string) {
         clearInterval(poll); // Stop polling after max attempts
         console.error("Authentication timed out.");
         alert("Login timed out. Please try again.");
+        sessionStorage.removeItem("state");
       }
     } catch (error) {
       console.error("Error during polling:", error);
+      sessionStorage.removeItem("state");
     }
   }, interval);
 }
@@ -66,6 +73,12 @@ export default function LoginScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [shakeAnimation] = useState(new Animated.Value(0));
   const router = useRouter();
+  var state = "";
+
+  if (sessionStorage.getItem("state")) {
+    state = sessionStorage.getItem("state") || "";
+    checkAuthStatus(state);
+  }
 
   const validateForm = () => {
     const newErrors = {
@@ -108,6 +121,7 @@ export default function LoginScreen() {
       const response = await fetch(API_URL + "/spotifylogin", {
         method: "GET",
         headers: {
+          "ngrok-skip-browser-warning": "true",
           "Content-Type": "application/json",
         },
       });
@@ -116,8 +130,10 @@ export default function LoginScreen() {
 
       if (data) {
         const url: string = data["authorization_url"];
-        const state: string = data["state"];
+        state = data["state"];
         if (state) {
+          sessionStorage.setItem("state", state);
+
           checkAuthStatus(state);
         }
         router.push(url as RelativePathString);

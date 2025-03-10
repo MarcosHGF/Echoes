@@ -30,6 +30,7 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
   const name = "GOAT";
   const user_id = 1;
   const API_URL = getAPI();
+  const auth = sessionStorage.getItem("jwt_token");
 
   const handlePost = async () => {
     console.log(content);
@@ -38,6 +39,8 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+          Authorization: `"Bearer ${auth}"`,
         },
         body: JSON.stringify({ content, user_id, name }),
       });
