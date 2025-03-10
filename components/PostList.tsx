@@ -34,7 +34,7 @@ const PostList: React.FC<PostListProps> = ({ userId }) => {
   const fetchPosts = async (): Promise<void> => {
     try {
       const response = await fetch(
-        `https://select-sheep-currently.ngrok-free.app/api/getpostsuser/${userId}`,
+        `https://select-sheep-currently.ngrok-free.app/api/userposts/${userId}`,
         {
           method: "GET",
           headers: {

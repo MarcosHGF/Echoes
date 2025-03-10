@@ -81,8 +81,8 @@ export default function LoginScreen() {
         throw new Error(data.message || "Invalid credentials");
       }
 
-      if (data.url) {
-        router.push(data.url);
+      if (data) {
+        router.push(data);
       } else {
         throw new Error("Authorization URL not received.");
       }

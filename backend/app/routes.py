@@ -83,7 +83,8 @@ def posts(userID):
     
 @spotify_login.route("/api/spotifylogin", methods=["GET"])
 def spotifylogin():
-    url = UserAccount.login()
+    user_account = UserAccount()
+    url = user_account.login()
     print(url)
     return jsonify(url)
 
