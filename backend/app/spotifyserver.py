@@ -6,6 +6,9 @@ from spotipy import Spotify
 from app.user import UserAccount
 from app.DBClasses import db
 
+   # validity is not being checked and simply a refresh token is generated(may cause issues)
+   # this methos is being used in all routes in this file for testing, remove for reliability
+
 play_bp = Blueprint("play_bp", __name__)
 pause_bp  = Blueprint("pause_bp", __name__)
 playback_bp = Blueprint("playback_bp", __name__)
@@ -37,7 +40,9 @@ def play():
     if not access_token or not refresh_token:
         return jsonify({"error": "Invalid credentials"}), 401
 
+
     # Check token validity
+    # validity is not being checked ans simply a refresh token is generated(may cause issues)
     # Refresh token
     new_token_info = spotify_api.refresh_access_token(refresh_token)
     if not new_token_info:
