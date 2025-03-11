@@ -4,7 +4,7 @@ from app.extensions import db
 from app.routes import (likes_bp, users_bp, profile_bp, login_bp, 
                         posts_bp, spotify_login, tracks_bp, userposts_bp, 
                         getPostsUser_bp, check_auth_status_bp, add_follower_bp, 
-                        spotify_auth
+                        spotify_auth, refresh_bp
                         )
 
 def create_app():
@@ -33,8 +33,7 @@ def create_app():
     app.register_blueprint(add_follower_bp)
     app.register_blueprint(spotify_auth)
     app.register_blueprint(check_auth_status_bp)
+    app.register_blueprint(refresh_bp)
 
-
-    
     return app
 

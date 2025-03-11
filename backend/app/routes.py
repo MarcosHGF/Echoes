@@ -1,11 +1,12 @@
 import pickle
 from flask import request, jsonify, Blueprint
-from flask_jwt_extended import jwt_required
+import jwt
 from sqlalchemy import select
 from werkzeug.security import check_password_hash
 from app.DBClasses import Like, User, UserProfile, Post, Track, Relationship, db
 from app.user import UserAccount, redis_client
-from app.utils import create_jwt, verify_jwt
+from app.utils import create_jwt, jwt_required
+from app.extensions import SECRET_KEY
 
 likes_bp = Blueprint("likes", __name__)
 users_bp = Blueprint("users", __name__)
@@ -19,11 +20,13 @@ tracks_bp = Blueprint("tracks", __name__)
 getPostsUser_bp = Blueprint("getPostsUser", __name__)
 add_follower_bp = Blueprint("add_follower_bp", __name__)
 check_auth_status_bp = Blueprint("check_auth_status", __name__)
+refresh_bp  = Blueprint("refresh_bp", __name__)
 
 
 # Likes Route
-@jwt_required
+
 @likes_bp.route("/api/likes/<post_id>", methods=["GET", "POST"])
+@jwt_required
 def handle_likes(post_id):
     if request.method == 'GET':
         likes_data = Like.get_like_data(post_id=post_id)
@@ -62,17 +65,20 @@ def login():
         return jsonify({"error": "Invalid username or password"}), 401
 
     # Generate JWT
-    token = create_jwt(user.id)
+    access_token = create_jwt(user.id, 'access')
+    refresh_token = create_jwt(user.id, 'refresh')
 
     return jsonify({
         "message": "Login successful",
         "user_id": user.id,
-        "token": token  # Include the JWT in the response
+        "token": access_token,  # Include the JWT in the response
+        "refresh_token": refresh_token # Include the JWT refresh token in the response
     })
 
 # Profile Route
-@jwt_required
+
 @profile_bp.route("/api/profile/<username>", methods=["GET", "PATCH"])
+@jwt_required
 def handle_profile(username):
     user = db.session.execute(select(User).where(User.username == username)).scalar()
 
@@ -100,8 +106,9 @@ def handle_profile(username):
         return jsonify({"message": "Profile updated successfully"})
 
 # Posts Route
-@jwt_required
+
 @posts_bp.route("/api/posts/<post_id>", methods=["GET", "POST"])
+@jwt_required
 def handle_posts(post_id):
     if request.method == "POST":
         data = request.get_json()
@@ -241,42 +248,49 @@ def check_auth_status():
             return jsonify({"error": "User not found"}), 404
 
         # Generate JWT
-        token = create_jwt(user.id)
+        access_token = create_jwt(user.id, 'access')
+        refresh_token = create_jwt(user.id, 'refresh')
 
         return jsonify({
             "status": "success",
             "message": "Authentication successful",
-            "token": token  # Include the JWT in the response
+            "token": access_token,  # Include the JWT in the response
+            "refresh_token": refresh_token
         }), 200
 
 
-        return jsonify({"status": "success", "token": f"{jwt}", "message": "Authentication successful"}), 200
     else:
         return jsonify({"status": "failure", "message": "state incorrect or invalid"}), 400
         
         
     
 # Tracks Route
-@jwt_required
+
 @tracks_bp.route("/api/track/<track_uri>", methods=["GET", "POST"])
+@jwt_required
 def handle_tracks(track_uri):
     if request.method == "POST":
         data = request.get_json()
         result = Track.add_track(data)
         return jsonify(result)
-
+    
     track_data = Track.get_track(track_uri=track_uri)
     if "error" in track_data:
         return jsonify(track_data), 404
     return jsonify(track_data)
 
 # Get Posts from Followed Users Route
+
+@getPostsUser_bp.route("/api/getPostsUser", methods=["GET"])
 @jwt_required
-@getPostsUser_bp.route("/api/getPostsUser/<user_id>", methods=["GET"])
-def get_posts_from_followed_users(user_id):
+def get_posts_from_followed_users():
+    user_id = request.user_id
+
     following = db.session.execute(
         select(Relationship).where(Relationship.follower_id == user_id)
     ).scalars().all()
+
+    print(request.headers)
 
     posts = []
     if following:
@@ -300,8 +314,9 @@ def get_posts_from_followed_users(user_id):
     ])
 
 # Follow Route
-@jwt_required
+
 @add_follower_bp.route("/api/follow/<user_id>", methods=["POST"])
+@jwt_required
 def follow_user(user_id):
     data = request.get_json()
     profile_user_id = data.get("profileUserId")
@@ -314,3 +329,22 @@ def follow_user(user_id):
     db.session.commit()
 
     return jsonify({"message": "Follower added successfully"})
+
+@refresh_bp.route("/refresh", methods=["POST"])
+def refresh_token():
+    refresh_token = request.json.get('refresh_token')
+    if not refresh_token:
+        return jsonify(error="Refresh token required"), 401
+
+    try:
+        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=["HS256"])
+        if payload.get('type') != 'refresh':
+            return jsonify(error="Invalid token type"), 401
+    except jwt.ExpiredSignatureError:
+        return jsonify(error="Refresh token expired"), 401
+    except jwt.InvalidTokenError:
+        return jsonify(error="Invalid refresh token"), 401
+
+    user_id = payload.get('user_id')
+    new_access_token = create_jwt(user_id, "access")
+    return jsonify(access_token=new_access_token)

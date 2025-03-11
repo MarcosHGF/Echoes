@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Modal,
   View,
@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import getAPI from "@/app/(tabs)/Ngrok";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface PostCreationModalProps {
   visible: boolean;
@@ -26,30 +27,57 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
   onClose,
 }) => {
   const [content, setContent] = useState("");
+  const inputRef = useRef<TextInput | null>(null);
 
   const name = "GOAT";
   const user_id = 1;
   const API_URL = getAPI();
-  const auth = sessionStorage.getItem("jwt_token");
+
+  useEffect(() => {
+    if (visible && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [visible]);
 
   const handlePost = async () => {
+    if (!content.trim()) {
+      Alert.alert("Invalid Input", "Post content cannot be empty.", [
+        { text: "OK" },
+      ]);
+      return;
+    }
+
     console.log(content);
     try {
+      const token = await AsyncStorage.getItem("jwt_token");
+      if (!token) {
+        throw new Error("No authentication token found.");
+      }
+
       const response = await fetch(API_URL + `/posts/${user_id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "ngrok-skip-browser-warning": "true",
-          Authorization: `"Bearer ${auth}"`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ content, user_id, name }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.message || "Invalid credentials");
+        let errorMessage = "Failed to create post.";
+        try {
+          const data = await response.json();
+          errorMessage = data.message || errorMessage;
+        } catch (parseError) {
+          console.error("Failed to parse server response:", parseError);
+        }
+        throw new Error(errorMessage);
       }
+
+      Alert.alert("Success", "Your post has been created!", [{ text: "OK" }]);
+      setContent("");
+      onClose();
     } catch (err) {
       Alert.alert(
         "Post Failed",
@@ -84,6 +112,7 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
             </TouchableOpacity>
           </View>
           <TextInput
+            ref={inputRef}
             style={styles.input}
             multiline
             placeholder="What's on your mind?"
@@ -118,6 +147,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
+    paddingBottom: 40,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,

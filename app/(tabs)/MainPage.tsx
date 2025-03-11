@@ -14,21 +14,20 @@ import { StatusBar } from "expo-status-bar";
 import { Feather } from "@expo/vector-icons";
 import BottomContainer from "../../components/BottomContainer";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PostList from "@/components/PostList"; // Import the PostList component
+import apiClient from "./utils/aptClient";
 
 const MainPage = () => {
   const stories = [1, 2, 3, 4, 5]; // Array for stories
   const songs = [1, 2, 3, 4]; // Array for song blocks
-  const posts = [1, 2, 3, 4]; // Array for posts
+  const [posts, setPosts] = useState([]);
   const tabItems = [
     { icon: "home", label: "Home" },
     { icon: "search", label: "Search" },
     { icon: "heart", label: "Favorites" },
     { icon: "user", label: "Profile" },
   ];
-  const data = 0;
-  const profileUserId = 1; // Example user ID for the profile
 
   const [selectedPost, setSelectedPost] = useState<number | null>(null);
 
@@ -117,7 +116,7 @@ const MainPage = () => {
           <View style={styles.sectionTitle}>
             <Text style={styles.sectionTitleText}>Latest Posts</Text>
           </View>
-          <PostList userId={profileUserId} />
+          <PostList />
         </ScrollView>
       </SafeAreaView>
       <BottomContainer />
