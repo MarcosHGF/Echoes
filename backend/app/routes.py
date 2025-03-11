@@ -265,7 +265,6 @@ def check_auth_status():
         
     
 # Tracks Route
-
 @tracks_bp.route("/api/track/<track_uri>", methods=["GET", "POST"])
 @jwt_required
 def handle_tracks(track_uri):

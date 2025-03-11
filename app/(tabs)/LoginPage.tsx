@@ -131,6 +131,7 @@ export default function LoginScreen() {
           checkAuthStatus(state, router);
         }
         router.push(url as RelativePathString);
+
       } else {
         throw new Error("Authorization URL not received.");
       }
