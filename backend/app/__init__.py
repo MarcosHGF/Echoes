@@ -6,6 +6,11 @@ from app.routes import (likes_bp, users_bp, profile_bp, login_bp,
                         getPostsUser_bp, check_auth_status_bp, add_follower_bp, 
                         spotify_auth, refresh_bp
                         )
+from app.spotifyserver import (
+    play_bp,
+    playback_bp,
+    pause_bp
+)
 
 def create_app():
     app = Flask(__name__)
@@ -34,6 +39,9 @@ def create_app():
     app.register_blueprint(spotify_auth)
     app.register_blueprint(check_auth_status_bp)
     app.register_blueprint(refresh_bp)
+    app.register_blueprint(play_bp)
+    app.register_blueprint(playback_bp)
+    app.register_blueprint(pause_bp)
 
     return app
 

@@ -1,3 +1,4 @@
+import copy
 from functools import wraps
 import os
 import secrets
@@ -80,7 +81,8 @@ def jwt_required(f):
     return decorated_function
 
 def encrypt_data(data):
-    return cipher_suite.encrypt(data.encode()).decode()
+    data_copy: str = data
+    return cipher_suite.encrypt(data_copy.encode()).decode()
 
 def decrypt_data(encrypted_data):
     return cipher_suite.decrypt(encrypted_data.encode()).decode()
