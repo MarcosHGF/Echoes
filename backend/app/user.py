@@ -30,6 +30,12 @@ class UserAccount:
             client_secret=self.client_secret
         )
 
+        self.sp = spotipy.Spotify(
+            client_credentials_manager=self.credentials,
+            auth_manager=self.auth_manager
+        )
+
+
 
     def login(self):
         """

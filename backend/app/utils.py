@@ -1,9 +1,18 @@
 from functools import wraps
+import os
 import secrets
+from dotenv import load_dotenv
 import jwt
 from datetime import datetime, timedelta, timezone
 from flask import jsonify
 from app.extensions import SECRET_KEY
+from cryptography.fernet import Fernet
+
+load_dotenv()
+# Encryption setup
+ENCRYPTION_KEY = os.environ.get('ENCRYPTION_KEY').encode()
+cipher_suite = Fernet(ENCRYPTION_KEY)
+
 
 def generate_state():
     return secrets.token_urlsafe(16)  # Generates a random 16-byte string
@@ -69,3 +78,9 @@ def jwt_required(f):
         return f(*args, **kwargs)
 
     return decorated_function
+
+def encrypt_data(data):
+    return cipher_suite.encrypt(data.encode()).decode()
+
+def decrypt_data(encrypted_data):
+    return cipher_suite.decrypt(encrypted_data.encode()).decode()

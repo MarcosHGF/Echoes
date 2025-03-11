@@ -1,21 +1,8 @@
-import os
-from dotenv import load_dotenv
 from app.extensions import db
 from sqlalchemy import CheckConstraint, UniqueConstraint, select, Column, Integer, String, ForeignKey, DateTime, func
 from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash
-from cryptography.fernet import Fernet
-
-load_dotenv()
-# Encryption setup
-ENCRYPTION_KEY = os.environ.get('ENCRYPTION_KEY').encode()
-cipher_suite = Fernet(ENCRYPTION_KEY)
-
-def encrypt_data(data):
-    return cipher_suite.encrypt(data.encode()).decode()
-
-def decrypt_data(encrypted_data):
-    return cipher_suite.decrypt(encrypted_data.encode()).decode()
+from app.utils import encrypt_data
 
 class User(db.Model):
     __tablename__ = 'user'
