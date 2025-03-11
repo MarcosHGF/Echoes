@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import apiClient from "../app/(tabs)/utils/aptClient"; // Correct import path
 
 // Define the shape of a Post object
 interface Post {
@@ -20,36 +21,19 @@ interface Post {
   tags_id: number | null;
 }
 
-interface PostListProps {
-  userId: number; // Propriedade para receber o user_id
-}
-
-const PostList: React.FC<PostListProps> = ({ userId }) => {
+const PostList: React.FC = () => {
+  // No props needed
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPost, setSelectedPost] = useState<number | null>(null);
 
-  // Fetch posts from the backend
-  const fetchPosts = async (): Promise<void> => {
+  // Fetch posts using the centralized Axios instance
+  const fetchPosts = useCallback(async () => {
     try {
-      const response = await fetch(
-        `https://select-sheep-currently.ngrok-free.app/api/userposts/${userId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await apiClient.get("/api/getPostsUser"); // Simplified URL
+      const data: Post[] = response.data;
 
-      if (!response.ok) {
-        throw new Error(`Error fetching posts: ${response.statusText}`);
-      }
-
-      const data: Post[] = await response.json();
-
-      // Ensure the response is an array
       if (!Array.isArray(data)) {
         throw new Error("Expected an array of posts but got something else.");
       }
@@ -61,7 +45,8 @@ const PostList: React.FC<PostListProps> = ({ userId }) => {
       setError(err.message || "An unexpected error occurred");
       setLoading(false);
     }
-  };
+  }, []);
+
   const handleEllipsisPress = (index: number) => {
     setSelectedPost(selectedPost === index ? null : index);
   };
@@ -71,10 +56,10 @@ const PostList: React.FC<PostListProps> = ({ userId }) => {
     setSelectedPost(null);
   };
 
-  // Fetch posts when the component mounts
+  // Fetch posts on mount
   useEffect(() => {
     fetchPosts();
-  }, [userId]);
+  }, [fetchPosts]);
 
   if (loading) {
     return (
@@ -94,9 +79,6 @@ const PostList: React.FC<PostListProps> = ({ userId }) => {
 
   return (
     <View style={styles.container}>
-      {/* Section Title */}
-
-      {/* Posts */}
       {posts.length > 0 ? (
         posts.map((post, index) => (
           <View key={post.id} style={styles.post}>

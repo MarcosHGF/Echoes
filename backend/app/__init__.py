@@ -1,6 +1,11 @@
 from flask import Flask
 from flask_migrate import Migrate
 from app.extensions import db
+from app.routes import (likes_bp, users_bp, profile_bp, login_bp, 
+                        posts_bp, spotify_login, tracks_bp, userposts_bp, 
+                        getPostsUser_bp, check_auth_status_bp, add_follower_bp, 
+                        spotify_auth, refresh_bp
+                        )
 
 def create_app():
     app = Flask(__name__)
@@ -13,13 +18,9 @@ def create_app():
     # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://usuario:senha@localhost:5433/nome_do_banco'
     # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-
-
     db.init_app(app)
     migrate = Migrate(app, db)  # Initialize Flask-Migrate
-    
-    # Import and register blueprints
-    from app.routes import likes_bp, users_bp, profile_bp, login_bp, posts_bp, spotify_login, tracks_bp, userposts_bp, getPostsUser_bp, add_follower_bp
+
     app.register_blueprint(likes_bp)
     app.register_blueprint(users_bp)
     app.register_blueprint(profile_bp)
@@ -30,7 +31,9 @@ def create_app():
     app.register_blueprint(tracks_bp)
     app.register_blueprint(getPostsUser_bp)
     app.register_blueprint(add_follower_bp)
+    app.register_blueprint(spotify_auth)
+    app.register_blueprint(check_auth_status_bp)
+    app.register_blueprint(refresh_bp)
 
-    
     return app
 

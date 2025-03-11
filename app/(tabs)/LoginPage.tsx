@@ -15,11 +15,54 @@ import {
   ScrollView,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { useRouter } from "expo-router";
+import { RelativePathString, Router, useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import getAPI from "../(tabs)/Ngrok";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const API_URL = getAPI();
+
+async function checkAuthStatus(state: string, router: Router) {
+  const interval = 2000; // Poll every 2 seconds
+  const maxAttempts = 10; // Stop after 20 seconds
+  let attempts = 0;
+
+  const poll = setInterval(async () => {
+    try {
+      const response = await fetch(
+        "https://select-sheep-currently.ngrok-free.app/api/check-auth-status?state=" +
+          state,
+        {
+          headers: {
+            "ngrok-skip-browser-warning": "true",
+          },
+        }
+      );
+      const data = await response.json();
+      if (data.status === "success") {
+        clearInterval(poll); // Stop polling
+        console.log("Authentication succeeded:", data);
+        await AsyncStorage.multiSet([
+          ["access_token", data.token],
+          ["refresh_token", data.refresh_token],
+        ]);
+        router.push("(tabs)/MainPage");
+      } else if (data.status === "failure") {
+        clearInterval(poll); // Stop polling
+        console.error("Authentication failed:", data);
+        alert("Login failed. Please try again.");
+      }
+      attempts++;
+      if (attempts >= maxAttempts) {
+        clearInterval(poll); // Stop polling after max attempts
+        console.error("Authentication timed out.");
+        alert("Login timed out. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error during polling:", error);
+    }
+  }, interval);
+}
 
 export default function LoginScreen() {
   const [username, setUsername] = useState("");
@@ -71,18 +114,24 @@ export default function LoginScreen() {
       const response = await fetch(API_URL + "/spotifylogin", {
         method: "GET",
         headers: {
+          "ngrok-skip-browser-warning": "true",
           "Content-Type": "application/json",
         },
       });
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || "Invalid credentials");
-      }
-
       if (data) {
-        router.push(data);
+        const url: string = data["authorization_url"];
+        const state = data["state"];
+        console.log("is here");
+        if (state) {
+          console.log("is here");
+
+          checkAuthStatus(state, router);
+        }
+        router.push(url as RelativePathString);
+
       } else {
         throw new Error("Authorization URL not received.");
       }
