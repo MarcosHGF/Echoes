@@ -1,11 +1,10 @@
 import os
 from dotenv import load_dotenv
-from flask import jsonify
 from spotipy.oauth2 import SpotifyPKCE, SpotifyClientCredentials
 import spotipy
 import redis
 from app.utils import generate_state
-from app.DBClasses import User, SpotifyCredential
+from app.DBClasses import User
 
 # Initialize Redis client
 redis_client = redis.StrictRedis(host='localhost', port=7777, db=0, decode_responses=False)

@@ -1,16 +1,14 @@
 from flask import Flask
 from flask_migrate import Migrate
 from app.extensions import db
-from app.routes import (likes_bp, users_bp, profile_bp, login_bp, 
-                        posts_bp, spotify_login, tracks_bp, userposts_bp, 
-                        getPostsUser_bp, check_auth_status_bp, add_follower_bp, 
-                        spotify_auth, refresh_bp
-                        )
-from app.spotifyserver import (
-    play_bp,
-    playback_bp,
-    pause_bp
-)
+from app.routes.follows import add_follower_bp
+from app.routes.jwt import refresh_bp 
+from app.routes.likes import likes_bp 
+from app.routes.login import login_bp, spotify_login, check_auth_status_bp, spotify_auth
+from app.routes.posts import posts_bp, userposts_bp, getPostsUser_bp
+from app.routes.spotifyserver import play_bp, playback_bp, pause_bp
+from app.routes.users import users_bp, profile_bp
+from app.routes. tracks import tracks_bp
 
 def create_app():
     app = Flask(__name__)
@@ -31,8 +29,8 @@ def create_app():
     app.register_blueprint(profile_bp)
     app.register_blueprint(login_bp)
     app.register_blueprint(posts_bp)
-    app.register_blueprint(userposts_bp)
     app.register_blueprint(spotify_login)
+    app.register_blueprint(userposts_bp)
     app.register_blueprint(tracks_bp)
     app.register_blueprint(getPostsUser_bp)
     app.register_blueprint(add_follower_bp)
