@@ -42,10 +42,8 @@ async function checkAuthStatus(state: string, router: Router) {
       if (data.status === "success") {
         clearInterval(poll); // Stop polling
         console.log("Authentication succeeded:", data);
-        await AsyncStorage.multiSet([
-          ["access_token", data.token],
-          ["refresh_token", data.refresh_token],
-        ]);
+        await AsyncStorage.setItem("refresh_token", data.refresh_token);
+        await AsyncStorage.setItem("access_token", data.token);
         router.push("(tabs)/MainPage");
       } else if (data.status === "failure") {
         clearInterval(poll); // Stop polling
@@ -131,7 +129,6 @@ export default function LoginScreen() {
           checkAuthStatus(state, router);
         }
         router.push(url as RelativePathString);
-
       } else {
         throw new Error("Authorization URL not received.");
       }
