@@ -85,7 +85,7 @@ def spotify_auth_route():
             return jsonify({"error": "User account not found"}), 400
 
         # Proceed with the token exchange, keeping the same `user_account` object
-        token_info = user_account.on_login(auth_code, state)
+        token_info = user_account.on_login(auth_code)
 
         if not token_info or "error" in token_info:
             redis_client.setex(f"spotify_state:{state}", 300,"failure")

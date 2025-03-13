@@ -32,20 +32,24 @@ class User(db.Model):
         return {"message": "User added successfully"}
     
     @staticmethod
-    def add_user_spotify(email, username, spotify_id, access_token, refresh_token, token_expiry):
-        user = User(username=username, email=email, spotify_id=spotify_id)
+    def add_user_spotify(email, username, spotify_id, access_token, refresh_token, token_expiry, state):
         try:
+            user = User(username=username, email=email, spotify_id=spotify_id)
+
             db.session.add(user)
             db.session.commit()
+            print("added", user)
 
             SpotifyCredential.update_credentials(
                 user_id=user.id,
                 access_token=access_token, 
                 refresh_token=refresh_token, 
-                token_expiry=token_expiry
+                token_expiry=token_expiry,
+                state=state
                 )
+            
         except Exception as e:
-            return e
+            raise e
 
     @staticmethod
     def get_user_data(user_id):
@@ -93,6 +97,7 @@ class SpotifyCredential(db.Model):
     access_token = Column(String(512), nullable=False)  # Encrypted access token
     refresh_token = Column(String(512), nullable=False)  # Encrypted refresh token
     token_expiry = Column(String(200), nullable=False)
+    state = Column(String(255), nullable=False)
 
     user = relationship("User", back_populates="spotify_credential")
 
@@ -103,7 +108,9 @@ class SpotifyCredential(db.Model):
         ).scalar()
 
     @staticmethod
-    def update_credentials(user_id, access_token, refresh_token, token_expiry):
+    def update_credentials(user_id, access_token, refresh_token, token_expiry, state):
+        print("added", user_id)
+        
         credential = db.session.execute(
             select(SpotifyCredential).where(SpotifyCredential.user_id == user_id)
         ).scalar()
@@ -114,6 +121,8 @@ class SpotifyCredential(db.Model):
         credential.access_token = encrypt_data(access_token)
         credential.refresh_token = encrypt_data(refresh_token)
         credential.token_expiry = token_expiry
+        credential.state = state
+        print("added", credential)
         db.session.add(credential)
         db.session.commit()
 

@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from spotipy.oauth2 import SpotifyPKCE, SpotifyClientCredentials
+from spotipy.oauth2 import SpotifyPKCE, SpotifyClientCredentials, CacheFileHandler
 import spotipy
 import redis
 from app.utils import generate_state
@@ -16,12 +16,16 @@ class UserAccount:
         self.redirect_uri = os.getenv("REDIRECT_URI")
         self.scope = os.getenv("SCOPE")
         self.client_secret = os.getenv("CLIENT_SECRET")
+        self.state = generate_state()
+
+        self.cache = CacheFileHandler(username=self.state)
 
         # Initialize SpotifyPKCE
         self.auth_manager = SpotifyPKCE(
             client_id=self.client_id,
             redirect_uri=self.redirect_uri,
-            scope=self.scope
+            scope=self.scope,
+            cache_handler=self.cache
         )
 
         self.credentials = SpotifyClientCredentials(
@@ -35,38 +39,37 @@ class UserAccount:
         )
 
 
-
     def login(self):
         """
         Generate Spotify authorization URL for user login and store state in Redis.
         """
-        state = generate_state()
         
         # Store state temporarily in Redis (5-minute expiration)
-        redis_client.setex(f"spotify_state:{state}", 300, "active")
+        redis_client.setex(f"spotify_state:{self.state}", 300, "active")
 
-        url = self.auth_manager.get_authorize_url(state=state)
-        return {"authorization_url": url, "state": state}
+        url = self.auth_manager.get_authorize_url(state=self.state)
+        return {"authorization_url": url, "state": self.state}
 
-    def on_login(self, auth_code, state):
+    def on_login(self, auth_code):
         """
         Handle the redirect URL, validate state, and exchange the auth code for an access token.
         """
 
         # Verify state exists in Redis
-        if not redis_client.get(f"spotify_state:{state}"):
+        if not redis_client.get(f"spotify_state:{self.state}"):
             return {"error": "Invalid or expired state"}, 400
 
         try:
             # Exchange auth code for access token
             token_info = self.auth_manager.get_access_token(code=auth_code, check_cache=False)
+            token_info = self.cache.get_cached_token()
 
             if not token_info:
                 return {"error": "Failed to retrieve access token"}, 400
 
             # Initialize Spotipy client
-            self.sp = spotipy.Spotify(auth=token_info, client_credentials_manager=self.credentials, auth_manager=self.auth_manager)
-            self.add_user()
+            self.sp = spotipy.Spotify(auth=token_info["access_token"], client_credentials_manager=self.credentials, auth_manager=self.auth_manager)
+            self.add_user(token=token_info)
             
             return token_info
 
@@ -74,36 +77,37 @@ class UserAccount:
             print(f"Object Error during token exchange: {e}")
             return {"error": "Token exchange failed"}, 500
 
-    def add_user(self):
+    def add_user(self, token):
+
         user = self.sp.current_user()
         email = user['email']
         username = user['display_name']
         id = user['id']
 
-        token = self.auth_manager.cache_handler.get_cached_token()
-
-        User.add_user_spotify(
-            email=email,
-            username=username,
-            spotify_id=id,
-            access_token=token['access_token'],
-            refresh_token=token['refresh_token'],
-            token_expiry=token['expires_at']
-            )
-
+        try:
+            User.add_user_spotify(
+                email=email,
+                username=username,
+                spotify_id=id,
+                state=self.state,
+                access_token=token['access_token'],
+                refresh_token=token['refresh_token'],
+                token_expiry=token['expires_at']
+                )
+        except Exception as e:
+            print("failed due to", e)
         return
 
-    def refresh_access_token(self, state):
+    def refresh_access_token(self):
         """
         Refresh the Spotify access token using the stored refresh token.
         """
-        refresh_token = redis_client.get(f"spotify_refresh:{state}")
+        refresh_token = self.cache.get_cached_token()
         if not refresh_token:
             return {"error": "No refresh token found"}, 401
 
         try:
-            new_token_info = self.auth_manager.refresh_access_token(refresh_token)
-            redis_client.setex(f"spotify_access:{state}", 3600, new_token_info["access_token"])
+            new_token_info = self.auth_manager.refresh_access_token(refresh_token["refresh_token"])
 
             return new_token_info
 

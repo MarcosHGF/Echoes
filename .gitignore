@@ -38,6 +38,8 @@ yarn-error.*
 
 # cache 
 __p*
+.cache
+.cache*
 
 # Python env
 backend/.venv
@@ -46,5 +48,3 @@ backend/.venv
 backend/instance
 
 app-example
-
-.cache
