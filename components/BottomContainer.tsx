@@ -74,6 +74,10 @@ const BottomContainer = memo(() => {
     try {
       console.log("playback test");
       const response = await apiClient.get("/current-playback");
+      if (response.status != 200) {
+        console.log("had an error with response");
+        throw "error: response invalid";
+      }
       const data = response.data;
 
       if (data.is_playing !== undefined) {

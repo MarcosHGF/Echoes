@@ -19,6 +19,9 @@ apiClient.interceptors.request.use(
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
+    else{ 
+        throw "No access token got got"
+    }
     return config;
   },
   (error) => {

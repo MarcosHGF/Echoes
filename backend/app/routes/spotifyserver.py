@@ -44,6 +44,7 @@ def play():
     # Check token validity
     # validity is not being checked ans simply a refresh token is generated(may cause issues)
     # Refresh token
+    
     new_token_info = spotify_api.refresh_access_token(refresh_token)
     if not new_token_info:
         return jsonify({"error": "Failed to refresh token"}), 401
