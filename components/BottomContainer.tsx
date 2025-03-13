@@ -71,7 +71,10 @@ const BottomContainer = memo(() => {
 
   // Fetch current playback state from the backend
   const fetchPlaybackState = useCallback(async () => {
-    try {
+    const x = 0;
+    return x;
+  }, []);
+  /* try {
       console.log("playback test");
       const response = await apiClient.get("/current-playback");
       if (response.status != 200) {
@@ -92,8 +95,9 @@ const BottomContainer = memo(() => {
       }
     } catch (error) {
       console.error("Error fetching playback state:", error);
+      return;
     }
-  }, []);
+  }, []); */
 
   // Play/Pause via backend with current track URI
   const handlePlayPause = useCallback(async () => {

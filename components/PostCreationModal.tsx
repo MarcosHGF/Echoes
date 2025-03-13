@@ -53,6 +53,10 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
       if (!token) {
         throw new Error("No authentication token found.");
       }
+      const refresh_token = await AsyncStorage.getItem("refresh_token");
+      if (!refresh_token) {
+        throw new Error("No authentication token found.");
+      }
 
       const response = await fetch(API_URL + `/posts/${user_id}`, {
         method: "POST",
@@ -60,6 +64,7 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
           "Content-Type": "application/json",
           "ngrok-skip-browser-warning": "true",
           Authorization: `Bearer ${token}`,
+          refresh_token: refresh_token,
         },
         body: JSON.stringify({ content, user_id, name }),
       });

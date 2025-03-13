@@ -34,11 +34,11 @@ class User(db.Model):
     @staticmethod
     def add_user_spotify(email, username, spotify_id, access_token, refresh_token, token_expiry, state):
         try:
-            user = User(username=username, email=email, spotify_id=spotify_id)
-
-            db.session.add(user)
-            db.session.commit()
-            print("added", user)
+            user = db.session.execute(select(User).where(User.email == email)).scalar_one_or_none()
+            if not user:
+                user = User(username=username, email=email, spotify_id=spotify_id)
+                db.session.add(user)
+                db.session.commit()
 
             SpotifyCredential.update_credentials(
                 user_id=user.id,
@@ -223,6 +223,20 @@ class Relationship(db.Model):
         return [
             {
                 "follower_id": rel.follower_id,
+                "date_created": rel.date_created.isoformat() if rel.date_created else None
+            }
+            for rel in relations
+        ]
+    
+    @staticmethod
+    def get_relationship_following(user_id):
+        relations = db.session.execute(
+            select(Relationship).where(Relationship.following_id == user_id)
+        ).scalars().all()
+
+        return [
+            {
+                "followed_id": rel.followed_id,
                 "date_created": rel.date_created.isoformat() if rel.date_created else None
             }
             for rel in relations

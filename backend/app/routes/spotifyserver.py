@@ -2,7 +2,6 @@ from flask import Blueprint, Flask, jsonify, request
 from sqlalchemy import select
 from app.DBClasses import SpotifyCredential
 from app.utils import decrypt_data, encrypt_data, jwt_required
-from spotipy import Spotify
 from app.user import UserAccount
 from app.DBClasses import db
 
