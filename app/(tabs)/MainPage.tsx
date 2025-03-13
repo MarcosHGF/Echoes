@@ -1,5 +1,3 @@
-"use client";
-
 import {
   View,
   ScrollView,
@@ -17,6 +15,7 @@ import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import PostList from "@/components/PostList"; // Import the PostList component
 import apiClient from "./utils/aptClient";
+import FloatingActionButton from "@/components/CreatePostButton";
 
 const MainPage = () => {
   const stories = [1, 2, 3, 4, 5]; // Array for stories
@@ -118,6 +117,9 @@ const MainPage = () => {
           </View>
           <PostList />
         </ScrollView>
+
+        <FloatingActionButton />
+        
       </SafeAreaView>
       <BottomContainer />
     </>
