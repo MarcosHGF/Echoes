@@ -15,6 +15,7 @@ import { StatusBar } from "expo-status-bar";
 import { Feather } from "@expo/vector-icons";
 import BottomContainer from "../../components/BottomContainer";
 import PostList from "@/components/PostList" // Import the PostList component
+import FloatingActionButton from "@/components/CreatePostButton";
 
 const SearchPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -130,6 +131,9 @@ const SearchPage = () => {
           <View style={styles.bottomPadding} />
         </ScrollView>
       </SafeAreaView>
+
+      <FloatingActionButton />
+
       {/* Bottom Fixed Container */}
       <BottomContainer />
     </>

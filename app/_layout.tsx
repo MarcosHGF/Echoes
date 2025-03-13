@@ -57,6 +57,14 @@ export default function RootLayout() {
           name="(tabs)/ProfilePage"
           options={{ headerShown: false }}
         />
+        <Stack.Screen
+          name="(tabs)/FriendsPage"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="(tabs)/MakePage"
+          options={{ headerShown: false }}
+        />
 
         <Stack.Screen name="+not-found" />
       </Stack>
