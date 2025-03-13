@@ -50,7 +50,6 @@ def jwt_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         auth_header = request.headers.get("Authorization")
-        print(f"Authorization Header: {auth_header}")  # <-- Log do cabeçalho
 
         if not auth_header:
             return jsonify({"error": "Missing Authorization header"}), 401
@@ -63,7 +62,7 @@ def jwt_required(f):
         payload = verify_jwt(access_token)
 
         if payload == "expired":
-            refresh_token = request.headers.get("refresh_token")
+            refresh_token = request.cookies.get("refresh_token")
             print(f"Refresh Token: {refresh_token}")  # <-- Log do refresh token
 
             refresh_payload = verify_jwt(refresh_token)

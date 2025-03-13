@@ -65,4 +65,3 @@ export const sendMessageToFriend = async (userId: number, message: string): Prom
     throw error
   }
 }
-

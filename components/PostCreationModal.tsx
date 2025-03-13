@@ -58,13 +58,15 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
         throw new Error("No authentication token found.");
       }
 
+      console.log("tokens: ", token, refresh_token);
+
       const response = await fetch(API_URL + `/posts/${user_id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "ngrok-skip-browser-warning": "true",
           Authorization: `Bearer ${token}`,
-          refresh_token: refresh_token,
+          Cookie: `refresh_token=${refresh_token}`, // ✅ Adiciona refresh token como cookie
         },
         body: JSON.stringify({ content, user_id, name }),
       });
