@@ -31,7 +31,7 @@ const PostList: React.FC = () => {
   // Fetch posts using the centralized Axios instance
   const fetchPosts = useCallback(async () => {
     try {
-      const response = await apiClient.get("/api/getPostsUser"); // Simplified URL
+      const response = await apiClient.get("/api/getAllPosts"); // Simplified URL
       const data: Post[] = response.data;
 
       if (!Array.isArray(data)) {
@@ -79,7 +79,7 @@ const PostList: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {posts.length > 0 ? (
+      {posts.length >= 0 ? (
         posts.map((post, index) => (
           <View key={post.id} style={styles.post}>
             {/* Post Header */}

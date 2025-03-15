@@ -139,8 +139,9 @@ class Post(db.Model):
     user = relationship("User", back_populates="posts")
 
     @staticmethod
-    def add_post(data):
-        post = Post(name=data.get("name"), user_id=data.get("user_id"), content=data.get("content"))
+    def add_post(data, user_id):
+        user = db.session.execute(select(User).where(User.id==user_id)).scalar()
+        post = Post(user_id=user.id, content=data.get("content"), name=user.username)
         db.session.add(post)
         db.session.commit()
         return {"message": "Post added"}

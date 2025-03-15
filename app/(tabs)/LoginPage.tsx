@@ -42,8 +42,16 @@ async function checkAuthStatus(state: string, router: Router) {
       if (data.status === "success") {
         clearInterval(poll); // Stop polling
         console.log("Authentication succeeded:", data);
-        await AsyncStorage.setItem("refresh_token", data.refresh_token);
-        await AsyncStorage.setItem("access_token", data.token);
+        try {
+          await AsyncStorage.multiSet([
+            ["access_token", data.token],
+            ["refresh_token", data.refresh_token],
+            ["user_id", data.user_id],
+          ]);
+        } catch (error) {
+          console.log(error);
+        }
+
         router.push("(tabs)/MainPage");
       } else if (data.status === "failure") {
         clearInterval(poll); // Stop polling

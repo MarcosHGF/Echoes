@@ -29,8 +29,6 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
   const [content, setContent] = useState("");
   const inputRef = useRef<TextInput | null>(null);
 
-  const name = "GOAT";
-  const user_id = 1;
   const API_URL = getAPI();
 
   useEffect(() => {
@@ -60,15 +58,15 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
 
       console.log("tokens: ", token, refresh_token);
 
-      const response = await fetch(API_URL + `/posts/${user_id}`, {
+      const response = await fetch(API_URL + `/posts/0`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "ngrok-skip-browser-warning": "true",
           Authorization: `Bearer ${token}`,
-          Cookie: `refresh_token=${refresh_token}`, // ✅ Adiciona refresh token como cookie
+          Cookie: `refresh_token=${refresh_token}`,
         },
-        body: JSON.stringify({ content, user_id, name }),
+        body: JSON.stringify({ content }),
       });
 
       if (!response.ok) {

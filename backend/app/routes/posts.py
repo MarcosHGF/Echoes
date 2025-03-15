@@ -7,14 +7,16 @@ from app.DBClasses import Post, Relationship, db
 posts_bp = Blueprint("posts", __name__)
 userposts_bp = Blueprint("userposts", __name__)
 getPostsUser_bp = Blueprint("getPostsUser", __name__)
+getAllPosts_bp = Blueprint("getAllPosts", __name__)
 
 # Posts Route
 @posts_bp.route("/api/posts/<post_id>", methods=["GET", "POST"])
 @jwt_required
 def handle_posts(post_id):
+    data = request.get_json()
+
     if request.method == "POST":
-        data = request.get_json()
-        result = Post.add_post(data)
+        result = Post.add_post(data, request.user_id)
         return jsonify(result)
 
     post_data = Post.get_post(post_id=post_id)
@@ -59,6 +61,21 @@ def get_posts_from_followed_users():
             )
     else:
         posts = db.session.execute(select(Post).where(Post.user_id == user_id)).scalars().all()
+
+    return jsonify([
+        {
+            "id": post.id,
+            "user": post.name,
+            "date": post.date_created.isoformat(),
+            "content": post.content,
+            "likes": post.likes,
+        } for post in posts
+    ])
+
+@getAllPosts_bp.route("/api/getAllPosts", methods=["GET"])
+@jwt_required
+def getAllPosts():
+    posts = db.session.execute(select(Post)).scalars().all()
 
     return jsonify([
         {

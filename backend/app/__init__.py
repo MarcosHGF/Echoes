@@ -5,10 +5,10 @@ from app.routes.follows import add_follower_bp
 from app.routes.jwt import refresh_bp 
 from app.routes.likes import likes_bp 
 from app.routes.login import login_bp, spotify_login, check_auth_status_bp, spotify_auth
-from app.routes.posts import posts_bp, userposts_bp, getPostsUser_bp
+from app.routes.posts import posts_bp, userposts_bp, getPostsUser_bp, getAllPosts_bp
 from app.routes.spotifyserver import play_bp, playback_bp, pause_bp
 from app.routes.users import users_bp, profile_bp
-from app.routes. tracks import tracks_bp
+from app.routes.tracks import tracks_bp
 
 def create_app():
     app = Flask(__name__)
@@ -40,6 +40,7 @@ def create_app():
     app.register_blueprint(play_bp)
     app.register_blueprint(playback_bp)
     app.register_blueprint(pause_bp)
+    app.register_blueprint(getAllPosts_bp)
 
     return app
 

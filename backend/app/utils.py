@@ -67,6 +67,8 @@ def jwt_required(f):
 
             refresh_payload = verify_jwt(refresh_token)
             if refresh_payload and refresh_payload["type"] == "refresh":
+                request.user_id = refresh_payload["user_id"]
+                print("USER ID :: ", request.user_id)
                 new_access_token = create_jwt(refresh_payload["user_id"], "access")
                 response = make_response(f(*args, **kwargs))
                 response.headers["Authorization"] = f"Bearer {new_access_token}"

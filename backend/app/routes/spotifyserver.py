@@ -48,6 +48,7 @@ def play():
     if not new_token_info:
         return jsonify({"error": "Failed to refresh token"}), 401
     
+    
     # Update credentials in database
     user_cred.access_token = encrypt_data(new_token_info["access_token"])
     if "refresh_token" in new_token_info:  # Optional: Update refresh token if provided

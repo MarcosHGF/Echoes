@@ -97,10 +97,7 @@ def spotify_auth_route():
         redis_client.setex(f"spotify_state:{state}", 300, "success")
         redis_client.setex(f"user_state:{state}", 300, f"{user.email}")
 
-        return jsonify({
-            "message": "Authentication successful",
-            "token_info": token_info,
-        })
+        return "Authentication was successful, please go back to the app"
 
     except Exception as e:
         print("Error during token exchange:", e)
@@ -152,6 +149,7 @@ def check_auth_status():
         return jsonify({
             "status": "success",
             "message": "Authentication successful",
+            "user_id": user.id,
             "token": access_token,  # Include the JWT in the response
             "refresh_token": refresh_token
         }), 200

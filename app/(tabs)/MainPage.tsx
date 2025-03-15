@@ -115,11 +115,12 @@ const MainPage = () => {
           <View style={styles.sectionTitle}>
             <Text style={styles.sectionTitleText}>Latest Posts</Text>
           </View>
-          <PostList />
+          <ScrollView>
+            <PostList />
+          </ScrollView>
         </ScrollView>
 
         <FloatingActionButton />
-        
       </SafeAreaView>
       <BottomContainer />
     </>
