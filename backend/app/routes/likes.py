@@ -14,6 +14,9 @@ def handle_likes(post_id):
         return jsonify({"likes_data": likes_data})
 
     elif request.method == 'POST':
-        data = request.get_json()
-        result = Like.add_like(data=data, post_id=post_id)
-        return jsonify(result)
+        try:
+            result = Like.add_like(post_id=post_id, user_id=request.user_id)
+            return jsonify(result)
+        except Exception as e:
+            print(e)
+            return e

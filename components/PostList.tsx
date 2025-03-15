@@ -56,6 +56,14 @@ const PostList: React.FC = () => {
     setSelectedPost(null);
   };
 
+  const handleLike = async (postID: number) => {
+    const response = await apiClient.post(`/api/likes/${postID}`); // Simplified URL
+    if (response.status != 200) {
+      console.log("Failed like");
+      return;
+    }
+  };
+
   // Fetch posts on mount
   useEffect(() => {
     fetchPosts();
@@ -109,7 +117,10 @@ const PostList: React.FC = () => {
 
             {/* Post Actions */}
             <View style={styles.postActions}>
-              <TouchableOpacity style={styles.postAction}>
+              <TouchableOpacity
+                style={styles.postAction}
+                onPress={() => handleLike(post.id)}
+              >
                 <Feather name="heart" size={20} color="#fff" />
                 <Text style={styles.postActionText}>{post.likes} Likes</Text>
               </TouchableOpacity>

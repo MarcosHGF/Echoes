@@ -169,6 +169,10 @@ class Like(db.Model):
     name = Column(String(200))
     date_created = Column(DateTime, server_default=func.now())
 
+    __table_args__ = (
+        UniqueConstraint('post_id', 'user_id', name='uq_post_user'),
+    )
+
     @staticmethod
     def get_like_data(post_id):
         post_likes = db.session.execute(
@@ -187,19 +191,20 @@ class Like(db.Model):
         ]
 
     @staticmethod
-    def add_like(data, post_id):
-        name = data.get("name")
-        user_id = data.get("id")
+    def add_like(post_id, user_id):
+
+        user = db.session.execute(select(User).where(User.id==user_id)).scalar_one()
 
         post = db.session.execute(select(Post).where(Post.id == post_id)).scalar()
         if post is None:
             return {"error": "Post not found"}
 
-        like = Like(name=name, post_id=post_id, user_id=user_id)
+        like = Like(name=user.username, post_id=post_id, user_id=user_id)
         db.session.add(like)
 
         post.likes += 1
         db.session.commit()
+        print("Added likes")
         return {"message": f"Like from {user_id} added to post {post_id}"}
 
 class Relationship(db.Model):
