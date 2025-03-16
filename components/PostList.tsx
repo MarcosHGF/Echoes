@@ -7,8 +7,11 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import apiClient from "../app/(tabs)/utils/aptClient";
+import apiClient from "../app/utils/aptClient";
 import CommentCreationModal from "./CommentCreationModal";
+import { useNavigation } from "@react-navigation/native";
+import { navigate } from "expo-router/build/global-state/routing";
+import { Navigation } from "lucide-react";
 
 // Updated Post interface to include comments
 interface Post {
@@ -80,6 +83,8 @@ const PostList: React.FC = () => {
   const [activeCommentId, setActiveCommentId] = useState<number | undefined>(
     undefined
   );
+
+  const navigation = useNavigation();
 
   const fetchPosts = useCallback(async () => {
     try {
@@ -161,7 +166,10 @@ const PostList: React.FC = () => {
             {/* Post Header */}
             <View style={styles.postHeader}>
               <TouchableOpacity
-                onPress={() => console.log("Redirect to user profile")}
+                onPress={() => {
+                  navigation.setParams({ user: post.user });
+                  navigation.navigate("(tabs)/ProfilePage");
+                }}
                 style={styles.userInfo}
               >
                 <View style={styles.postAvatar} />

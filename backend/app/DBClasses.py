@@ -29,6 +29,7 @@ class User(db.Model):
         user = User(username=username, email=email, password=password)
         db.session.add(user)
         db.session.commit()
+        UserProfile.add_user_profile(user.id)
         return {"message": "User added successfully"}
     
     @staticmethod
@@ -47,6 +48,8 @@ class User(db.Model):
                 token_expiry=token_expiry,
                 state=state
                 )
+            
+            UserProfile.add_user_profile(user.id)
             
         except Exception as e:
             raise e
@@ -69,7 +72,6 @@ class UserProfile(db.Model):
 
     user_id = Column(Integer, ForeignKey('user.id'), primary_key=True, index=True)
     musics = Column(String(200))
-    spotify_client = Column(String(200), nullable=False, unique=True)
     pfp = Column(String(300))  # Profile picture URL
     tags = Column(String(300))
 
@@ -88,6 +90,13 @@ class UserProfile(db.Model):
             "pfp": profile.pfp,
             "musics": profile.musics,
         }
+    
+    @staticmethod
+    def add_user_profile(user_id):
+        profile = UserProfile(user_id=user_id)
+        db.session.add(profile)
+        db.session.commit()
+        return True
 
 class SpotifyCredential(db.Model):
     __tablename__ = 'spotify_credential'

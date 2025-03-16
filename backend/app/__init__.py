@@ -15,7 +15,7 @@ def create_app():
 
     # Configuração do banco de dados SQLite
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Evita warning desnecessário
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True  # Evita warning desnecessário
 
     # Configuração para PostgresSQL
     # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://usuario:senha@localhost:5433/nome_do_banco'

@@ -1,44 +1,169 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { View, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Text, Image, Dimensions } from "react-native"
-import { Feather } from "@expo/vector-icons"
-import BottomContainer from "../../components/BottomContainer"
-import { router } from "expo-router"
-import PostList from "@/components/PostList" // Import the PostList component
+import { useState, useEffect } from "react";
+import {
+  View,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  Text,
+  Image,
+  Dimensions,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
+import { Feather } from "@expo/vector-icons";
+import BottomContainer from "../../components/BottomContainer";
+import { router, useLocalSearchParams } from "expo-router";
+import PostList from "@/components/PostList";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import getAPI from "@/app/(tabs)/Ngrok";
+import apiClient from "../utils/aptClient";
 
-const { width, height } = Dimensions.get("window")
+// Define the profile data interface based on the backend response
+interface ProfileData {
+  id: number;
+  name: string;
+  username: string;
+  pfp: string | null;
+  musics: string[] | null;
+}
+
+const { width, height } = Dimensions.get("window");
 
 const ProfilePage = () => {
-  const playlists = [1, 2, 3, 4, 5] // Array for playlists
-  const stories = [1, 2, 3, 4, 5] // Array for stories
-  const [selectedPost, setSelectedPost] = useState<number | null>(null)
-  const [posts, setPosts] = useState<any[]>([]) // State to store fetched posts
-  const [loading, setLoading] = useState(false) // State to track loading state
-  const profileUserId = 1 // Example user ID for the profile
+  const params = useLocalSearchParams();
+  const username = (params.username as string) || null; // Get username from route params, or null if not provided
 
-  // Function to fetch posts when the "Follow" button is pressed
-  const fetchUserFollow = async () => {
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isOwnProfile, setIsOwnProfile] = useState(false);
+
+  const API_URL = getAPI();
+
+  // Fetch user profile data
+  const fetchUserProfile = async () => {
     try {
-      setLoading(true) // Start loading
-      const response = await fetch(`https://select-sheep-currently.ngrok-free.app/api/follow/2`,{  //user id do usuario atual
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({profileUserId}),// profile page que ira ser seguida
-    });
+      setLoading(true);
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch follow")
+      const token = await AsyncStorage.getItem("jwt_token");
+      if (!token) {
+        throw new Error("No authentication token found.");
       }
 
+      // If username is provided, fetch that specific user's profile
+      // If not, fetch the current user's profile
+      const endpoint = username
+        ? `${API_URL}/profile/${username}`
+        : `${API_URL}/profile/me`; // Assuming there's an endpoint for current user
+
+      const response = await apiClient.get(endpoint);
+
+      if (response.status != 200) {
+        const errorData = await response.data;
+        throw new Error(errorData.error || "Failed to fetch profile data");
+      }
+
+      const data = await response.data;
+      setProfileData(data);
+
+      // If no username was provided, or if the fetched username matches the current user,
+      // this is the user's own profile
+      setIsOwnProfile(
+        !username || data.username === (await AsyncStorage.getItem("username"))
+      );
+
+      // Only check follow status if it's not the user's own profile
+      if (!isOwnProfile) {
+        // Check if we're following this user (this would be a separate API call)
+        // checkFollowStatus(data.id);
+      }
     } catch (error) {
-      console.error("Error fetching posts:", error)
-      alert("An error occurred while fetching follow.")
+      console.error("Error fetching profile:", error);
+      setError(
+        error instanceof Error ? error.message : "An unexpected error occurred"
+      );
     } finally {
-      setLoading(false) // Stop loading
+      setLoading(false);
     }
+  };
+
+  // Toggle follow status
+  const toggleFollow = async () => {
+    if (!profileData || isOwnProfile) return;
+
+    try {
+      setLoading(true);
+
+      const token = await AsyncStorage.getItem("jwt_token");
+      if (!token) {
+        throw new Error("No authentication token found.");
+      }
+
+      const response = await fetch(`${API_URL}/follow`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ user_id: profileData.id }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update follow status");
+      }
+
+      // Toggle the follow status
+      setIsFollowing(!isFollowing);
+    } catch (error) {
+      console.error("Error updating follow status:", error);
+      Alert.alert(
+        "Error",
+        error instanceof Error ? error.message : "An unexpected error occurred"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Navigate to edit profile screen
+  const navigateToEditProfile = () => {
+    router.push("/EditProfilePage");
+  };
+
+  // Fetch profile data on component mount
+  useEffect(() => {
+    fetchUserProfile();
+  }, [username]);
+
+  if (loading && !profileData) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#00E5FF" />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Error: {error}</Text>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={fetchUserProfile}
+          >
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
   }
 
   return (
@@ -49,45 +174,105 @@ const ProfilePage = () => {
           <View style={styles.banner}></View>
           <View style={styles.profileSection}>
             <View style={styles.profilePictureContainer}>
-              <Image source={{ uri: "https://via.placeholder.com/84" }} style={styles.profilePicture} />
+              <Image
+                source={{
+                  uri: profileData?.pfp || "https://via.placeholder.com/84",
+                }}
+                style={styles.profilePicture}
+              />
             </View>
             <View style={styles.profileInfo}>
-              <Text style={styles.profileName}>Calcifer</Text>
-              <TouchableOpacity style={styles.currentlyPlayingContainer} onPress={() => console.log("List song")}>
-                <Text style={styles.currentlyPlaying}>Currently playing: Song Name</Text>
-                <Feather name="chevron-right" size={16} color="#00E5FF" style={styles.listButton} />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.followbutton} onPress={fetchUserFollow}>
-                <Text style={{ color: "#000", fontWeight: "bold" }}>Follow</Text>
-              </TouchableOpacity>
+              <Text style={styles.profileName}>
+                {profileData?.name || "Loading..."}
+              </Text>
+              <Text style={styles.username}>
+                @{profileData?.username || "username"}
+              </Text>
+
+              {profileData?.musics && profileData.musics.length > 0 && (
+                <TouchableOpacity
+                  style={styles.currentlyPlayingContainer}
+                  onPress={() => console.log("List song")}
+                >
+                  <Text style={styles.currentlyPlaying}>
+                    Currently playing: {profileData.musics[0]}
+                  </Text>
+                  <Feather
+                    name="chevron-right"
+                    size={16}
+                    color="#00E5FF"
+                    style={styles.listButton}
+                  />
+                </TouchableOpacity>
+              )}
+
+              {isOwnProfile ? (
+                // Edit Profile button for own profile
+                <TouchableOpacity
+                  style={styles.editProfileButton}
+                  onPress={navigateToEditProfile}
+                >
+                  <Text style={styles.editProfileButtonText}>Edit Profile</Text>
+                </TouchableOpacity>
+              ) : (
+                // Follow/Following button for other profiles
+                <TouchableOpacity
+                  style={[
+                    styles.followButton,
+                    isFollowing && styles.followingButton,
+                  ]}
+                  onPress={toggleFollow}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <ActivityIndicator
+                      size="small"
+                      color={isFollowing ? "#00E5FF" : "#000"}
+                    />
+                  ) : (
+                    <Text
+                      style={[
+                        styles.followButtonText,
+                        isFollowing && styles.followingButtonText,
+                      ]}
+                    >
+                      {isFollowing ? "Following" : "Follow"}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              )}
             </View>
           </View>
         </View>
 
         {/* User Description */}
         <View style={styles.section}>
-          <Text style={styles.userDescription}>Music enthusiast | Playlist curator | Always exploring new sounds</Text>
+          <Text style={styles.userDescription}>
+            Music enthusiast | Playlist curator | Always exploring new sounds
+          </Text>
         </View>
 
         {/* Favorite Music Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Favorite Music</Text>
-          <View style={styles.favoriteMusicContainer}>
-            {[1, 2, 3].map((_, index) => (
-              <View key={index} style={styles.favoriteMusicItem}>
-                <View style={styles.favoriteMusicCover}></View>
-                <Text style={styles.favoriteMusicTitle}>Top Song {index + 1}</Text>
-                <Text style={styles.favoriteMusicArtist}>Artist {index + 1}</Text>
-              </View>
-            ))}
+        {profileData?.musics && profileData.musics.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Favorite Music</Text>
+            <View style={styles.favoriteMusicContainer}>
+              {profileData.musics.slice(0, 3).map((music, index) => (
+                <View key={index} style={styles.favoriteMusicItem}>
+                  <View style={styles.favoriteMusicCover}></View>
+                  <Text style={styles.favoriteMusicTitle}>{music}</Text>
+                  <Text style={styles.favoriteMusicArtist}>Artist</Text>
+                </View>
+              ))}
+            </View>
           </View>
-        </View>
+        )}
 
         {/* Playlists Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>My Playlists</Text>
           <View style={styles.playlistsContainer}>
-            {playlists.map((_, index) => (
+            {[1, 2, 3, 4, 5].map((_, index) => (
               <View key={index} style={styles.playlistItem}>
                 <View style={styles.playlistCover}></View>
                 <Text style={styles.playlistTitle}>Playlist {index + 1}</Text>
@@ -100,14 +285,17 @@ const ProfilePage = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Stories</Text>
           <View style={styles.storiesContainer}>
-            {stories.map((_, index) => (
+            {[1, 2, 3, 4, 5].map((_, index) => (
               <TouchableOpacity
                 key={index}
                 style={styles.storyItem}
                 onPress={() =>
                   router.push({
                     pathname: "/StoriesPage",
-                    params: { initialStoryId: index + 1, userId: "Calcifer" },
+                    params: {
+                      initialStoryId: index + 1,
+                      userId: profileData?.username || "user",
+                    },
                   })
                 }
               >
@@ -123,8 +311,7 @@ const ProfilePage = () => {
         {/* Tweets Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Recent Tweets</Text>
-          {/* Use the PostList component here */}
-          <PostList userId={profileUserId} />
+          {profileData && <PostList userId={profileData.id} />}
         </View>
 
         {/* Bottom Padding for Content */}
@@ -134,8 +321,8 @@ const ProfilePage = () => {
       {/* Bottom Fixed Container */}
       <BottomContainer />
     </SafeAreaView>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -170,6 +357,7 @@ const styles = StyleSheet.create({
     width: 84,
     height: 84,
     borderRadius: 42,
+    backgroundColor: "#2A2A2A", // Placeholder color while loading
   },
   profileInfo: {
     marginLeft: 15,
@@ -178,6 +366,10 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 24,
     fontWeight: "bold",
+  },
+  username: {
+    color: "#999",
+    fontSize: 14,
   },
   currentlyPlayingContainer: {
     flexDirection: "row",
@@ -233,6 +425,8 @@ const styles = StyleSheet.create({
   },
   playlistsContainer: {
     flexDirection: "row",
+    flexWrap: "nowrap",
+    overflow: "scroll",
   },
   playlistItem: {
     marginRight: 15,
@@ -251,6 +445,8 @@ const styles = StyleSheet.create({
   },
   storiesContainer: {
     flexDirection: "row",
+    flexWrap: "nowrap",
+    overflow: "scroll",
   },
   storyItem: {
     marginRight: 15,
@@ -275,92 +471,72 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 5,
   },
-  post: {
-    backgroundColor: "#1A1A1A",
-    marginBottom: 20,
-    borderRadius: 8,
-    padding: 15,
-  },
-  postHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 10,
-  },
-  userInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  postAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#2A2A2A",
-    marginRight: 10,
-  },
-  postUsername: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  postTime: {
-    color: "#999",
-    fontSize: 12,
-  },
-  postContent: {
-    color: "#fff",
-    marginBottom: 10,
-  },
-  postActions: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  postAction: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  postActionText: {
-    color: "#fff",
-    marginLeft: 5,
-  },
-  ellipsisButton: {
-    padding: 5,
-  },
-  optionsMenu: {
-    position: "absolute",
-    top: 40,
-    right: 10,
-    backgroundColor: "#2A2A2A",
-    borderRadius: 8,
-    padding: 10,
-    zIndex: 1,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  optionItem: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  optionText: {
-    color: "#fff",
-    fontSize: 14,
-  },
-  bottomPadding: {
-    height: 140,
-  },
-  followbutton:{
+  followButton: {
     backgroundColor: "#00E5FF",
     paddingHorizontal: 20,
     paddingVertical: 8,
     borderRadius: 20,
     marginTop: 10,
-    width: 85,
+    minWidth: 85,
+    alignItems: "center",
   },
-})
+  followButtonText: {
+    color: "#000",
+    fontWeight: "bold",
+  },
+  followingButton: {
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: "#00E5FF",
+  },
+  followingButtonText: {
+    color: "#00E5FF",
+  },
+  editProfileButton: {
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: "#00E5FF",
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginTop: 10,
+    minWidth: 100,
+    alignItems: "center",
+  },
+  editProfileButtonText: {
+    color: "#00E5FF",
+    fontWeight: "bold",
+  },
+  bottomPadding: {
+    height: 140,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  errorText: {
+    color: "#f85149",
+    fontSize: 16,
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  retryButton: {
+    backgroundColor: "#00E5FF",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  retryButtonText: {
+    color: "#000",
+    fontWeight: "bold",
+  },
+});
 
-export default ProfilePage
+export default ProfilePage;

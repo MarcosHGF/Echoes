@@ -14,7 +14,7 @@ import BottomContainer from "../../components/BottomContainer";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import PostList from "@/components/PostList"; // Import the PostList component
-import apiClient from "./utils/aptClient";
+import apiClient from "../utils/aptClient";
 import FloatingActionButton from "@/components/CreatePostButton";
 
 const MainPage = () => {

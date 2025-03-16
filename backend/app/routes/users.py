@@ -28,13 +28,17 @@ def handle_users(user_id):
 @profile_bp.route("/api/profile/<username>", methods=["GET", "PATCH"])
 @jwt_required
 def handle_profile(username):
-    user = db.session.execute(select(User).where(User.username == username)).scalar()
+    user = None
+    if username != "me":
+        user = db.session.execute(select(User).where(User.username == username)).scalar()
+        if not user:
+            return jsonify({"error": "User not found"}), 404
 
-    if not user:
-        return jsonify({"error": "User not found"}), 404
+    
 
     if request.method == "GET":
-        profile_data = UserProfile.get_user_profile(user_id=user.id)
+        profile_data = UserProfile.get_user_profile(user_id=user.id if user else request.user_id)
+        print(profile_data)
         return jsonify(profile_data)
 
     elif request.method == "PATCH":
