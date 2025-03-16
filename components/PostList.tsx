@@ -7,31 +7,83 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import apiClient from "../app/(tabs)/utils/aptClient"; // Correct import path
+import apiClient from "../app/(tabs)/utils/aptClient";
+import CommentCreationModal from "./CommentCreationModal";
 
-// Define the shape of a Post object
+// Updated Post interface to include comments
 interface Post {
   id: number;
   user_id: number;
   user: string;
-  date: string; // ISO date string
+  date: string;
   completed: boolean;
   content: string;
   likes: number;
   tags_id: number | null;
+  comments?: Post[]; // Added comments array
 }
 
+// Comment Thread component for nested comments
+const CommentThread: React.FC<{
+  comments: Post[];
+  onReply: (postId: number, commentId?: number) => void;
+}> = ({ comments, onReply }) => {
+  return (
+    <View style={styles.commentContainer}>
+      {comments.map((comment) => (
+        <View key={comment.id} style={styles.comment}>
+          <View style={styles.commentHeader}>
+            <View style={styles.commentUserInfo}>
+              <View style={styles.commentAvatar} />
+              <Text style={styles.commentUser}>{comment.user}</Text>
+            </View>
+            <Text style={styles.commentTime}>
+              {new Date(comment.date).toLocaleDateString()}
+            </Text>
+          </View>
+          <Text style={styles.commentContent}>{comment.content}</Text>
+
+          <View style={styles.commentActions}>
+            <TouchableOpacity style={styles.commentAction}>
+              <Feather name="heart" size={14} color="#fff" />
+              <Text style={styles.commentActionText}>
+                {comment.likes} Likes
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.commentAction}
+              onPress={() => onReply(comment.id, comment.id)}
+            >
+              <Feather name="message-circle" size={14} color="#fff" />
+              <Text style={styles.commentActionText}>Reply</Text>
+            </TouchableOpacity>
+          </View>
+
+          {comment.comments && comment.comments.length > 0 && (
+            <CommentThread comments={comment.comments} onReply={onReply} />
+          )}
+        </View>
+      ))}
+    </View>
+  );
+};
+
 const PostList: React.FC = () => {
-  // No props needed
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPost, setSelectedPost] = useState<number | null>(null);
+  const [commentModalVisible, setCommentModalVisible] = useState(false);
+  const [activePostId, setActivePostId] = useState<number | undefined>(
+    undefined
+  );
+  const [activeCommentId, setActiveCommentId] = useState<number | undefined>(
+    undefined
+  );
 
-  // Fetch posts using the centralized Axios instance
   const fetchPosts = useCallback(async () => {
     try {
-      const response = await apiClient.get("/api/getAllPosts"); // Simplified URL
+      const response = await apiClient.get("/api/getAllPosts");
       const data: Post[] = response.data;
 
       if (!Array.isArray(data)) {
@@ -57,14 +109,30 @@ const PostList: React.FC = () => {
   };
 
   const handleLike = async (postID: number) => {
-    const response = await apiClient.post(`/api/likes/${postID}`); // Simplified URL
+    const response = await apiClient.post(`/api/likes/${postID}`);
     if (response.status != 200) {
       console.log("Failed like");
       return;
     }
   };
 
-  // Fetch posts on mount
+  const handleCommentPress = (postId: number) => {
+    setActivePostId(postId);
+    setActiveCommentId(undefined);
+    setCommentModalVisible(true);
+  };
+
+  const handleReplyPress = (postId: number, commentId?: number) => {
+    setActivePostId(postId);
+    setActiveCommentId(commentId);
+    setCommentModalVisible(true);
+  };
+
+  const handleCommentAdded = () => {
+    // Refresh posts to show the new comment
+    fetchPosts();
+  };
+
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
@@ -80,7 +148,7 @@ const PostList: React.FC = () => {
   if (error) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Error: {error}</Text>
+        <Text>Error: {error}</Text>
       </View>
     );
   }
@@ -124,7 +192,10 @@ const PostList: React.FC = () => {
                 <Feather name="heart" size={20} color="#fff" />
                 <Text style={styles.postActionText}>{post.likes} Likes</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.postAction}>
+              <TouchableOpacity
+                style={styles.postAction}
+                onPress={() => handleCommentPress(post.id)}
+              >
                 <Feather name="message-circle" size={20} color="#fff" />
                 <Text style={styles.postActionText}>Comment</Text>
               </TouchableOpacity>
@@ -133,6 +204,14 @@ const PostList: React.FC = () => {
                 <Text style={styles.postActionText}>Share</Text>
               </TouchableOpacity>
             </View>
+
+            {/* Nested Comments */}
+            {post.comments && post.comments.length > 0 && (
+              <CommentThread
+                comments={post.comments}
+                onReply={(commentId) => handleReplyPress(post.id, commentId)}
+              />
+            )}
 
             {/* Options Menu */}
             {selectedPost === index && (
@@ -162,6 +241,15 @@ const PostList: React.FC = () => {
       ) : (
         <Text style={styles.noPostsText}>No posts available.</Text>
       )}
+
+      {/* Comment Modal */}
+      <CommentCreationModal
+        visible={commentModalVisible}
+        onClose={() => setCommentModalVisible(false)}
+        postId={activePostId}
+        parentCommentId={activeCommentId}
+        onCommentAdded={handleCommentAdded}
+      />
     </View>
   );
 };
@@ -255,6 +343,62 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 14,
   },
+  // Comment styles
+  commentContainer: {
+    marginLeft: 20,
+    borderLeftWidth: 2,
+    borderLeftColor: "#444",
+    paddingLeft: 10,
+    marginTop: 10,
+  },
+  comment: {
+    backgroundColor: "#252525",
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 8,
+  },
+  commentHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 5,
+    alignItems: "center",
+  },
+  commentUserInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  commentAvatar: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "#2A2A2A",
+    marginRight: 8,
+  },
+  commentUser: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  commentTime: {
+    color: "#888",
+    fontSize: 12,
+  },
+  commentContent: {
+    color: "#fff",
+  },
+  commentActions: {
+    flexDirection: "row",
+    marginTop: 5,
+  },
+  commentAction: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 10,
+  },
+  commentActionText: {
+    color: "#fff",
+    marginLeft: 5,
+    fontSize: 12,
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
@@ -265,17 +409,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-  },
-  errorText: {
-    color: "#f85149",
-    fontSize: 16,
-    textAlign: "center",
-  },
-  noPostsText: {
-    color: "#fff",
-    fontSize: 16,
-    textAlign: "center",
-    marginTop: 20,
   },
 });
 

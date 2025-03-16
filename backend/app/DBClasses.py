@@ -133,32 +133,62 @@ class Post(db.Model):
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False, index=True)
     name = Column(String(200), nullable=False)
     content = Column(String(250), nullable=False)
+    parent_id = Column(Integer, ForeignKey('post.id'), nullable=True)  # Self-reference for comments
     likes = Column(Integer, default=0)
     date_created = Column(DateTime, server_default=func.now())
 
     user = relationship("User", back_populates="posts")
+    parent = relationship("Post", remote_side=[id], back_populates="comments")  # Parent post
+    comments = relationship("Post", back_populates="parent", cascade="all, delete-orphan")  # Child comments
 
     @staticmethod
-    def add_post(data, user_id):
-        user = db.session.execute(select(User).where(User.id==user_id)).scalar()
-        post = Post(user_id=user.id, content=data.get("content"), name=user.username)
-        db.session.add(post)
-        db.session.commit()
-        return {"message": "Post added"}
+    def add_post(data, user_id, parent_id=None):
+        try:
+            print("in main try")
+            """Adds a new post or comment (if parent_id is provided)."""
+            user = db.session.execute(select(User).where(User.id == user_id)).scalar()
+            if not user:
+                return {"error": "User not found"}
+
+            post = Post(user_id=user.id, content=data.get("content"), name=user.username, parent_id=parent_id)
+            db.session.add(post)
+            db.session.commit()
+            print("added", data.get("content"), "in user", user.username )
+            return {"message": "Post added", "post_id": post.id}
+        except Exception as error:
+            print(error)
+            return(error)
 
     @staticmethod
-    def get_post(post_id):
+    def add_comment(post_id, user_id, content):
+        """Adds a comment to an existing post."""
         post = db.session.execute(select(Post).where(Post.id == post_id)).scalar()
         if not post:
             return {"error": "Post not found"}
+
+        return Post.add_post({"content": content}, user_id, parent_id=post_id)
+
+    @staticmethod
+    def get_post(post_id):
+        """Retrieves a post with its comments."""
+        post = db.session.execute(select(Post).where(Post.id == post_id)).scalar()
+        if not post:
+            return {"error": "Post not found"}
+
+        comments = [
+            {"id": c.id, "user_id": c.user_id, "content": c.content, "date_created": c.date_created.isoformat()}
+            for c in post.comments
+        ]
 
         return {
             "id": post.id,
             "name": post.name,
             "content": post.content,
             "likes": post.likes,
+            "comments": comments,
             "date_created": post.date_created.isoformat() if post.date_created else None
         }
+
 
 class Like(db.Model):
     __tablename__ = 'like'

@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 from app.utils import jwt_required
 from app.DBClasses import Post, Relationship, db
 
@@ -14,9 +15,13 @@ getAllPosts_bp = Blueprint("getAllPosts", __name__)
 @jwt_required
 def handle_posts(post_id):
     data = request.get_json()
+    parent_id = data.get("parent_id") if "parent_id" in data else None
 
+    print("in main body")
     if request.method == "POST":
-        result = Post.add_post(data, request.user_id)
+        print("in main if")
+
+        result = Post.add_post(data, request.user_id, parent_id=parent_id)
         return jsonify(result)
 
     post_data = Post.get_post(post_id=post_id)
@@ -75,14 +80,22 @@ def get_posts_from_followed_users():
 @getAllPosts_bp.route("/api/getAllPosts", methods=["GET"])
 @jwt_required
 def getAllPosts():
-    posts = db.session.execute(select(Post)).scalars().all()
+    posts = db.session.execute(
+        select(Post)
+        .options(joinedload(Post.comments))  # Optimize query to load comments in one go
+    ).scalars().unique().all()
 
-    return jsonify([
-        {
-            "id": post.id,
-            "user": post.name,
-            "date": post.date_created.isoformat(),
-            "content": post.content,
-            "likes": post.likes,
-        } for post in posts
-    ])
+    print([serialize_post(post) for post in posts])
+
+    return jsonify([serialize_post(post) for post in posts])
+
+def serialize_post(post):
+    """Recursively serialize a post with all its nested comments"""
+    return {
+        "id": post.id,
+        "user": post.name,
+        "date": post.date_created.isoformat(),
+        "content": post.content,
+        "likes": post.likes,
+        "comments": [serialize_post(comment) for comment in post.comments]  # Recursive call
+    }
