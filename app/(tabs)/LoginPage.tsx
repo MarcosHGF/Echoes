@@ -46,8 +46,10 @@ async function checkAuthStatus(state: string, router: Router) {
           await AsyncStorage.multiSet([
             ["access_token", data.token],
             ["refresh_token", data.refresh_token],
-            ["user_id", data.user_id],
+            ["user_id", data.user_id.toString()],
           ]);
+
+          console.log("Creds", AsyncStorage.getAllKeys());
         } catch (error) {
           console.log(error);
         }

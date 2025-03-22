@@ -93,6 +93,9 @@ class UserProfile(db.Model):
     
     @staticmethod
     def add_user_profile(user_id):
+        profile = db.session.execute(select(UserProfile).where(UserWarning.id==user_id))
+        if profile != None:
+            return true
         profile = UserProfile(user_id=user_id)
         db.session.add(profile)
         db.session.commit()
