@@ -10,11 +10,9 @@ add_follower_bp = Blueprint("add_follower_bp", __name__)
 get_following_bp = Blueprint("get_followin_bp", __name__)
 get_follower_bp = Blueprint("get_follower_bp", __name__)
 
-@add_follower_bp.route("/api/follow", methods=["POST"])
+@add_follower_bp.route("/api/follow/<profile_user_id>", methods=["POST"])
 @jwt_required
-def follow_user():
-    data = request.get_json()
-    profile_user_id = data.get("profileUserId")
+def follow_user(profile_user_id):
     user_id = request.user_id
 
     if not profile_user_id:

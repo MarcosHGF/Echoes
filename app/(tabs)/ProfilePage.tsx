@@ -49,11 +49,6 @@ const ProfilePage = () => {
     try {
       setLoading(true);
 
-      const token = await AsyncStorage.getItem("jwt_token");
-      if (!token) {
-        throw new Error("No authentication token found.");
-      }
-
       // If username is provided, fetch that specific user's profile
       // If not, fetch the current user's profile
       const endpoint = username
@@ -98,22 +93,9 @@ const ProfilePage = () => {
     try {
       setLoading(true);
 
-      const token = await AsyncStorage.getItem("jwt_token");
-      if (!token) {
-        throw new Error("No authentication token found.");
-      }
+      const response = await apiClient.get(`/api/follow/${profileData.id}`);
 
-      const response = await fetch(`${API_URL}/follow`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ user_id: profileData.id }),
-      });
-
-      if (!response.ok) {
+      if (response.status != 200) {
         throw new Error("Failed to update follow status");
       }
 
