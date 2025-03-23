@@ -167,8 +167,9 @@ const PostList: React.FC = () => {
             <View style={styles.postHeader}>
               <TouchableOpacity
                 onPress={() => {
-                  navigation.setParams({ user: post.user });
-                  navigation.navigate("(tabs)/ProfilePage");
+                  navigation.navigate("(tabs)/ProfilePage", {
+                    user: post.user,
+                  });
                 }}
                 style={styles.userInfo}
               >

@@ -34,7 +34,8 @@ const { width, height } = Dimensions.get("window");
 
 const ProfilePage = () => {
   const params = useLocalSearchParams();
-  const username = (params.username as string) || null; // Get username from route params, or null if not provided
+  console.log(params);
+  const username = (params.user as string) || null; // Get username from route params, or null if not provided
 
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,9 +52,7 @@ const ProfilePage = () => {
 
       // If username is provided, fetch that specific user's profile
       // If not, fetch the current user's profile
-      const endpoint = username
-        ? `${API_URL}/profile/${username}`
-        : `${API_URL}/profile/me`; // Assuming there's an endpoint for current user
+      const endpoint = `${API_URL}/profile/${username}`;
 
       const response = await apiClient.get(endpoint);
 
@@ -64,12 +63,6 @@ const ProfilePage = () => {
 
       const data = await response.data;
       setProfileData(data);
-
-      // If no username was provided, or if the fetched username matches the current user,
-      // this is the user's own profile
-      setIsOwnProfile(
-        !username || data.username === (await AsyncStorage.getItem("username"))
-      );
 
       // Only check follow status if it's not the user's own profile
       if (!isOwnProfile) {

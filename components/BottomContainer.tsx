@@ -51,8 +51,9 @@ const BottomContainer = memo(() => {
           navigation.navigate("(tabs)/MakePage");
           break;
         case "Profile":
-          navigation.setParams({ user: "me" });
-          navigation.navigate("(tabs)/ProfilePage");
+          navigation.navigate("(tabs)/ProfilePage", {
+            user: "me",
+          });
           break;
         case "Friends":
           navigation.navigate("(tabs)/FriendsPage");
