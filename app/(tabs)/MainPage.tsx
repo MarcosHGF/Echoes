@@ -118,11 +118,12 @@ const MainPage = () => {
           <ScrollView>
             <PostList />
           </ScrollView>
+          <View style={styles.bottomPadding}></View>
         </ScrollView>
 
         <FloatingActionButton />
+        <BottomContainer />
       </SafeAreaView>
-      <BottomContainer />
     </>
   );
 };
@@ -290,6 +291,9 @@ const styles = StyleSheet.create({
   optionText: {
     color: "#fff",
     fontSize: 14,
+  },
+  bottomPadding: {
+    height: 140,
   },
 });
 
