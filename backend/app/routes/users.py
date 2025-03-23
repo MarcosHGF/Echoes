@@ -31,7 +31,7 @@ def handle_profile(username):
     if username != "me":
         user = db.session.execute(select(User).where(User.username == username)).scalar()
         if not user:
-            return jsonify({"error": "User not found"}), 404
+            return jsonify({"error": f"User not found {username}"}), 404
 
     
 

@@ -81,7 +81,7 @@ class UserProfile(db.Model):
     def get_user_profile(user_id):
         profile = db.session.execute(select(UserProfile).where(UserProfile.user_id == user_id)).scalar()
         if not profile:
-            return {"error": "User profile not found"}
+            return {"error": f"User profile not found {user_id}"}
 
         return {
             "id": profile.user_id,
@@ -93,9 +93,9 @@ class UserProfile(db.Model):
     
     @staticmethod
     def add_user_profile(user_id):
-        profile = db.session.execute(select(UserProfile).where(UserWarning.id==user_id))
+        profile = db.session.execute(select(UserProfile).where(UserProfile.id==user_id))
         if profile != None:
-            return true
+            return True
         profile = UserProfile(user_id=user_id)
         db.session.add(profile)
         db.session.commit()
