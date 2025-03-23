@@ -9,7 +9,6 @@ profile_bp = Blueprint("profile", __name__)
 
 # Users Route
 @users_bp.route("/api/users/<user_id>", methods=["GET", "POST"])
-@jwt_required
 def handle_users(user_id):
     if request.method == 'GET':
         user_data = User.get_user_data(user_id=user_id)
