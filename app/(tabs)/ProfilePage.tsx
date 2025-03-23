@@ -54,6 +54,10 @@ const ProfilePage = () => {
       // If not, fetch the current user's profile
       const endpoint = `${API_URL}/profile/${username}`;
 
+      if (username == "me") {
+        setIsOwnProfile(true);
+      }
+
       const response = await apiClient.get(endpoint);
 
       if (response.status != 200) {

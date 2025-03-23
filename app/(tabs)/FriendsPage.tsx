@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -12,43 +12,43 @@ import {
   Platform,
   ActivityIndicator,
   RefreshControl,
-} from "react-native"
-import { StatusBar } from "expo-status-bar"
-import { Feather } from "@expo-vector-icons"
-import { router } from "expo-router"
-import apiClient from "../utils/aptClient"
-import FriendItem from "../../components/FriendItem"
-import getAPI from "./Ngrok"
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { Feather } from "@expo/vector-icons";
+import { router } from "expo-router";
+import apiClient from "../utils/aptClient";
+import FriendItem from "../../components/FriendItem";
+import getAPI from "./Ngrok";
 
 interface Friend {
-  user_id: number
-  name: string
-  pfp: string
-  musics?: string
-  spotify_client?: string
-  tags?: string
+  user_id: number;
+  name: string;
+  pfp: string;
+  musics?: string;
+  spotify_client?: string;
+  tags?: string;
   currentSong?: {
-    name: string
-    artist: string
-  }
-  listeningSince?: string
+    name: string;
+    artist: string;
+  };
+  listeningSince?: string;
 }
 
-const API_URL = getAPI()
+const API_URL = getAPI();
 
 const FriendsPage = () => {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [friends, setFriends] = useState<Friend[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [refreshing, setRefreshing] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchFriends = useCallback(async () => {
     try {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
-      const response = await apiClient.get(API_URL + "/followers")
+      const response = await apiClient.get(API_URL + "/followers");
 
       if (response.status === 200) {
         // Process the data to match our Friend interface
@@ -66,29 +66,29 @@ const FriendsPage = () => {
               }
             : undefined,
           listeningSince: friend.listening_since || undefined,
-        }))
+        }));
 
-        setFriends(friendsData)
+        setFriends(friendsData);
       } else {
-        setError("Failed to fetch friends")
+        setError("Failed to fetch friends");
       }
     } catch (err) {
-      console.error("Error fetching friends:", err)
-      setError("An error occurred while fetching friends")
+      console.error("Error fetching friends:", err);
+      setError("An error occurred while fetching friends");
     } finally {
-      setIsLoading(false)
-      setRefreshing(false)
+      setIsLoading(false);
+      setRefreshing(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    fetchFriends()
-  }, [fetchFriends])
+    fetchFriends();
+  }, [fetchFriends]);
 
   const onRefresh = useCallback(() => {
-    setRefreshing(true)
-    fetchFriends()
-  }, [fetchFriends])
+    setRefreshing(true);
+    fetchFriends();
+  }, [fetchFriends]);
 
   const handleReactToFriend = async (userId: number, reacted: boolean) => {
     try {
@@ -96,31 +96,35 @@ const FriendsPage = () => {
       await apiClient.post("/react-to-music", {
         user_id: userId,
         reacted,
-      })
+      });
 
       // You could update the local state here if needed
-      return true
+      return true;
     } catch (error) {
-      console.error("Error reacting to friend:", error)
-      throw error
+      console.error("Error reacting to friend:", error);
+      throw error;
     }
-  }
+  };
 
   const handleMessageFriend = (userId: number) => {
     // Navigate to chat or implement messaging functionality
-    console.log(`Opening chat with user ${userId}`)
+    console.log(`Opening chat with user ${userId}`);
     // router.navigate(`/chat/${userId}`);
-  }
+  };
 
   const filteredFriends = searchQuery
     ? friends.filter(
         (friend) =>
           friend.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          friend.currentSong?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          friend.currentSong?.artist.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          friend.tags?.toLowerCase().includes(searchQuery.toLowerCase()),
+          friend.currentSong?.name
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          friend.currentSong?.artist
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          friend.tags?.toLowerCase().includes(searchQuery.toLowerCase())
       )
-    : friends
+    : friends;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -139,7 +143,12 @@ const FriendsPage = () => {
 
       {/* Search Bar */}
       <View style={styles.searchContainer}>
-        <Feather name="search" size={20} color="#999" style={styles.searchIcon} />
+        <Feather
+          name="search"
+          size={20}
+          color="#999"
+          style={styles.searchIcon}
+        />
         <TextInput
           style={styles.searchInput}
           placeholder="Search friends or songs"
@@ -152,13 +161,19 @@ const FriendsPage = () => {
       {/* Toggle Buttons */}
       <View style={styles.toggleContainer}>
         <TouchableOpacity
-          style={[styles.toggleButton, searchQuery === "" && styles.activeToggle]}
+          style={[
+            styles.toggleButton,
+            searchQuery === "" && styles.activeToggle,
+          ]}
           onPress={() => setSearchQuery("")}
         >
           <Text style={styles.toggleText}>Followers</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.toggleButton, searchQuery === "" && styles.inactiveToggle]}
+          style={[
+            styles.toggleButton,
+            searchQuery === "" && styles.inactiveToggle,
+          ]}
           onPress={() => setSearchQuery("")}
         >
           <Text style={styles.toggleText}>Following</Text>
@@ -183,7 +198,12 @@ const FriendsPage = () => {
         <ScrollView
           style={styles.content}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#00E5FF"]} tintColor="#00E5FF" />
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={["#00E5FF"]}
+              tintColor="#00E5FF"
+            />
           }
         >
           {/* Friends List */}
@@ -202,7 +222,9 @@ const FriendsPage = () => {
                 <Feather name="users" size={50} color="#999" />
                 <Text style={styles.emptyStateText}>No friends found</Text>
                 <Text style={styles.emptyStateSubtext}>
-                  {searchQuery ? "Try a different search term" : "Add some friends to see their activity"}
+                  {searchQuery
+                    ? "Try a different search term"
+                    : "Add some friends to see their activity"}
                 </Text>
               </View>
             )}
@@ -212,8 +234,8 @@ const FriendsPage = () => {
         </ScrollView>
       )}
     </SafeAreaView>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -330,7 +352,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
   },
-})
+});
 
-export default FriendsPage
-
+export default FriendsPage;
