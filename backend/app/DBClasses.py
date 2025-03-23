@@ -1,6 +1,6 @@
 from app.extensions import db
-from sqlalchemy import CheckConstraint, UniqueConstraint, select, Column, Integer, String, ForeignKey, DateTime, func
-from sqlalchemy.orm import relationship
+from sqlalchemy import CheckConstraint, UniqueConstraint, select, Column, Integer, String, ForeignKey, DateTime, func, event
+from sqlalchemy.orm import relationship, Session
 from werkzeug.security import generate_password_hash
 from app.utils import encrypt_data
 
@@ -16,7 +16,7 @@ class User(db.Model):
     date_created = Column(DateTime, server_default=func.now())
 
     # Relationships
-    profile = relationship("UserProfile", uselist=False, back_populates="user")
+    profile = relationship("UserProfile", uselist=False, back_populates="user", cascade="all, delete-orphan")
     posts = relationship("Post", back_populates="user")
     spotify_credential = relationship("SpotifyCredential", uselist=False, back_populates="user")
 
@@ -77,6 +77,8 @@ class UserProfile(db.Model):
 
     user = relationship("User", back_populates="profile")
 
+    
+
     @staticmethod
     def get_user_profile(user_id):
         profile = db.session.execute(select(UserProfile).where(UserProfile.user_id == user_id)).scalar()
@@ -91,15 +93,6 @@ class UserProfile(db.Model):
             "musics": profile.musics,
         }
     
-    @staticmethod
-    def add_user_profile(user_id):
-        profile = db.session.execute(select(UserProfile).where(UserProfile.id==user_id))
-        if profile != None:
-            return True
-        profile = UserProfile(user_id=user_id)
-        db.session.add(profile)
-        db.session.commit()
-        return True
 
 class SpotifyCredential(db.Model):
     __tablename__ = 'spotify_credential'
@@ -360,3 +353,11 @@ class Album(db.Model):
         db.session.add(album)
         db.session.commit()
         return {"message": "Album added"}
+
+# ✅ Automatically create UserProfile when a User is inserted
+@event.listens_for(Session, "after_flush")
+def create_user_profile(session, flush_context):
+    for instance in session.new:
+        if isinstance(instance, User):
+            if not instance.profile:  # Ensure profile doesn't exist
+                session.add(UserProfile(user_id=instance.id))
