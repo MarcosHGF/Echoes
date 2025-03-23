@@ -14,7 +14,7 @@ import {
   RefreshControl,
 } from "react-native"
 import { StatusBar } from "expo-status-bar"
-import { Feather } from "@expo-vector-icons"
+import { Feather } from "@expo/vector-icons"
 import { router } from "expo-router"
 import apiClient from "../utils/aptClient"
 import FriendItem from "../../components/FriendItem"

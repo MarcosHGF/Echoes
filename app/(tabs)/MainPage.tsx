@@ -11,38 +11,24 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { Feather } from "@expo/vector-icons";
 import BottomContainer from "../../components/BottomContainer";
-import { router } from "expo-router";
+import { router, useNavigation, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import PostList from "@/components/PostList"; // Import the PostList component
 import apiClient from "../utils/aptClient";
 import FloatingActionButton from "@/components/CreatePostButton";
+import { useRoute } from "@react-navigation/native";
 
 const MainPage = () => {
   const stories = [1, 2, 3, 4, 5]; // Array for stories
   const songs = [1, 2, 3, 4]; // Array for song blocks
-  const [posts, setPosts] = useState([]);
-  const tabItems = [
-    { icon: "home", label: "Home" },
-    { icon: "search", label: "Search" },
-    { icon: "heart", label: "Favorites" },
-    { icon: "user", label: "Profile" },
-  ];
 
   const [selectedPost, setSelectedPost] = useState<number | null>(null);
-
-  const handleEllipsisPress = (index: number) => {
-    setSelectedPost(selectedPost === index ? null : index);
-  };
-
-  const handleOptionSelect = (option: string) => {
-    // Handle the selected option here
-    console.log(`Selected option: ${option}`);
-    setSelectedPost(null);
-  };
 
   const handleUserRedirect = async () => {
     router.navigate("/ProfilePage");
   };
+
+  const navigation = useNavigation ();
 
   return (
     <>
@@ -59,7 +45,7 @@ const MainPage = () => {
             <TouchableOpacity style={styles.iconButton}>
               <Feather name="bell" size={24} color="#fff" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconButton}>
+            <TouchableOpacity style={styles.iconButton} onPress={() => { navigation.navigate("(tabs)/SettingsPage")}}>
               <Feather name="settings" size={24} color="#fff" />
             </TouchableOpacity>
           </View>
