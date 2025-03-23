@@ -47,7 +47,7 @@ const PostCreationModal: React.FC<PostCreationModalProps> = ({
 
     console.log(content);
     try {
-      const token = await AsyncStorage.getItem("jwt_token");
+      const token = await AsyncStorage.getItem("access_token");
       if (!token) {
         throw new Error("No authentication token found.");
       }
